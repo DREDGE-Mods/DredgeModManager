@@ -2,10 +2,31 @@ import "./App.css";
 import './scss/styles.scss'
 import * as bootstrap from 'bootstrap'
 import { open } from "@tauri-apps/api/dialog";
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
+import { useDebouncedCallback } from "use-debounce";
+// When using the Tauri API npm package:
+import { invoke } from '@tauri-apps/api/tauri'
 
 function App() {
   const [dredgePath, setDredgePath] = useState("");
+
+  useEffect(() => {
+    invoke('get_dredge_path').then((v) => setDredgePath(v as string));
+  }, [])
+
+  useEffect(() => {
+    // When the state changes, if it doesn't change within a second the rust fn will be invoked
+    debouncedDredgePathChanged();
+  }, [dredgePath])
+
+  const debouncedDredgePathChanged = useDebouncedCallback(
+    // function
+    () => {
+      invoke('dredge_path_changed', { path: dredgePath })
+    },
+    // delay in ms
+    1000
+  );
 
   const readFileContents = async () => {
     try {
