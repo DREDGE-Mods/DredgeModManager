@@ -11,7 +11,7 @@ function App() {
   const [dredgePath, setDredgePath] = useState("");
 
   useEffect(() => {
-    invoke('get_dredge_path').then((v) => setDredgePath(v as string));
+    invoke('get_dredge_path').then((v) => setDredgePath(v as string)).catch((e) => alert(e.toString()));
   }, [])
 
   useEffect(() => {
@@ -22,7 +22,7 @@ function App() {
   const debouncedDredgePathChanged = useDebouncedCallback(
     // function
     () => {
-      invoke('dredge_path_changed', { path: dredgePath })
+      invoke('dredge_path_changed', { path: dredgePath }).catch((e) => alert(e.toString()));
     },
     // delay in ms
     1000
@@ -50,9 +50,9 @@ function App() {
         <div className="text-start">
             Dredge folder path:
         </div>
-        <div>
-          <input type="text" className="w-75" onChange={(e) => setDredgePath(e.target.value)} value={dredgePath}></input>
-          <button className="w-25" onClick={readFileContents}>...</button>
+        <div className="d-flex">
+          <input type="text" className="flex-fill m-2" onChange={(e) => setDredgePath(e.target.value)} value={dredgePath}></input>
+          <button className="m-2" onClick={readFileContents}>...</button>
         </div>
 
         <br/>
