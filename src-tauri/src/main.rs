@@ -7,6 +7,28 @@ use directories::BaseDirs;
 use serde_json::Result as SerdeResult;
 use serde_json::Value;
 
+#[derive(serde::Serialize)]
+struct InitialInfo {
+    dredge_path : String,
+    enabled_mods_json_string : String
+}
+
+#[tauri::command]
+fn load() -> Result<InitialInfo, String> {
+    let file: String = format!("{}/DredgeModManager/data.txt", get_local_dir()?);
+    let dredge_path = match fs::read_to_string(&file) {
+        Ok(v) => v,
+        Err(_) => return Err(format!("Couldn't load manager metadata at {}", file).to_string())
+    };
+    let enabled_mods_path = get_enabled_mods_path(&dredge_path)?;
+    let enabled_mods_json_string = match fs::read_to_string(&enabled_mods_path) {
+        Ok(v) => v,
+        Err(_) => return Err(format!("Couldn't load mod list at {}", enabled_mods_path))
+    };
+
+    Ok(InitialInfo {dredge_path, enabled_mods_json_string})
+}
+
 #[tauri::command]
 fn dredge_path_changed(path: String) -> Result<(), String> {
     println!("DREDGE folder path changed to: {}", path);
@@ -25,23 +47,8 @@ fn dredge_path_changed(path: String) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn get_dredge_path() -> Result<String, String> {
-    let file: String = format!("{}/DredgeModManager/data.txt", get_local_dir()?);
-    let path: String = fs::read_to_string(&file).unwrap_or(String::new());
-
-    Ok(path)
-}
-
-#[tauri::command]
-fn get_enabled_mods_json_string() -> Result<String, String> {
-    let file_contents = fs::read_to_string(get_enabled_mods_path()?).expect("Mod list");
-
-    Ok(file_contents)
-}
-
-#[tauri::command]
-fn toggle_enabled_mod(mod_guid : String, enabled : bool) -> Result<(), String> {
-    let enabled_mods_path = get_enabled_mods_path()?;
+fn toggle_enabled_mod(mod_guid : String, enabled : bool, dredge_path : String) -> Result<(), String> {
+    let enabled_mods_path = get_enabled_mods_path(&dredge_path)?;
     let file_contents = fs::read_to_string(&enabled_mods_path).expect("Mod list");
     let mut json: Value = match serde_json::from_str(&file_contents) as SerdeResult<Value> {
         Ok(v) => v,
@@ -61,8 +68,8 @@ fn toggle_enabled_mod(mod_guid : String, enabled : bool) -> Result<(), String> {
 }
 
 #[tauri::command]
-fn start_game() -> () {
-    let exe = format!("{}/DREDGE.exe", get_dredge_path().unwrap());
+fn start_game(dredge_path : String) -> () {
+    let exe = format!("{}/DREDGE.exe", dredge_path);
     Command::new(exe).spawn().expect("Failed to start DREDGE.exe. Is the game directory correct?");
 }
 
@@ -73,19 +80,21 @@ fn get_local_dir() -> Result<String, String> {
     Ok(local_dir.to_string())
 }
 
-fn get_enabled_mods_path() -> Result<String, String> {
-    let dredge_path = get_dredge_path()?;
+fn get_enabled_mods_path(dredge_path : &str) -> Result<String, String> {
     let mod_list_path: String = format!("{}\\mod_list.json", dredge_path);
 
     Ok(mod_list_path.to_string())
+}
+
+fn get_all_installed_mods() -> () {
+
 }
 
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             dredge_path_changed,
-            get_dredge_path,
-            get_enabled_mods_json_string,
+            load,
             toggle_enabled_mod,
             start_game
             ])

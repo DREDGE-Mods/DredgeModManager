@@ -11,10 +11,19 @@ function App() {
   const [dredgePath, setDredgePath] = useState("");
   const [enabledMods, setEnabledMods] = useState({});
 
+  const reload = () => {
+    invoke('load').then((res : any) => {
+      setDredgePath(res.dredge_path as string);
+      setEnabledMods(JSON.parse(res.enabled_mods_json_string as string));
+    }).catch((e) => {
+      alert(e.toString());
+      setEnabledMods({});
+    });
+  }
+
   useEffect(() => {
     // Runs at the start to get initial stuff
-    invoke('get_dredge_path').then((v) => setDredgePath(v as string)).catch((e) => alert(e.toString()));
-    invoke('get_enabled_mods_json_string').then((v) => setEnabledMods(JSON.parse(v as string))).catch((e) => alert(e.toString()));
+    reload();
   }, [])
 
   useEffect(() => {
@@ -26,6 +35,7 @@ function App() {
     // function
     () => {
       invoke('dredge_path_changed', { path: dredgePath }).catch((e) => alert(e.toString()));
+      reload();
     },
     // delay in ms
     1000
