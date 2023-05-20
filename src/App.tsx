@@ -9,21 +9,27 @@ import { invoke } from '@tauri-apps/api/tauri'
 
 function App() {
   const [dredgePath, setDredgePath] = useState("");
-  const [enabledMods, setEnabledMods] = useState({});
+  const [enabledMods, setEnabledMods] : any = useState({});
+  const [modInfos, setModInfos] : any = useState({});
 
-  const reload = () => {
-    invoke('load').then((res : any) => {
-      setDredgePath(res.dredge_path as string);
-      setEnabledMods(JSON.parse(res.enabled_mods_json_string as string));
-    }).catch((e) => {
-      alert(e.toString());
-      setEnabledMods({});
-    });
+  const reloadMods = () => {
+    if(dredgePath != null && dredgePath.length != 0) {
+      invoke('load', {"dredgePath" : dredgePath}).then((res : any) => {
+        setEnabledMods(res.enabled_mods);
+        setModInfos(res.mods);
+      }).catch((e) => {
+        alert(e.toString());
+        setEnabledMods({});
+      });
+    }
   }
 
   useEffect(() => {
     // Runs at the start to get initial stuff
-    reload();
+    invoke('load_dredge_path').then((v) => {
+      setDredgePath(v as string);
+      reloadMods();
+    }).catch((e) => alert(e.toString()));
   }, [])
 
   useEffect(() => {
@@ -34,8 +40,13 @@ function App() {
   const debouncedDredgePathChanged = useDebouncedCallback(
     // function
     () => {
-      invoke('dredge_path_changed', { path: dredgePath }).catch((e) => alert(e.toString()));
-      reload();
+      try{
+        invoke('dredge_path_changed', {"path": dredgePath});
+        reloadMods();
+      }
+      catch (e : any) {
+        alert(e.toString());
+      }
     },
     // delay in ms
     1000
@@ -55,17 +66,20 @@ function App() {
   };
 
   const start = () => {
-    invoke('start_game').catch((e) => alert(e.toString()));
+    invoke('start_game', {dredgePath : dredgePath}).catch((e) => alert(e.toString()));
   }
 
   return (
     <body className="bg-dark text-light min-vh-100">
       <div className="h-100 w-100 container min-vh-100">
         <br/>
-        <h1 className="text-center">Dredge Mod Manager</h1>
-        <div className="text-center">
-          <button className="m-2 p-2 ps-4 pe-4 bg-success text-light border-success" onClick={start}>START</button>
+        <div className="d-flex">
+          <h1>Dredge Mod Manager</h1>
+          <div className="ms-auto">
+            <button className="p-2 ps-4 pe-4 bg-success text-light border-success" onClick={start}>PLAY</button>
+          </div>
         </div>
+
         <br/>
         <div className="text-start">
             Dredge folder path:
@@ -78,8 +92,8 @@ function App() {
         <br/>
 
         {
-          Object.keys(enabledMods).map((key, _) => (
-            <WriteModInfo enabled={(enabledMods as any)[key]} modGUID={key} />
+          Object.keys(modInfos).map((key, _) => (
+            <WriteModInfo enabled={enabledMods[key]} modGUID={key} author={modInfos[key].Author} displayName={modInfos[key].DisplayName} />
           ))
         }
 
@@ -97,20 +111,23 @@ function App() {
     }
   
     return(
-      <div>
+      <div className="d-flex flex-row">
         <input type="checkbox" className="m-2" checked={isEnabled} onChange={enabledHandler}></input>
-        <span><b>{props.modGUID}</b></span>
-        {props.hasOwnProperty("description") && 
+        {!string_null_or_empty(props.displayName) ? 
+          <span><b>{props.displayName}</b></span> :
+          <span><b>{props.modGUID}</b></span>
+        }
+        {!string_null_or_empty(props.description) && 
           <span> - {props.description}</span>
         }
-        {props.hasOwnProperty("author") && 
-          <span><i> by {props.author}</i></span>
+        {!string_null_or_empty(props.author) && 
+          <span className="ms-auto"><i> by {props.author}</i></span>
         }
       </div>
     )
   
     function string_null_or_empty(s : string) {
-      return s === null || s.trim() === "";
+      return s == null || s.trim().length == 0;
     }
   }
 }
