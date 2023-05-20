@@ -44,11 +44,18 @@ function App() {
     }
   };
 
+  const start = () => {
+    invoke('start_game').catch((e) => alert(e.toString()));
+  }
+
   return (
     <body className="bg-dark text-light min-vh-100">
       <div className="h-100 w-100 container min-vh-100">
         <br/>
         <h1 className="text-center">Dredge Mod Manager</h1>
+        <div className="text-center">
+          <button className="m-2 p-2 ps-4 pe-4 bg-success text-light border-success" onClick={start}>START</button>
+        </div>
         <br/>
         <div className="text-start">
             Dredge folder path:

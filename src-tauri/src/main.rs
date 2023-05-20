@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::fs;
+use std::process::Command;
 use directories::BaseDirs;
 use serde_json::Result as SerdeResult;
 use serde_json::Value;
@@ -59,6 +60,11 @@ fn toggle_enabled_mod(mod_guid : String, enabled : bool) -> Result<(), String> {
     Ok(())
 }
 
+#[tauri::command]
+fn start_game() -> () {
+    let exe = format!("{}/DREDGE.exe", get_dredge_path().unwrap());
+    Command::new(exe).spawn().expect("Failed to start DREDGE.exe. Is the game directory correct?");
+}
 
 fn get_local_dir() -> Result<String, String> {
     let dirs = BaseDirs::new().ok_or("Could not evaluate base directory".to_string())?;
@@ -80,7 +86,8 @@ fn main() {
             dredge_path_changed,
             get_dredge_path,
             get_enabled_mods_json_string,
-            toggle_enabled_mod
+            toggle_enabled_mod,
+            start_game
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
