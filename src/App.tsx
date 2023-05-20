@@ -14,7 +14,7 @@ function App() {
   useEffect(() => {
     // Runs at the start to get initial stuff
     invoke('get_dredge_path').then((v) => setDredgePath(v as string)).catch((e) => alert(e.toString()));
-    invoke('get_enabled_mods_json').then((v) => setEnabledMods(JSON.parse(v as string))).catch((e) => alert(e.toString()));
+    invoke('get_enabled_mods_json_string').then((v) => setEnabledMods(JSON.parse(v as string))).catch((e) => alert(e.toString()));
   }, [])
 
   useEffect(() => {
@@ -77,7 +77,7 @@ function WriteModInfo(props : any) {
 
   const enabledHandler = () => {
     setIsEnabled(!isEnabled);
-    //TODO, have it actually do something
+    invoke('toggle_enabled_mod', { "modGuid": props.modGUID, "enabled": !isEnabled}).catch((e) => alert(e.toString()));
   }
 
   return(

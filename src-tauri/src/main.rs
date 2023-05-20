@@ -3,6 +3,8 @@
 
 use std::fs;
 use directories::BaseDirs;
+use serde_json::Result as SerdeResult;
+use serde_json::Value;
 
 #[tauri::command]
 fn dredge_path_changed(path: String) -> Result<(), String> {
@@ -30,12 +32,32 @@ fn get_dredge_path() -> Result<String, String> {
 }
 
 #[tauri::command]
-fn get_enabled_mods_json() -> Result<String, String> {
-    let file = fs::read_to_string(get_enabled_mods_path()?).expect("Mod list");
+fn get_enabled_mods_json_string() -> Result<String, String> {
+    let file_contents = fs::read_to_string(get_enabled_mods_path()?).expect("Mod list");
 
-    Ok(file)
+    Ok(file_contents)
 }
 
+#[tauri::command]
+fn toggle_enabled_mod(mod_guid : String, enabled : bool) -> Result<(), String> {
+    let enabled_mods_path = get_enabled_mods_path()?;
+    let file_contents = fs::read_to_string(&enabled_mods_path).expect("Mod list");
+    let mut json: Value = match serde_json::from_str(&file_contents) as SerdeResult<Value> {
+        Ok(v) => v,
+        Err(_) => return Err("Could not load mods json".to_string())
+    };
+
+    json[mod_guid] = serde_json::Value::Bool(enabled);
+
+    let json_string = match serde_json::to_string_pretty(&json) {
+        Ok(v) => v,
+        Err(_) => return Err("Could not format string to json".to_string())
+    };
+
+    fs::write(&enabled_mods_path, json_string).expect(format!("Unable to write to file {}", &enabled_mods_path).as_str());
+
+    Ok(())
+}
 
 
 fn get_local_dir() -> Result<String, String> {
@@ -54,7 +76,12 @@ fn get_enabled_mods_path() -> Result<String, String> {
 
 fn main() {
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![dredge_path_changed, get_dredge_path, get_enabled_mods_json])
+        .invoke_handler(tauri::generate_handler![
+            dredge_path_changed,
+            get_dredge_path,
+            get_enabled_mods_json_string,
+            toggle_enabled_mod
+            ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
