@@ -1,0 +1,39 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "DREDGE Mod Database Schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "mods"
+    ],
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "mods": {
+            "type": "array",
+            "items": {
+                "additionalProperties": false,
+                "required": [
+                    "name",
+                    "modGUID",
+                    "repo"
+                ],
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "description": "Human-readable title for your mod."
+                    },
+                    "modGUID": {
+                        "type": "string",
+                        "description": "Unique ID for your mod. Recommended to take the form yourname.modname ex, 'xen-42.cosmichorrorfishingbuddies'."
+                    },
+                    "repo": {
+                        "type": "string",
+                        "description": "URL for the GitHub repo of this mod"
+                    }
+                }
+            }
+        }
+    }
+}

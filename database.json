@@ -1,0 +1,10 @@
+{
+    "$schema": "./database-schema.json",
+    "mods": [
+        {
+            "name": "Cosmic Horror Fishing Buddies",
+            "modGUID": "xen.cosmichorringfishingbuddies",
+            "repo": "https://github.com/xen-42/cosmic-horror-fishing-buddies"
+        }
+    ]
+}
