@@ -140,7 +140,10 @@ fn toggle_enabled_mod(mod_guid : String, enabled : bool, dredge_path : String) -
 
     json.insert(mod_guid, enabled);
 
-    write_enabled_mods(json, enabled_mods_path);
+    match write_enabled_mods(json, enabled_mods_path) {
+        Ok(()) => (),
+        Err(_) => return Err("Could not update mods json".to_string())
+    };
 
     Ok(())
 }
