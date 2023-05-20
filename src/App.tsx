@@ -9,9 +9,12 @@ import { invoke } from '@tauri-apps/api/tauri'
 
 function App() {
   const [dredgePath, setDredgePath] = useState("");
+  const [enabledMods, setEnabledMods] = useState({});
 
   useEffect(() => {
+    // Runs at the start to get initial stuff
     invoke('get_dredge_path').then((v) => setDredgePath(v as string)).catch((e) => alert(e.toString()));
+    invoke('get_enabled_mods_json').then((v) => setEnabledMods(JSON.parse(v as string))).catch((e) => alert(e.toString()));
   }, [])
 
   useEffect(() => {
@@ -57,19 +60,42 @@ function App() {
 
         <br/>
 
-        <div>
-          <input type="checkbox" className="m-2"></input>
-          <span><b>Winch</b> - Mod loader for DREDGE <i>by Hacktix</i></span>
-        </div>
+        {
+          Object.keys(enabledMods).map((key, _) => (
+            <WriteModInfo enabled={(enabledMods as any)[key]} modGUID={key} />
+          ))
+        }
 
-        <div>
-          <input type="checkbox" className="m-2"></input>
-          <span><b>Cosmic Horror Fishing Buddies</b> - Online multiplayer for DREDGE <i>by xen-42</i></span>
-        </div>
       </div>
     </body>
 
   );
+}
+
+function WriteModInfo(props : any) {
+  const [isEnabled, setIsEnabled] = useState(props.enabled);
+
+  const enabledHandler = () => {
+    setIsEnabled(!isEnabled);
+    //TODO, have it actually do something
+  }
+
+  return(
+    <div>
+      <input type="checkbox" className="m-2" checked={isEnabled} onChange={enabledHandler}></input>
+      <span><b>{props.modGUID}</b></span>
+      {props.hasOwnProperty("description") && 
+        <span> - {props.description}</span>
+      }
+      {props.hasOwnProperty("author") && 
+        <span><i> by {props.author}</i></span>
+      }
+    </div>
+  )
+
+  function string_null_or_empty(s : string) {
+    return s === null || s.trim() === "";
+  }
 }
 
 export default App;
