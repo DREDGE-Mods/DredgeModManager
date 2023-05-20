@@ -15,14 +15,24 @@ struct InitialInfo {
 
 #[tauri::command]
 fn load() -> Result<InitialInfo, String> {
+    // Check the metadata file for the path to dredge
     let file: String = format!("{}/DredgeModManager/data.txt", get_local_dir()?);
     let dredge_path = match fs::read_to_string(&file) {
         Ok(v) => v,
+        // TODO: Shouldn't actually be an error because it likely just means this is the first time they run the manager
         Err(_) => return Err(format!("Couldn't load manager metadata at {}", file).to_string())
     };
+
+    // Validate that the folder path is correct
+    if !fs::metadata(format!("{}/DREDGE.exe", dredge_path)).is_ok() {
+        return Err(format!("Couldn't find DREDGE.exe at {}", dredge_path));
+    }
+
+    // Load enabled/disabled mods
     let enabled_mods_path = get_enabled_mods_path(&dredge_path)?;
     let enabled_mods_json_string = match fs::read_to_string(&enabled_mods_path) {
         Ok(v) => v,
+        // TODO: If the file doesn't exist we should create a new one
         Err(_) => return Err(format!("Couldn't load mod list at {}", enabled_mods_path))
     };
 
@@ -84,10 +94,6 @@ fn get_enabled_mods_path(dredge_path : &str) -> Result<String, String> {
     let mod_list_path: String = format!("{}\\mod_list.json", dredge_path);
 
     Ok(mod_list_path.to_string())
-}
-
-fn get_all_installed_mods() -> () {
-
 }
 
 fn main() {

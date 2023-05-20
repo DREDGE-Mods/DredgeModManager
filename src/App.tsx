@@ -87,31 +87,31 @@ function App() {
     </body>
 
   );
-}
 
-function WriteModInfo(props : any) {
-  const [isEnabled, setIsEnabled] = useState(props.enabled);
-
-  const enabledHandler = () => {
-    setIsEnabled(!isEnabled);
-    invoke('toggle_enabled_mod', { "modGuid": props.modGUID, "enabled": !isEnabled}).catch((e) => alert(e.toString()));
-  }
-
-  return(
-    <div>
-      <input type="checkbox" className="m-2" checked={isEnabled} onChange={enabledHandler}></input>
-      <span><b>{props.modGUID}</b></span>
-      {props.hasOwnProperty("description") && 
-        <span> - {props.description}</span>
-      }
-      {props.hasOwnProperty("author") && 
-        <span><i> by {props.author}</i></span>
-      }
-    </div>
-  )
-
-  function string_null_or_empty(s : string) {
-    return s === null || s.trim() === "";
+  function WriteModInfo(props : any) {
+    const [isEnabled, setIsEnabled] = useState(props.enabled);
+  
+    const enabledHandler = () => {
+      setIsEnabled(!isEnabled);
+      invoke('toggle_enabled_mod', { "modGuid": props.modGUID, "enabled": !isEnabled, "dredgePath" : dredgePath}).catch((e) => alert(e.toString()));
+    }
+  
+    return(
+      <div>
+        <input type="checkbox" className="m-2" checked={isEnabled} onChange={enabledHandler}></input>
+        <span><b>{props.modGUID}</b></span>
+        {props.hasOwnProperty("description") && 
+          <span> - {props.description}</span>
+        }
+        {props.hasOwnProperty("author") && 
+          <span><i> by {props.author}</i></span>
+        }
+      </div>
+    )
+  
+    function string_null_or_empty(s : string) {
+      return s === null || s.trim() === "";
+    }
   }
 }
 
