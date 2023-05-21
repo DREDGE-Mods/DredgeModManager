@@ -4,7 +4,7 @@
         {
             "name": "Cosmic Horror Fishing Buddies",
             "mod_guid": "xen.cosmichorrorfishingbuddies",
-            "repo": "https://github.com/xen-42/cosmic-horror-fishing-buddies",
+            "repo": "xen-42/cosmic-horror-fishing-buddies",
             "download": "CosmicHorrorFishingBuddies.zip"
         }
     ]
