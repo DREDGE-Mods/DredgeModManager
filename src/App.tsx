@@ -11,14 +11,14 @@ interface ModInfo {
   // General
   Name : string,
   ModGUID : string,
-  Repo : string,
-  Download : string,
 
   // Database
   Description? : string,
   ReleaseDate? : string,
   LatestVersion? : string,
   Downloads? : number
+  Repo? : string,
+  Download? : string,
 
   // Installed
   Author? : string,
@@ -54,8 +54,7 @@ function App() {
 
         setModInfos(res.mods);
 
-
-        setAvailableMods(res.database.map((x : { mod_guid : string}) => x.mod_guid).filter((x : string) => !res.mods.hasOwnProperty(x)));
+        setAvailableMods(res.database.map((x : ModInfo) => x.ModGUID).filter((x : string) => !res.mods.hasOwnProperty(x)));
         setWinchInfo(res.winch_mod_info);
       }).catch((e) => {
         alert(e.toString());
@@ -167,7 +166,7 @@ function App() {
   function AvailableMods() {
     return(
       <div>
-        <h5>Available mods {availableMods.length}</h5>
+        <h5>Available mods ({availableMods.length})</h5>
         <div>
           {
             database.map((mod, _) => {
