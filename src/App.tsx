@@ -11,7 +11,8 @@ function App() {
   const [dredgePath, setDredgePath] = useState("");
   const [enabledMods, setEnabledMods] : any = useState({});
   const [modInfos, setModInfos] : any = useState({});
-  const [database, setDatabase]  = useState<{mods : Array<any>}>({mods : []});
+  const [database, setDatabase] = useState<{mods : Array<any>}>({mods : []});
+  const [availableMods, setAvailableMods] = useState<[]>([]);
 
   const reloadMods = () => {
     if(dredgePath != null && dredgePath.length != 0) {
@@ -19,6 +20,7 @@ function App() {
         setEnabledMods(res.enabled_mods);
         setModInfos(res.mods);
         setDatabase(res.database);
+        setAvailableMods(res.database.mods.map((x : { mod_guid : string}) => x.mod_guid).filter((x : string) => !res.mods.hasOwnProperty(x)));
       }).catch((e) => {
         alert(e.toString());
         setEnabledMods({});
@@ -110,17 +112,29 @@ function App() {
         }
 
         <br/>
-        <h5>Available mods ({database.mods.length})</h5>
-        {
-          database.mods.map((mod, _) => {
-            return <RemoteModInfo mod={mod} />
-          })
-        }
-
+        {availableMods.length > 0 && AvailableMods()}
       </div>
     </body>
 
   );
+
+  function AvailableMods() {
+    return(
+      <div>
+        <h5>Available mods {availableMods.length}</h5>
+        <div>
+          {
+            database.mods.map((mod, _) => {
+              // Don't give the player the option to download mods they already have
+              if (!modInfos.hasOwnProperty(mod.mod_guid)) {
+                return <RemoteModInfo mod={mod} />
+              }
+            })
+          }
+        </div>
+      </div>
+    )
+  }
 
   function RemoteModInfo(props : any) {
     return(
