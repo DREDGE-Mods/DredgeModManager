@@ -1,18 +1,18 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::clone;
 use std::collections::HashMap;
 use std::fs;
 use std::process::Command;
 use directories::BaseDirs;
 use serde_json::Result as SerdeResult;
-use serde_json::Value;
+mod database;
 
 #[derive(serde::Serialize)]
 struct InitialInfo {
     enabled_mods : HashMap<String, bool>,
-    mods : HashMap<String, ModInfo>
+    mods : HashMap<String, ModInfo>,
+    database: database::Database
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]
@@ -73,7 +73,10 @@ fn load(dredge_path : String) -> Result<InitialInfo, String> {
     };
     let mut enabled_mods = match serde_json::from_str(&enabled_mods_json_string) as SerdeResult<HashMap<String, bool>> {
         Ok(v) => v,
-        Err(_) => HashMap::new()
+        Err(_) => {
+            println!("Couldn't access online database");
+            HashMap::new()
+        }
     };
 
     // Check all installed mods
@@ -101,7 +104,7 @@ fn load(dredge_path : String) -> Result<InitialInfo, String> {
             }
         }
     }
-    if (update_enabled_mods_list_flag) {
+    if update_enabled_mods_list_flag {
         write_enabled_mods(enabled_mods.clone(), enabled_mods_path).expect("Guh");
     }
 
@@ -109,7 +112,9 @@ fn load(dredge_path : String) -> Result<InitialInfo, String> {
         return Err(format!("Couldn't find any installed mods at [{}]", dredge_path).to_string());
     }
 
-    Ok(InitialInfo {enabled_mods, mods})
+    let database: database::Database = database::access_database();
+
+    Ok(InitialInfo {enabled_mods, mods, database})
 }
 
 #[tauri::command]

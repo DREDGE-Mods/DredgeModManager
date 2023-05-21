@@ -11,12 +11,14 @@ function App() {
   const [dredgePath, setDredgePath] = useState("");
   const [enabledMods, setEnabledMods] : any = useState({});
   const [modInfos, setModInfos] : any = useState({});
+  const [database, setDatabase]  = useState<{mods : Array<any>}>({mods : []});
 
   const reloadMods = () => {
     if(dredgePath != null && dredgePath.length != 0) {
       invoke('load', {"dredgePath" : dredgePath}).then((res : any) => {
         setEnabledMods(res.enabled_mods);
         setModInfos(res.mods);
+        setDatabase(res.database);
       }).catch((e) => {
         alert(e.toString());
         setEnabledMods({});
@@ -90,11 +92,19 @@ function App() {
         </div>
 
         <br/>
-
+        <h5>Installed mods ({Object.keys(modInfos).length})</h5>
         {
           Object.keys(modInfos).map((key, _) => (
             <WriteModInfo enabled={enabledMods[key]} modGUID={key} author={modInfos[key].Author} displayName={modInfos[key].DisplayName} />
           ))
+        }
+
+        <br/>
+        <h5>Available mods ({database.mods.length})</h5>
+        {
+          database.mods.map((mod, _) => {
+            return <p>{mod.mod_guid} at {mod.repo}</p>
+          })
         }
 
       </div>
