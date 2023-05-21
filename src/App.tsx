@@ -7,8 +7,16 @@ import { useDebouncedCallback } from "use-debounce";
 // When using the Tauri API npm package:
 import { invoke } from '@tauri-apps/api/tauri'
 
+interface ModInfo {
+  ModGUID? : string,
+  Name? : string,
+  Author? : string,
+  Version? : string
+}
+
 function App() {
   const [dredgePath, setDredgePath] = useState("");
+  const [winchInfo, setWinchInfo] = useState<ModInfo>();
   const [enabledMods, setEnabledMods] : any = useState({});
   const [modInfos, setModInfos] : any = useState({});
   const [database, setDatabase] = useState<{mods : Array<any>}>({mods : []});
@@ -17,10 +25,12 @@ function App() {
   const reloadMods = () => {
     if(dredgePath != null && dredgePath.length != 0) {
       invoke('load', {"dredgePath" : dredgePath}).then((res : any) => {
+        console.log(JSON.stringify(res["winch_mod_info"]));
         setEnabledMods(res.enabled_mods);
         setModInfos(res.mods);
         setDatabase(res.database);
         setAvailableMods(res.database.mods.map((x : { mod_guid : string}) => x.mod_guid).filter((x : string) => !res.mods.hasOwnProperty(x)));
+        setWinchInfo(res.winch_mod_info);
       }).catch((e) => {
         alert(e.toString());
         setEnabledMods({});
@@ -101,6 +111,12 @@ function App() {
         <div className="d-flex">
           <input type="text" className="flex-fill m-2" onChange={(e) => setDredgePath(e.target.value)} value={dredgePath}></input>
           <button className="m-2" onClick={readFileContents}>...</button>
+        </div>
+
+        <br/>
+
+        <div>
+          <b>{winchInfo?.Name}</b> {winchInfo?.Version} <i>by {winchInfo?.Author}</i> 
         </div>
 
         <br/>

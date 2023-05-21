@@ -13,7 +13,8 @@ mod files;
 struct InitialInfo {
     enabled_mods : HashMap<String, bool>,
     mods : HashMap<String, mods::ModInfo>,
-    database: database::Database
+    database: database::Database,
+    winch_mod_info : mods::ModInfo
 }
 
 #[tauri::command]
@@ -90,7 +91,14 @@ fn load(dredge_path : String) -> Result<InitialInfo, String> {
 
     let database: database::Database = database::access_database();
 
-    Ok(InitialInfo {enabled_mods, mods, database})
+    // Get Winch mod info
+    let winch_mod_meta_path = format!("{}/mod_meta.json", dredge_path);
+    if !fs::metadata(&winch_mod_meta_path).is_ok() {
+        return Err(format!("Winch was not installed at [{}]", winch_mod_meta_path).to_string());
+    }
+    let winch_mod_info = mods::load_mod_info(winch_mod_meta_path)?;
+
+    Ok(InitialInfo {enabled_mods, mods, database, winch_mod_info})
 }
 
 #[tauri::command]

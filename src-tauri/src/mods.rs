@@ -18,6 +18,9 @@ pub struct ModInfo {
     pub author : String,
 
     #[serde(default)]
+    pub version : String,
+
+    #[serde(default)]
     pub local_path : String,
 }
 
@@ -47,15 +50,9 @@ pub fn uninstall_mod(mod_meta_path : String) -> () {
     }
 }
 
-async fn async_install_mod(url : String, dredge_folder : String) -> Result<(), Box<dyn std::error::Error>> {
+async fn async_install_mod(url : String) -> Result<String, Box<dyn std::error::Error>> {
     let response = reqwest::get(url).await?;
-    let mut content = Cursor::new(response.bytes().await?);
-
-    /*
-    let path = format!("{}/temp_download.zip", files::get_local_dir()?);
-    let mut file = File::create(path)?;
-    std::io::copy(&mut content, &mut file)?;
-    */
+    let content = Cursor::new(response.bytes().await?);
 
     let dir = format!("{}/temp_download/", files::get_local_dir()?);
     
@@ -67,31 +64,57 @@ async fn async_install_mod(url : String, dredge_folder : String) -> Result<(), B
     let dir_path = PathBuf::from(&dir);
     zip_extract::extract(content, &dir_path, true)?;
 
-    // Read the mod meta file
-    let mod_meta_path = format!("{}/mod_meta.json", &dir);
-    let mod_meta = load_mod_info(mod_meta_path)?;
+    Ok(dir)
+}
 
-    // Create destination dir
-    let destination = format!("{}/Mods/{}", dredge_folder, mod_meta.mod_guid);
+fn download_mod(url : String) -> Result<String, Box<dyn std::error::Error>> {
+    println!("Downloading mod from {}", &url);
 
-    let src = std::path::Path::new(&dir);
+    let runtime = tokio::runtime::Runtime::new()?;
+
+    let dir = match runtime.block_on(async_install_mod(url.clone())) {
+        Ok(d) => d,
+        Err(e) => return Err(format!("Couldn't download mod {} - {}", &url, e).into())
+    };
+
+    Ok(dir)
+}
+
+fn copy_mod(source : String, destination : String) -> Result<(), Box<dyn std::error::Error>> {
+    let src = std::path::Path::new(&source);
     let dst = std::path::Path::new(&destination);
 
-    println!("Copied from {} to {}", &dir, &destination);
+    println!("Copied from {} to {}", &source, &destination);
     files::copy_dir_all(src, dst)?;
 
     Ok(())
 }
 
-pub fn install_mod(repo : String, download : String, dredge_folder : String) -> () {
+pub fn install_mod(repo : String, download : String, dredge_folder : String) -> Result<(), Box<dyn std::error::Error>> {
     let url = format!("https://github.com/{}/releases/latest/download/{}", repo, download).replace("//", "/");
 
-    println!("Downloading mod from {}", url);
+    let temp_dir = download_mod(url)?;
 
-    let runtime = tokio::runtime::Runtime::new().unwrap();
+    // Read the mod meta file
+    let mod_meta_path = format!("{}/mod_meta.json", &temp_dir);
+    let mod_meta = load_mod_info(mod_meta_path)?;
 
-    match runtime.block_on(async_install_mod(url, dredge_folder)) {
-        Ok(_) => (),
-        Err(e) => println!("Couldn't download mod {} - {}", download, e)
-    };
+    // Create destination dir
+    let destination = format!("{}/Mods/{}", dredge_folder, mod_meta.mod_guid);
+
+    copy_mod(temp_dir, destination)?;
+
+    Ok(())
 }
+
+/*
+pub fn install_winch(dredge_folder : String) -> Result<(), Box<dyn std::error::Error>> {
+    let url = "https://github.com/Hacktix/Winch/releases/latest/download/Winch.zip".to_string();
+
+    let temp_dir = download_mod(url)?;
+
+    copy_mod(temp_dir, dredge_folder)?;
+
+    Ok(())
+}
+*/
