@@ -161,7 +161,7 @@ fn uninstall_mod(mod_meta_path : String) -> () {
 
 #[tauri::command]
 fn install_mod(repo : String, download : String, dredge_folder : String) -> () {
-    mods::install_mod(repo, download, dredge_folder);
+    mods::install_mod(repo, download, dredge_folder).expect("Failed to install the mod");
 }
 
 fn main() {
