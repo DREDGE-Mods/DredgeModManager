@@ -1,14 +1,17 @@
 use serde_json::Result as SerdeResult;
 
 #[derive(serde::Serialize, serde::Deserialize)]
+#[serde(rename_all(serialize = "PascalCase"))]
 pub struct ModDatabaseInfo {
     name : String,
+    #[serde(rename(serialize = "ModGUID"))]
     mod_guid : String,
     repo : String,
     download : String,
-
-    #[serde(default)]
-    about : String
+    description : String,
+    release_date: String,
+    latest_version: String,
+    downloads: i16
 }
 
 async fn async_access_database() -> Result<Vec<ModDatabaseInfo>, Box<dyn std::error::Error>> {

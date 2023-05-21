@@ -8,10 +8,22 @@ import { useDebouncedCallback } from "use-debounce";
 import { invoke } from '@tauri-apps/api/tauri'
 
 interface ModInfo {
-  ModGUID? : string,
-  Name? : string,
+  // General
+  Name : string,
+  ModGUID : string,
+  Repo : string,
+  Download : string,
+
+  // Database
+  Description? : string,
+  ReleaseDate? : string,
+  LatestVersion? : string,
+  Downloads? : number
+
+  // Installed
   Author? : string,
-  Version? : string
+  Version? : string,
+  LocalPath? : string
 }
 
 function App() {
@@ -19,7 +31,7 @@ function App() {
   const [winchInfo, setWinchInfo] = useState<ModInfo>();
   const [enabledMods, setEnabledMods] : any = useState({});
   const [modInfos, setModInfos] : any = useState({});
-  const [database, setDatabase] = useState<Array<any>>([]);
+  const [database, setDatabase] = useState<Array<ModInfo>>([]);
   const [availableMods, setAvailableMods] = useState<[]>([]);
 
   const reloadMods = () => {
@@ -27,8 +39,22 @@ function App() {
       invoke('load', {"dredgePath" : dredgePath}).then((res : any) => {
         console.log(JSON.stringify(res["winch_mod_info"]));
         setEnabledMods(res.enabled_mods);
-        setModInfos(res.mods);
         setDatabase(res.database);
+
+        // Get the DB data for all the local mods if possible
+        database.forEach((databaseMod) => {
+          if (res.mods.hasOwnProperty(databaseMod.ModGUID)) {
+            var localMod = res.mods[databaseMod.ModGUID] as ModInfo;
+            localMod.Description = databaseMod.Description;
+            localMod.Downloads = databaseMod.Downloads;
+            localMod.LatestVersion = databaseMod.LatestVersion;
+            localMod.ReleaseDate = databaseMod.ReleaseDate;
+          }
+        })
+
+        setModInfos(res.mods);
+
+
         setAvailableMods(res.database.map((x : { mod_guid : string}) => x.mod_guid).filter((x : string) => !res.mods.hasOwnProperty(x)));
         setWinchInfo(res.winch_mod_info);
       }).catch((e) => {
@@ -83,14 +109,18 @@ function App() {
     invoke('start_game', {dredgePath : dredgePath}).catch((e) => alert(e.toString()));
   }
 
-  const uninstall_mod = (modMetaPath : string) => {
-    invoke('uninstall_mod', {modMetaPath : modMetaPath});
-    reloadMods();
+  const uninstall_mod = (modMetaPath : string | undefined) => {
+    if (modMetaPath != undefined) {
+      invoke('uninstall_mod', {modMetaPath : modMetaPath});
+      reloadMods();
+    }
   }
 
-  const install_mod = (repo : string, download : string) => {
-    invoke('install_mod', {repo: repo, download: download, dredgeFolder: dredgePath});
-    reloadMods();
+  const install_mod = (repo : string | undefined, download : string | undefined) => {
+    if (repo != undefined && download != undefined) {
+      invoke('install_mod', {repo: repo, download: download, dredgeFolder: dredgePath});
+      reloadMods();
+    }
   }
 
   return (
@@ -142,7 +172,7 @@ function App() {
           {
             database.map((mod, _) => {
               // Don't give the player the option to download mods they already have
-              if (!modInfos.hasOwnProperty(mod.mod_guid)) {
+              if (!modInfos.hasOwnProperty(mod.ModGUID)) {
                 return <RemoteModInfo mod={mod} />
               }
             })
@@ -152,16 +182,41 @@ function App() {
     )
   }
 
-  function RemoteModInfo(props : any) {
+  function GenericModInfo(props : { mod : ModInfo }) {
     return(
-      <div className="d-flex flex-row m-2">
-        <button className="ms-2 bg-primary border-primary text-light" onClick={() => install_mod(props.mod.repo, props.mod.download)}>Install</button>
-        <span className="ms-2"><b>{props.mod.mod_guid}</b> <i>from {props.mod.repo}</i></span>
+      <div className="ms-4 me-4 flex-fill">
+        <div className="d-flex w-100">
+          <div><b>{string_null_or_empty(props.mod.Name) ? props.mod.ModGUID : props.mod.Name}</b> {props.mod.LatestVersion}</div>
+          <div className="flex-fill"/>
+          { string_null_or_empty(props.mod.Author) ?
+            <div><i>from {props.mod.Repo}</i></div> :
+            <div><i>by {props.mod.Author}</i></div>
+          }
+        </div>
+        <div>
+          {props.mod.Description} 
+        </div>
+        <div>
+          { props.mod.Downloads != undefined &&
+            <span>{props.mod.Downloads} downloads</span>
+          }
+        </div>
       </div>
     )
   }
 
-  function LocalModInfo(props : any) {
+  function RemoteModInfo(props : { mod : ModInfo }) {
+    return(
+      <div>
+        <div className="d-flex flex-row m-2">
+          <button className="ms-2 bg-primary border-primary text-light" onClick={() => install_mod(props.mod.Repo, props.mod.Download)}>Install</button>
+          <GenericModInfo mod = {props.mod}/>
+        </div>
+      </div>
+    )
+  }
+
+  function LocalModInfo(props : { mod : ModInfo, enabled : boolean }) {
     const [isEnabled, setIsEnabled] = useState(props.enabled);
   
     const enabledHandler = () => {
@@ -172,24 +227,16 @@ function App() {
     return(
       <div className="d-flex flex-row m-2">
         <input type="checkbox" className="m-2" checked={isEnabled} onChange={enabledHandler}></input>
-        {!string_null_or_empty(props.mod.Name) ? 
-          <span><b>{props.mod.Name}</b></span> :
-          <span><b>{props.mod.ModGUID}</b></span>
-        }
-        {!string_null_or_empty(props.mod.Description) && 
-          <span> - {props.mod.Description}</span>
-        }
-        <span className="flex-fill"></span>
-        {!string_null_or_empty(props.mod.Author) && 
-          <span><i> by {props.mod.Author}</i></span>
-        }
+
+        <GenericModInfo mod = {props.mod}/>
+
         <button className="ms-2 bg-danger border-danger text-light" onClick={() => uninstall_mod(props.mod.LocalPath)}>Uninstall</button>
       </div>
     )
-  
-    function string_null_or_empty(s : string) {
-      return s == null || s.trim().length == 0;
-    }
+  }
+
+  function string_null_or_empty(s : string | undefined) {
+    return s == undefined || s == null || s.trim().length == 0;
   }
 }
 
