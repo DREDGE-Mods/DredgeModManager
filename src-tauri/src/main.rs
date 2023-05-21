@@ -13,7 +13,7 @@ mod files;
 struct InitialInfo {
     enabled_mods : HashMap<String, bool>,
     mods : HashMap<String, mods::ModInfo>,
-    database: database::Database,
+    database: Vec<database::ModDatabaseInfo>,
     winch_mod_info : mods::ModInfo
 }
 
@@ -89,7 +89,7 @@ fn load(dredge_path : String) -> Result<InitialInfo, String> {
         return Err(format!("Couldn't find any installed mods at [{}]", dredge_path).to_string());
     }
 
-    let database: database::Database = database::access_database();
+    let database: Vec<database::ModDatabaseInfo> = database::access_database();
 
     // Get Winch mod info
     let winch_mod_meta_path = format!("{}/mod_meta.json", dredge_path);

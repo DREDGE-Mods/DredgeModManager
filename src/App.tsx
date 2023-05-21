@@ -19,7 +19,7 @@ function App() {
   const [winchInfo, setWinchInfo] = useState<ModInfo>();
   const [enabledMods, setEnabledMods] : any = useState({});
   const [modInfos, setModInfos] : any = useState({});
-  const [database, setDatabase] = useState<{mods : Array<any>}>({mods : []});
+  const [database, setDatabase] = useState<Array<any>>([]);
   const [availableMods, setAvailableMods] = useState<[]>([]);
 
   const reloadMods = () => {
@@ -29,7 +29,7 @@ function App() {
         setEnabledMods(res.enabled_mods);
         setModInfos(res.mods);
         setDatabase(res.database);
-        setAvailableMods(res.database.mods.map((x : { mod_guid : string}) => x.mod_guid).filter((x : string) => !res.mods.hasOwnProperty(x)));
+        setAvailableMods(res.database.map((x : { mod_guid : string}) => x.mod_guid).filter((x : string) => !res.mods.hasOwnProperty(x)));
         setWinchInfo(res.winch_mod_info);
       }).catch((e) => {
         alert(e.toString());
@@ -140,7 +140,7 @@ function App() {
         <h5>Available mods {availableMods.length}</h5>
         <div>
           {
-            database.mods.map((mod, _) => {
+            database.map((mod, _) => {
               // Don't give the player the option to download mods they already have
               if (!modInfos.hasOwnProperty(mod.mod_guid)) {
                 return <RemoteModInfo mod={mod} />
