@@ -142,8 +142,8 @@ function App() {
     return(
       <div className="d-flex flex-row m-2">
         <input type="checkbox" className="m-2" checked={isEnabled} onChange={enabledHandler}></input>
-        {!string_null_or_empty(props.mod.DisplayName) ? 
-          <span><b>{props.mod.DisplayName}</b></span> :
+        {!string_null_or_empty(props.mod.Name) ? 
+          <span><b>{props.mod.Name}</b></span> :
           <span><b>{props.mod.ModGUID}</b></span>
         }
         {!string_null_or_empty(props.mod.Description) && 

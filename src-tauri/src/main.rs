@@ -12,38 +12,8 @@ mod files;
 #[derive(serde::Serialize)]
 struct InitialInfo {
     enabled_mods : HashMap<String, bool>,
-    mods : HashMap<String, ModInfo>,
+    mods : HashMap<String, mods::ModInfo>,
     database: database::Database
-}
-
-#[derive(serde::Serialize, serde::Deserialize)]
-#[serde(rename_all = "PascalCase")]
-struct ModInfo {
-    #[serde(rename = "ModGUID")]
-    mod_guid : String,
-
-    #[serde(default)]
-    display_name : String,
-
-    #[serde(default)]
-    author : String,
-
-    #[serde(default)]
-    local_path : String,
-}
-
-fn load_mod_info(file : String) -> Result<ModInfo, String> {
-    let mod_info_string = match fs::read_to_string(&file) {
-        Ok(v) => v,
-        Err(_) => return Err(format!("Couldn't find mod metadata {}", file).to_string())
-    };
-    let mut json = match serde_json::from_str(&mod_info_string) as SerdeResult<ModInfo> {
-        Ok(v) => v,
-        Err(e) => return Err(format!("Couldn't load mod metadata {} {}", file, e.to_string()).to_string())
-    };
-    json.local_path = file;
-
-    Ok(json)
 }
 
 #[tauri::command]
@@ -86,7 +56,7 @@ fn load(dredge_path : String) -> Result<InitialInfo, String> {
     };
 
     // Check all installed mods
-    let mut mods: HashMap<String, ModInfo> = HashMap::new();
+    let mut mods: HashMap<String, mods::ModInfo> = HashMap::new();
     let mut update_enabled_mods_list_flag = false;
     for entry in walkdir::WalkDir::new(&mods_dir_path) {
         let entry = entry.unwrap();
@@ -94,7 +64,7 @@ fn load(dredge_path : String) -> Result<InitialInfo, String> {
 
         if file_path.contains("mod_meta.json") {
             println!("Found mod: {}", entry.path().display());
-            let mod_info_res = load_mod_info(file_path);
+            let mod_info_res = mods::load_mod_info(file_path);
 
             match mod_info_res {
                 Ok(mod_info) => {
