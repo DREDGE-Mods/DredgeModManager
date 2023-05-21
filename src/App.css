@@ -1,1 +1,9 @@
+input {
+    border: none;
+    border-radius: 5px ! important;
+}
 
+button {
+    border: none;
+    border-radius: 5px ! important;
+}

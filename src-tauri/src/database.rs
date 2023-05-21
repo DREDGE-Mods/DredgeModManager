@@ -10,6 +10,7 @@ pub struct ModDatabaseInfo {
     name : String,
     mod_guid : String,
     repo : String,
+    download : String,
 
     #[serde(default)]
     about : String

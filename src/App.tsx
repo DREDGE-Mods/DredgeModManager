@@ -71,6 +71,16 @@ function App() {
     invoke('start_game', {dredgePath : dredgePath}).catch((e) => alert(e.toString()));
   }
 
+  const uninstall_mod = (modMetaPath : string) => {
+    invoke('uninstall_mod', {modMetaPath : modMetaPath});
+    reloadMods();
+  }
+
+  const install_mod = (repo : string, download : string) => {
+    invoke('install_mod', {repo: repo, download: download, dredgeFolder: dredgePath});
+    reloadMods();
+  }
+
   return (
     <body className="bg-dark text-light min-vh-100">
       <div className="h-100 w-100 container min-vh-100">
@@ -95,7 +105,7 @@ function App() {
         <h5>Installed mods ({Object.keys(modInfos).length})</h5>
         {
           Object.keys(modInfos).map((key, _) => (
-            <WriteModInfo enabled={enabledMods[key]} modGUID={key} author={modInfos[key].Author} displayName={modInfos[key].DisplayName} />
+            <LocalModInfo enabled={enabledMods[key]} mod={modInfos[key]} />
           ))
         }
 
@@ -103,7 +113,7 @@ function App() {
         <h5>Available mods ({database.mods.length})</h5>
         {
           database.mods.map((mod, _) => {
-            return <p>{mod.mod_guid} at {mod.repo}</p>
+            return <RemoteModInfo mod={mod} />
           })
         }
 
@@ -112,27 +122,38 @@ function App() {
 
   );
 
-  function WriteModInfo(props : any) {
+  function RemoteModInfo(props : any) {
+    return(
+      <div className="d-flex flex-row m-2">
+        <button className="ms-2 bg-primary border-primary text-light" onClick={() => install_mod(props.mod.repo, props.mod.download)}>Install</button>
+        <span className="ms-2"><b>{props.mod.mod_guid}</b> <i>from {props.mod.repo}</i></span>
+      </div>
+    )
+  }
+
+  function LocalModInfo(props : any) {
     const [isEnabled, setIsEnabled] = useState(props.enabled);
   
     const enabledHandler = () => {
       setIsEnabled(!isEnabled);
-      invoke('toggle_enabled_mod', { "modGuid": props.modGUID, "enabled": !isEnabled, "dredgePath" : dredgePath}).catch((e) => alert(e.toString()));
+      invoke('toggle_enabled_mod', { "modGuid": props.mod.ModGUID, "enabled": !isEnabled, "dredgePath" : dredgePath}).catch((e) => alert(e.toString()));
     }
   
     return(
-      <div className="d-flex flex-row">
+      <div className="d-flex flex-row m-2">
         <input type="checkbox" className="m-2" checked={isEnabled} onChange={enabledHandler}></input>
-        {!string_null_or_empty(props.displayName) ? 
-          <span><b>{props.displayName}</b></span> :
-          <span><b>{props.modGUID}</b></span>
+        {!string_null_or_empty(props.mod.DisplayName) ? 
+          <span><b>{props.mod.DisplayName}</b></span> :
+          <span><b>{props.mod.ModGUID}</b></span>
         }
-        {!string_null_or_empty(props.description) && 
-          <span> - {props.description}</span>
+        {!string_null_or_empty(props.mod.Description) && 
+          <span> - {props.mod.Description}</span>
         }
-        {!string_null_or_empty(props.author) && 
-          <span className="ms-auto"><i> by {props.author}</i></span>
+        <span className="flex-fill"></span>
+        {!string_null_or_empty(props.mod.Author) && 
+          <span><i> by {props.mod.Author}</i></span>
         }
+        <button className="ms-2 bg-danger border-danger text-light" onClick={() => uninstall_mod(props.mod.LocalPath)}>Uninstall</button>
       </div>
     )
   

@@ -4,9 +4,10 @@
 use std::collections::HashMap;
 use std::fs;
 use std::process::Command;
-use directories::BaseDirs;
 use serde_json::Result as SerdeResult;
 mod database;
+mod mods;
+mod files;
 
 #[derive(serde::Serialize)]
 struct InitialInfo {
@@ -25,7 +26,10 @@ struct ModInfo {
     display_name : String,
 
     #[serde(default)]
-    author : String
+    author : String,
+
+    #[serde(default)]
+    local_path : String,
 }
 
 fn load_mod_info(file : String) -> Result<ModInfo, String> {
@@ -33,17 +37,19 @@ fn load_mod_info(file : String) -> Result<ModInfo, String> {
         Ok(v) => v,
         Err(_) => return Err(format!("Couldn't find mod metadata {}", file).to_string())
     };
-    let json = match serde_json::from_str(&mod_info_string) as SerdeResult<ModInfo> {
+    let mut json = match serde_json::from_str(&mod_info_string) as SerdeResult<ModInfo> {
         Ok(v) => v,
         Err(e) => return Err(format!("Couldn't load mod metadata {} {}", file, e.to_string()).to_string())
     };
+    json.local_path = file;
+
     Ok(json)
 }
 
 #[tauri::command]
 fn load_dredge_path() -> Result<String, String> {
     // Check the metadata file for the path to dredge
-    let file: String = format!("{}/DredgeModManager/data.txt", get_local_dir()?);
+    let file: String = format!("{}/data.txt", files::get_local_dir()?);
     let dredge_path = match fs::read_to_string(&file) {
         Ok(v) => v,
         // TODO: Shouldn't actually be an error because it likely just means this is the first time they run the manager
@@ -66,7 +72,7 @@ fn load(dredge_path : String) -> Result<InitialInfo, String> {
     }
 
     // Load enabled/disabled mods
-    let enabled_mods_path = get_enabled_mods_path(&dredge_path)?;
+    let enabled_mods_path = files::get_enabled_mods_path(&dredge_path)?;
     let enabled_mods_json_string = match fs::read_to_string(&enabled_mods_path) {
         Ok(v) => v,
         Err(_) => "{}".to_string()
@@ -121,8 +127,8 @@ fn load(dredge_path : String) -> Result<InitialInfo, String> {
 fn dredge_path_changed(path: String) -> Result<(), String> {
     println!("DREDGE folder path changed to: {}", path);
 
-    let folder: String = format!("{}\\DredgeModManager", get_local_dir()?);
-    let file: String = format!("{}\\data.txt", folder);
+    let folder: String = files::get_local_dir()?;
+    let file: String = format!("{}/data.txt", folder);
     if !fs::metadata(&folder).is_ok() {
         fs::create_dir_all(&folder).expect("Failed to create DredgeModManager appdata directory.");
     }
@@ -136,7 +142,7 @@ fn dredge_path_changed(path: String) -> Result<(), String> {
 
 #[tauri::command]
 fn toggle_enabled_mod(mod_guid : String, enabled : bool, dredge_path : String) -> Result<(), String> {
-    let enabled_mods_path = get_enabled_mods_path(&dredge_path)?;
+    let enabled_mods_path = files::get_enabled_mods_path(&dredge_path)?;
     let file_contents = fs::read_to_string(&enabled_mods_path).expect("Mod list");
     let mut json = match serde_json::from_str(&file_contents) as SerdeResult<HashMap<String, bool>> {
         Ok(v) => v,
@@ -170,17 +176,14 @@ fn start_game(dredge_path : String) -> () {
     Command::new(exe).spawn().expect("Failed to start DREDGE.exe. Is the game directory correct?");
 }
 
-fn get_local_dir() -> Result<String, String> {
-    let dirs = BaseDirs::new().ok_or("Could not evaluate base directory".to_string())?;
-    let local_dir = dirs.data_local_dir().to_str().ok_or("Could not evaluate local directory".to_string())?;
-
-    Ok(local_dir.to_string())
+#[tauri::command]
+fn uninstall_mod(mod_meta_path : String) -> () {
+    mods::uninstall_mod(mod_meta_path);
 }
 
-fn get_enabled_mods_path(dredge_path : &str) -> Result<String, String> {
-    let mod_list_path: String = format!("{}\\mod_list.json", dredge_path);
-
-    Ok(mod_list_path.to_string())
+#[tauri::command]
+fn install_mod(repo : String, download : String, dredge_folder : String) -> () {
+    mods::install_mod(repo, download, dredge_folder);
 }
 
 fn main() {
@@ -190,7 +193,9 @@ fn main() {
             load_dredge_path,
             load,
             toggle_enabled_mod,
-            start_game
+            start_game,
+            uninstall_mod,
+            install_mod
             ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

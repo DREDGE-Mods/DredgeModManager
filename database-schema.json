@@ -30,7 +30,7 @@
                     },
                     "repo": {
                         "type": "string",
-                        "description": "URL for the GitHub repo of this mod"
+                        "description": "URL for the GitHub repo of this mod, but only the username and repo name - ex, 'xen-42/cosmic-horror-fishing-buddies"
                     },
                     "download": {
                         "type": "string",
