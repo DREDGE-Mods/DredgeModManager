@@ -16,7 +16,7 @@
                 "additionalProperties": false,
                 "required": [
                     "name",
-                    "modGUID",
+                    "mod_guid",
                     "repo"
                 ],
                 "properties": {
@@ -24,7 +24,7 @@
                         "type": "string",
                         "description": "Human-readable title for your mod."
                     },
-                    "modGUID": {
+                    "mod_guid": {
                         "type": "string",
                         "description": "Unique ID for your mod. Recommended to take the form yourname.modname ex, 'xen-42.cosmichorrorfishingbuddies'."
                     },
