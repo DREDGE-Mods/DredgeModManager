@@ -1,0 +1,32 @@
+name: 'test-on-pr'
+on: [pull_request]
+
+jobs:
+  build-tauri:
+    runs-on: windows-latest
+    outputs: 
+      artifactPaths: ${{ steps.tauri.artifactPaths }}
+      
+    steps:
+      - uses: actions/checkout@v3
+      - name: setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - name: install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+      - name: install frontend dependencies
+        run: npm install 
+      - uses: tauri-apps/tauri-action@v0
+        id: tauri
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  upload-artifact:
+    needs: build-tauri
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/upload-artifact@v3
+        with:
+          name: mod-manager
+          path: ${{ jobs.build-tauri.artifactPaths }}
