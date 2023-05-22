@@ -149,9 +149,12 @@ fn write_enabled_mods(json : HashMap<String, bool>, enabled_mods_path : String) 
 }
 
 #[tauri::command]
-fn start_game(dredge_path : String) -> () {
+fn start_game(dredge_path : String) -> Result<(), String> {
     let exe = format!("{}/DREDGE.exe", dredge_path);
-    Command::new(exe).spawn().expect("Failed to start DREDGE.exe. Is the game directory correct?");
+    match Command::new(exe).spawn() {
+        Ok(_) => return Ok(()),
+        Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
+    }
 }
 
 #[tauri::command]
@@ -160,8 +163,11 @@ fn uninstall_mod(mod_meta_path : String) -> () {
 }
 
 #[tauri::command]
-fn install_mod(repo : String, download : String, dredge_folder : String) -> () {
-    mods::install_mod(repo, download, dredge_folder).expect("Failed to install the mod");
+fn install_mod(repo : String, download : String, dredge_folder : String) -> Result<(), String> {
+    match mods::install_mod(repo, download, dredge_folder) {
+        Ok(_) => return Ok(()),
+        Err(error) => return Err(format!("Failed to install mod {}", error.to_string()))
+    }
 }
 
 fn main() {
