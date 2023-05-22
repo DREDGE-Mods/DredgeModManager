@@ -33,4 +33,4 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: mod-manager
-          path: ${{ jobs.build-tauri.artifactPaths }}
+          path: ${{ needs.build-tauri.outputs.artifactPaths }}
