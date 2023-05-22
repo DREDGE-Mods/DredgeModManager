@@ -5,6 +5,7 @@ use std::collections::HashMap;
 use std::fs;
 use std::process::Command;
 use serde_json::Result as SerdeResult;
+use tauri::{Manager, PhysicalSize};
 mod database;
 mod mods;
 mod files;
@@ -175,6 +176,11 @@ fn main() {
             uninstall_mod,
             install_mod
             ])
+        .setup(|app| {
+                let main_window: tauri::Window = app.get_window("main").unwrap();
+                main_window.set_min_size(Some(tauri::Size::Physical(PhysicalSize {width: 640, height: 480}))).unwrap();
+                Ok(())
+            })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
