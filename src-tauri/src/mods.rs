@@ -107,7 +107,6 @@ pub fn install_mod(repo : String, download : String, dredge_folder : String) -> 
     Ok(())
 }
 
-/*
 pub fn install_winch(dredge_folder : String) -> Result<(), Box<dyn std::error::Error>> {
     let url = "https://github.com/Hacktix/Winch/releases/latest/download/Winch.zip".to_string();
 
@@ -117,4 +116,3 @@ pub fn install_winch(dredge_folder : String) -> Result<(), Box<dyn std::error::E
 
     Ok(())
 }
-*/

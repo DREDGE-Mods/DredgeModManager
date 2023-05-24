@@ -5,7 +5,7 @@ pub fn get_local_dir() -> Result<String, String> {
     let dirs = BaseDirs::new().ok_or("Could not evaluate base directory".to_string())?;
     let local_dir = dirs.data_local_dir().to_str().ok_or("Could not evaluate local directory".to_string())?;
 
-    Ok(format!("{}/DredgeModManager", local_dir.to_string()))
+    Ok(format!("{}/Dredge Mod Manager", local_dir.to_string()))
 }
 
 pub fn get_enabled_mods_path(dredge_path : &str) -> Result<String, String> {

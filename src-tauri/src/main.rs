@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 use std::fs;
 use std::process::Command;
 use serde_json::Result as SerdeResult;
@@ -18,6 +18,12 @@ struct InitialInfo {
     winch_mod_info : mods::ModInfo
 }
 
+#[derive(serde::Serialize)]
+struct InitialInfoError {
+    path_correct : bool,
+    message : String
+}
+
 #[tauri::command]
 fn load_dredge_path() -> Result<String, String> {
     // Check the metadata file for the path to dredge
@@ -31,12 +37,18 @@ fn load_dredge_path() -> Result<String, String> {
 }
 
 #[tauri::command]
-fn load(dredge_path : String) -> Result<InitialInfo, String> {
+fn load(dredge_path : String) -> Result<InitialInfo, InitialInfoError> {
     // Validate that the folder path is correct
     if !fs::metadata(format!("{}/DREDGE.exe", dredge_path)).is_ok() {
-        return Err(format!("Couldn't find DREDGE.exe at [{}]", dredge_path));
+        return Err(InitialInfoError { path_correct : false, message : format!("Couldn't find DREDGE.exe at [{}]", dredge_path) });
     }
+    match load_path_correct(dredge_path) {
+        Ok(x) => return Ok(x),
+        Err(error) => return Err(InitialInfoError { path_correct : true, message : error })
+    }
+}
 
+fn load_path_correct(dredge_path : String) -> Result<InitialInfo, String> {
     // Search for installed mods
     let mods_dir_path = format!("{}/Mods", dredge_path);
     if !fs::metadata(&mods_dir_path).is_ok() {
@@ -47,7 +59,7 @@ fn load(dredge_path : String) -> Result<InitialInfo, String> {
     let enabled_mods_path = files::get_enabled_mods_path(&dredge_path)?;
     let enabled_mods_json_string = match fs::read_to_string(&enabled_mods_path) {
         Ok(v) => v,
-        Err(_) => "{}".to_string()
+        Err(_) => return Err("{}".to_string())
     };
     let mut enabled_mods = match serde_json::from_str(&enabled_mods_json_string) as SerdeResult<HashMap<String, bool>> {
         Ok(v) => v,
@@ -150,9 +162,12 @@ fn write_enabled_mods(json : HashMap<String, bool>, enabled_mods_path : String) 
 }
 
 #[tauri::command]
-fn start_game(dredge_path : String) -> () {
+fn start_game(dredge_path : String) -> Result<(), String> {
     let exe = format!("{}/DREDGE.exe", dredge_path);
-    Command::new(exe).spawn().expect("Failed to start DREDGE.exe. Is the game directory correct?");
+    match Command::new(exe).spawn() {
+        Ok(_) => return Ok(()),
+        Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
+    }
 }
 
 #[tauri::command]
@@ -161,8 +176,35 @@ fn uninstall_mod(mod_meta_path : String) -> () {
 }
 
 #[tauri::command]
-fn install_mod(repo : String, download : String, dredge_folder : String) -> () {
-    mods::install_mod(repo, download, dredge_folder).expect("Failed to install the mod");
+fn install_mod(repo : String, download : String, dredge_folder : String) -> Result<(), String> {
+    match mods::install_mod(repo, download, dredge_folder) {
+        Ok(_) => return Ok(()),
+        Err(error) => return Err(format!("Failed to install mod {}", error.to_string()))
+    }
+}
+
+#[tauri::command]
+fn open_dir(path : String) -> Result<(), String> {
+    let mut path_buf: PathBuf = PathBuf::from(path);
+
+    if !path_buf.is_dir() {
+        path_buf.pop();
+    }
+
+    let dir: String = path_buf.display().to_string();
+
+    match open::that(dir) {
+        Ok(_) => return Ok(()),
+        Err(error) => return Err(format!("Couldn't open directory {}", error))
+    }
+}
+
+#[tauri::command]
+fn install_winch(dredge_path : String) -> Result<(), String> {
+    match mods::install_winch(dredge_path) {
+        Ok(_) => return Ok(()),
+        Err(error) => return Err(format!("Couldn't install Winch {}", error))
+    }
 }
 
 fn main() {
@@ -174,7 +216,9 @@ fn main() {
             toggle_enabled_mod,
             start_game,
             uninstall_mod,
-            install_mod
+            install_mod,
+            install_winch,
+            open_dir
             ])
         .setup(|app| {
                 let main_window: tauri::Window = app.get_window("main").unwrap();

@@ -11,6 +11,7 @@ import { Sidebar, Content } from './components';
 import { ModInfo } from './components';
 
 function App() {
+  const [pathCorrect, setPathCorrect] = useState(false);
   const [dredgePath, setDredgePath] = useState("");
   const [winchInfo, setWinchInfo] = useState<ModInfo>();
   const [enabledMods, setEnabledMods] : any = useState({});
@@ -22,18 +23,18 @@ function App() {
   const reloadMods = () => {
     if(dredgePath != null && dredgePath.length != 0) {
       invoke('load', {"dredgePath" : dredgePath}).then((res : any) => {
-        console.log(JSON.stringify(res["winch_mod_info"]));
         setEnabledMods(res.enabled_mods);
         setDatabase(res.database);
 
         // Get the DB data for all the local mods if possible
-        database.forEach((databaseMod) => {
+        res.database.forEach((databaseMod : ModInfo) => {
           if (res.mods.hasOwnProperty(databaseMod.ModGUID)) {
             var localMod = res.mods[databaseMod.ModGUID] as ModInfo;
             localMod.Description = databaseMod.Description;
             localMod.Downloads = databaseMod.Downloads;
             localMod.LatestVersion = databaseMod.LatestVersion;
             localMod.ReleaseDate = databaseMod.ReleaseDate;
+            localMod.Repo = databaseMod.Repo;
           }
         })
 
@@ -41,10 +42,18 @@ function App() {
 
         setAvailableMods(res.database.map((x : ModInfo) => x.ModGUID).filter((x : string) => !res.mods.hasOwnProperty(x)));
         setWinchInfo(res.winch_mod_info);
-      }).catch((e) => {
-        alert(e.toString());
-        setEnabledMods({});
+
+        setPathCorrect(true);
+      }).catch((e : { path_correct : boolean, message : string }) => {
+        alert(e.message);
+        setModInfos({});
+        setAvailableMods([]);
+        setWinchInfo(undefined);
+        setPathCorrect(e.path_correct);
       });
+    }
+    else {
+      setEnabledMods({});
     }
   }
 
@@ -52,7 +61,6 @@ function App() {
     // Runs at the start to get initial stuff
     invoke('load_dredge_path').then((v) => {
       setDredgePath(v as string);
-      reloadMods();
     }).catch((e) => alert(e.toString()));
   }, [])
 
@@ -64,13 +72,9 @@ function App() {
   const debouncedDredgePathChanged = useDebouncedCallback(
     // function
     () => {
-      try{
-        invoke('dredge_path_changed', {"path": dredgePath});
-        reloadMods();
-      }
-      catch (e : any) {
-        alert(e.toString());
-      }
+      invoke('dredge_path_changed', {"path": dredgePath})
+      .then(reloadMods)
+      .catch((e) => alert(e.toString()));
     },
     // delay in ms
     1000
@@ -90,20 +94,35 @@ function App() {
   };
 
   const start = () => {
-    invoke('start_game', {dredgePath : dredgePath}).catch((e) => alert(e.toString()));
+    invoke('start_game', {dredgePath : dredgePath})
+    .catch((e) => alert(e.toString()));
   }
 
   const uninstall_mod = (modMetaPath : string | undefined) => {
     if (modMetaPath != undefined) {
-      invoke('uninstall_mod', {modMetaPath : modMetaPath});
-      reloadMods();
+      invoke('uninstall_mod', {modMetaPath : modMetaPath})
+      .then(reloadMods)
+      .catch((e) => alert(e.toString()));
     }
   }
 
-  const install_mod = (repo : string | undefined, download : string | undefined) => {
-    if (repo != undefined && download != undefined) {
-      invoke('install_mod', {repo: repo, download: download, dredgeFolder: dredgePath});
-      reloadMods();
+  const install_mod = (modInfo : ModInfo) => {
+    if (modInfo.Repo != undefined && modInfo.Download != undefined) {
+      invoke('install_mod', {repo: modInfo.Repo, download: modInfo.Download, dredgeFolder: dredgePath})
+      .then(reloadMods)
+      .catch((e) => alert(e.toString()));
+    }
+  }
+
+  const install_winch = () => {
+    if (winchInfo != undefined) {
+      invoke('install_winch', {dredge_path : dredgePath});
+    }
+  }
+
+  const openModDir = (path : string | undefined) => {
+    if (path != undefined) {
+      invoke('open_dir', { "path" : path }).catch((e) => alert(e.toString()));
     }
   }
 
@@ -125,7 +144,7 @@ function App() {
         <div className="d-flex">
           <h1>Dredge Mod Manager</h1>
           <div className="ms-auto">
-            <button className="p-2 ps-4 pe-4 bg-success text-light border-success" onClick={start}>PLAY</button>
+            <button className="p-2 ps-4 pe-4 bg-success text-light border-success" onClick={start} disabled={!pathCorrect}>PLAY</button>
           </div>
         </div>
 
@@ -135,25 +154,55 @@ function App() {
         </div>
         <div className="d-flex">
           <input type="text" className="flex-fill m-2" onChange={(e) => setDredgePath(e.target.value)} value={dredgePath}></input>
-          <button className="m-2" onClick={readFileContents}>...</button>
+          <button className="m-2" onClick={readFileContents}>Select Folder</button>
         </div>
 
         <br/>
 
-        <div>
-          <b>{winchInfo?.Name}</b> {winchInfo?.Version} <i>by {winchInfo?.Author}</i> 
+        <div className="d-flex justify-content-center">
+          {
+            pathCorrect ? 
+            <div>
+              {
+                winchInfo != undefined ?
+                <span>
+                  <b>{winchInfo?.Name}</b> version {winchInfo?.Version} is installed.
+                </span> :
+                <button className="bg-success text-light mod-button" onClick={install_winch}>Install Winch</button>
+              }
+              <button className="ms-2 bg-secondary text-light mod-button" title="Open mod directory" onClick={() => openModDir(dredgePath)}>Open DREDGE folder</button>
+            </div> 
+            :
+            <div className="bg-warning text-dark p-2 pe-4 ps-4 rounded">
+              Fix the Dredge folder path in order to play with mods
+            </div>
+          }
         </div>
 
         <br/>
+        <div className="flex-fill">
+          {Object.keys(modInfos).length > 0 && InstalledMods()}
+
+          <br/>
+          {availableMods.length > 0 && AvailableMods()}
+
+          <br/>
+        </div>
+
+      </div>
+    </div>
+
+  );
+
+  function InstalledMods() {
+    return(
+      <div>
         <h5>Installed mods ({Object.keys(modInfos).length})</h5>
         {
           Object.keys(modInfos).map((key, _) => (
             <LocalModInfo enabled={enabledMods[key]} mod={modInfos[key]} />
           ))
         }
-
-        <br/>
-        {availableMods.length > 0 && AvailableMods()}
       </div>
       */
 
@@ -179,11 +228,11 @@ function App() {
     return(
       <div className="ms-4 me-4 flex-fill">
         <div className="d-flex w-100">
-          <div><b>{string_null_or_empty(props.mod.Name) ? props.mod.ModGUID : props.mod.Name}</b> {props.mod.LatestVersion}</div>
-          <div className="flex-fill"/>
+          <div className="me-4"><b>{string_null_or_empty(props.mod.Name) ? props.mod.ModGUID : props.mod.Name}</b> {props.mod.LatestVersion}</div>
+          
           { string_null_or_empty(props.mod.Author) ?
-            <div><i>from {props.mod.Repo}</i></div> :
-            <div><i>by {props.mod.Author}</i></div>
+            <span><i> from {props.mod.Repo}</i></span> :
+            <span><i> by {props.mod.Author}</i></span>
           }
         </div>
         <div>
@@ -202,7 +251,7 @@ function App() {
     return(
       <div>
         <div className="d-flex flex-row m-2">
-          <button className="ms-2 bg-primary border-primary text-light" onClick={() => install_mod(props.mod.Repo, props.mod.Download)}>Install</button>
+          <button className="ms-2 bg-primary border-primary text-light mod-button" onClick={() => install_mod(props.mod)}>Install</button>
           <GenericModInfo mod = {props.mod}/>
         </div>
       </div>
@@ -211,10 +260,11 @@ function App() {
 
   function LocalModInfo(props : { mod : ModInfo, enabled : boolean }) {
     const [isEnabled, setIsEnabled] = useState(props.enabled);
-  
+
     const enabledHandler = () => {
       setIsEnabled(!isEnabled);
-      invoke('toggle_enabled_mod', { "modGuid": props.mod.ModGUID, "enabled": !isEnabled, "dredgePath" : dredgePath}).catch((e) => alert(e.toString()));
+      invoke('toggle_enabled_mod', { "modGuid": props.mod.ModGUID, "enabled": !isEnabled, "dredgePath" : dredgePath})
+      .catch((e) => alert(e.toString()));
     }
   
     return(
@@ -223,7 +273,19 @@ function App() {
 
         <GenericModInfo mod = {props.mod}/>
 
-        <button className="ms-2 bg-danger border-danger text-light" onClick={() => uninstall_mod(props.mod.LocalPath)}>Uninstall</button>
+        {!string_null_or_empty(props.mod.Repo) && 
+          <button className="ms-2 update mod-button text-light" 
+            onClick={() => install_mod(props.mod)} 
+            disabled={props.mod.Version?.trim() == props.mod.LatestVersion?.trim()}
+            title={"Latest version " + props.mod.LatestVersion}
+            >
+            Update
+          </button>
+        }
+
+        <button className="ms-2 bg-secondary text-light mod-button" title="Open mod directory" onClick={() => openModDir(props.mod.LocalPath)}>...</button>
+
+        <button className="ms-2 bg-danger border-danger text-light mod-button" onClick={() => uninstall_mod(props.mod.LocalPath)}>Uninstall</button>
       </div>
     )
   }
