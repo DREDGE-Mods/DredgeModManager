@@ -8,6 +8,10 @@ button {
     border-radius: 5px ! important;
 }
 
+    button:disabled {
+        opacity: 0.2;
+    }
+
 .overflow-y-scroll {
   overflow-y: scroll;
   overflow-x: hidden
@@ -22,4 +26,13 @@ html, body, #root {
 
 #root {
     overflow-y: auto;
+}
+
+.update {
+    background-color: rgb(255, 115, 0);
+    border-color: rgb(255, 115, 0);
+}
+
+.mod-button {
+    height: 32px;
 }

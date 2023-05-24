@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::collections::HashMap;
+use std::{collections::HashMap, path::PathBuf};
 use std::fs;
 use std::process::Command;
 use serde_json::Result as SerdeResult;
@@ -171,6 +171,19 @@ fn install_mod(repo : String, download : String, dredge_folder : String) -> Resu
     }
 }
 
+#[tauri::command]
+fn open_dir(path : String) -> Result<(), String> {
+    let mut pathBuf: PathBuf = PathBuf::from(path);
+    pathBuf.pop();
+
+    let dir: String = pathBuf.display().to_string();
+
+    match open::that(dir) {
+        Ok(_) => return Ok(()),
+        Err(error) => return Err(format!("Couldn't open directory {}", error))
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -180,7 +193,8 @@ fn main() {
             toggle_enabled_mod,
             start_game,
             uninstall_mod,
-            install_mod
+            install_mod,
+            open_dir
             ])
         .setup(|app| {
                 let main_window: tauri::Window = app.get_window("main").unwrap();

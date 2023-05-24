@@ -48,6 +48,7 @@ function App() {
             localMod.Downloads = databaseMod.Downloads;
             localMod.LatestVersion = databaseMod.LatestVersion;
             localMod.ReleaseDate = databaseMod.ReleaseDate;
+            localMod.Repo = databaseMod.Repo;
           }
         })
 
@@ -143,7 +144,7 @@ function App() {
         <br/>
 
         <div>
-          <b>{winchInfo?.Name}</b> {winchInfo?.Version} <i>by {winchInfo?.Author}</i> 
+          <b>{winchInfo?.Name}</b> version {winchInfo?.Version} is installed.
         </div>
 
         <br/>
@@ -152,6 +153,8 @@ function App() {
 
           <br/>
           {availableMods.length > 0 && AvailableMods()}
+
+          <br/>
         </div>
 
       </div>
@@ -194,11 +197,11 @@ function App() {
     return(
       <div className="ms-4 me-4 flex-fill">
         <div className="d-flex w-100">
-          <div><b>{string_null_or_empty(props.mod.Name) ? props.mod.ModGUID : props.mod.Name}</b> {props.mod.LatestVersion}</div>
-          <div className="flex-fill"/>
+          <div className="me-4"><b>{string_null_or_empty(props.mod.Name) ? props.mod.ModGUID : props.mod.Name}</b> {props.mod.LatestVersion}</div>
+          
           { string_null_or_empty(props.mod.Author) ?
-            <div><i>from {props.mod.Repo}</i></div> :
-            <div><i>by {props.mod.Author}</i></div>
+            <span><i> from {props.mod.Repo}</i></span> :
+            <span><i> by {props.mod.Author}</i></span>
           }
         </div>
         <div>
@@ -217,7 +220,7 @@ function App() {
     return(
       <div>
         <div className="d-flex flex-row m-2">
-          <button className="ms-2 bg-primary border-primary text-light" onClick={() => install_mod(props.mod)}>Install</button>
+          <button className="ms-2 bg-primary border-primary text-light mod-button" onClick={() => install_mod(props.mod)}>Install</button>
           <GenericModInfo mod = {props.mod}/>
         </div>
       </div>
@@ -226,11 +229,17 @@ function App() {
 
   function LocalModInfo(props : { mod : ModInfo, enabled : boolean }) {
     const [isEnabled, setIsEnabled] = useState(props.enabled);
-  
+
     const enabledHandler = () => {
       setIsEnabled(!isEnabled);
       invoke('toggle_enabled_mod', { "modGuid": props.mod.ModGUID, "enabled": !isEnabled, "dredgePath" : dredgePath})
       .catch((e) => alert(e.toString()));
+    }
+
+    const openModDir = (path : string | undefined) => {
+      if (path != undefined) {
+        invoke('open_dir', { "path" : path }).catch((e) => alert(e.toString()));
+      }
     }
   
     return(
@@ -239,7 +248,19 @@ function App() {
 
         <GenericModInfo mod = {props.mod}/>
 
-        <button className="ms-2 bg-danger border-danger text-light" onClick={() => uninstall_mod(props.mod.LocalPath)}>Uninstall</button>
+        {!string_null_or_empty(props.mod.Repo) && 
+          <button className="ms-2 update mod-button text-light" 
+            onClick={() => install_mod(props.mod)} 
+            disabled={props.mod.Version?.trim() == props.mod.LatestVersion?.trim()}
+            title={"Latest version " + props.mod.LatestVersion}
+            >
+            Update
+          </button>
+        }
+
+        <button className="ms-2 bg-secondary text-light mod-button" title="Open mod directory" onClick={() => openModDir(props.mod.LocalPath)}>...</button>
+
+        <button className="ms-2 bg-danger border-danger text-light mod-button" onClick={() => uninstall_mod(props.mod.LocalPath)}>Uninstall</button>
       </div>
     )
   }
