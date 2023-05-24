@@ -121,7 +121,7 @@ function App() {
   }
 
   return (
-    <div className="bg-dark text-light h-100 mh-100 w-100 mw-100">
+    <div className="bg-dark text-light min-h-100 min-w-100">
       <div className="container h-100 d-flex flex-column">
         <br/>
         <div className="d-flex">
