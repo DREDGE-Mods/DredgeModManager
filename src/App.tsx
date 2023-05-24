@@ -27,6 +27,7 @@ interface ModInfo {
 }
 
 function App() {
+  const [pathCorrect, setPathCorrect] = useState(false);
   const [dredgePath, setDredgePath] = useState("");
   const [winchInfo, setWinchInfo] = useState<ModInfo>();
   const [enabledMods, setEnabledMods] : any = useState({});
@@ -56,10 +57,18 @@ function App() {
 
         setAvailableMods(res.database.map((x : ModInfo) => x.ModGUID).filter((x : string) => !res.mods.hasOwnProperty(x)));
         setWinchInfo(res.winch_mod_info);
-      }).catch((e) => {
-        alert(e.toString());
-        setEnabledMods({});
+
+        setPathCorrect(true);
+      }).catch((e : { path_correct : boolean, message : string }) => {
+        alert(e.message);
+        setModInfos({});
+        setAvailableMods([]);
+        setWinchInfo(undefined);
+        setPathCorrect(e.path_correct);
       });
+    }
+    else {
+      setEnabledMods({});
     }
   }
 
@@ -67,7 +76,6 @@ function App() {
     // Runs at the start to get initial stuff
     invoke('load_dredge_path').then((v) => {
       setDredgePath(v as string);
-      reloadMods();
     }).catch((e) => alert(e.toString()));
   }, [])
 
@@ -121,14 +129,26 @@ function App() {
     }
   }
 
+  const install_winch = () => {
+    if (winchInfo != undefined) {
+      invoke('install_winch', {dredge_path : dredgePath});
+    }
+  }
+
+  const openModDir = (path : string | undefined) => {
+    if (path != undefined) {
+      invoke('open_dir', { "path" : path }).catch((e) => alert(e.toString()));
+    }
+  }
+
   return (
-    <div className="bg-dark text-light min-h-100 min-w-100">
+    <div className="bg-dark text-light min-vh-100 min-h-100 min-w-100">
       <div className="container h-100 d-flex flex-column">
         <br/>
         <div className="d-flex">
           <h1>Dredge Mod Manager</h1>
           <div className="ms-auto">
-            <button className="p-2 ps-4 pe-4 bg-success text-light border-success" onClick={start}>PLAY</button>
+            <button className="p-2 ps-4 pe-4 bg-success text-light border-success" onClick={start} disabled={!pathCorrect}>PLAY</button>
           </div>
         </div>
 
@@ -138,13 +158,29 @@ function App() {
         </div>
         <div className="d-flex">
           <input type="text" className="flex-fill m-2" onChange={(e) => setDredgePath(e.target.value)} value={dredgePath}></input>
-          <button className="m-2" onClick={readFileContents}>...</button>
+          <button className="m-2" onClick={readFileContents}>Select Folder</button>
         </div>
 
         <br/>
 
-        <div>
-          <b>{winchInfo?.Name}</b> version {winchInfo?.Version} is installed.
+        <div className="d-flex justify-content-center">
+          {
+            pathCorrect ? 
+            <div>
+              {
+                winchInfo != undefined ?
+                <span>
+                  <b>{winchInfo?.Name}</b> version {winchInfo?.Version} is installed.
+                </span> :
+                <button className="bg-success text-light mod-button" onClick={install_winch}>Install Winch</button>
+              }
+              <button className="ms-2 bg-secondary text-light mod-button" title="Open mod directory" onClick={() => openModDir(dredgePath)}>Open DREDGE folder</button>
+            </div> 
+            :
+            <div className="bg-warning text-dark p-2 pe-4 ps-4 rounded">
+              Fix the Dredge folder path in order to play with mods
+            </div>
+          }
         </div>
 
         <br/>
@@ -234,12 +270,6 @@ function App() {
       setIsEnabled(!isEnabled);
       invoke('toggle_enabled_mod', { "modGuid": props.mod.ModGUID, "enabled": !isEnabled, "dredgePath" : dredgePath})
       .catch((e) => alert(e.toString()));
-    }
-
-    const openModDir = (path : string | undefined) => {
-      if (path != undefined) {
-        invoke('open_dir', { "path" : path }).catch((e) => alert(e.toString()));
-      }
     }
   
     return(
