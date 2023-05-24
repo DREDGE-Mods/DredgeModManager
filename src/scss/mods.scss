@@ -1,0 +1,75 @@
+@use './colours' as *;
+
+@mixin mods-default {
+    font-style: normal;
+    font-weight: 350;
+    font-size: 20px;
+    line-height: 24px;
+    color: $text-light-secondary;
+}
+
+@mixin mods-selected {
+    color: $text-light-primary;
+    font-weight: 400;
+}
+
+
+.mods-container {
+    display: flex;
+    flex-direction: column;
+
+    height: 100%;
+    width: 100%;
+
+    background-color: transparent;
+}
+
+.mods-selectors {
+    display: flex;
+    flex-direction: row;
+
+    min-height: 50px;
+    margin-bottom: -1px; // Merge selectors and list borders correctly.
+
+    & button {
+        @include mods-default;
+
+        text-align: center;
+
+        border-width: 2px;
+        border-color: $bg-primary-tint;
+        border-bottom: 2px solid $bg-primary-tint;
+        
+        $--border-radius: 25px;
+
+        border-top-left-radius: $--border-radius;
+        border-top-right-radius: $--border-radius;
+
+        flex-grow: 1;
+
+        &.selected {
+            @include mods-selected;
+
+            border: 2px solid $bg-primary-tint;
+            border-bottom-color: transparent;
+
+            background-color: $bg-primary;
+        }
+
+        & label {
+            cursor: pointer;
+        }
+    }
+}
+
+@mixin mods-list {
+    background-color: $bg-primary;
+    flex-grow: 1;
+
+    border: 2px solid $bg-primary-tint;
+    border-top: 0px solid;
+}
+
+.mods-installed-list {
+    @include mods-list;
+}

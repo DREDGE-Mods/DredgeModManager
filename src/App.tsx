@@ -1,30 +1,14 @@
-import "./App.css";
+import "./App.scss";
 import './scss/styles.scss'
 import * as bootstrap from 'bootstrap'
 import { open } from "@tauri-apps/api/dialog";
 import {useEffect, useState} from 'react';
 import { useDebouncedCallback } from "use-debounce";
 // When using the Tauri API npm package:
-import { invoke } from '@tauri-apps/api/tauri'
+import { invoke } from '@tauri-apps/api/tauri';
 
-interface ModInfo {
-  // General
-  Name : string,
-  ModGUID : string,
-
-  // Database
-  Description? : string,
-  ReleaseDate? : string,
-  LatestVersion? : string,
-  Downloads? : number
-  Repo? : string,
-  Download? : string,
-
-  // Installed
-  Author? : string,
-  Version? : string,
-  LocalPath? : string
-}
+import { Sidebar, Content } from './components';
+import { ModInfo } from './components';
 
 function App() {
   const [dredgePath, setDredgePath] = useState("");
@@ -33,6 +17,7 @@ function App() {
   const [modInfos, setModInfos] : any = useState({});
   const [database, setDatabase] = useState<Array<ModInfo>>([]);
   const [availableMods, setAvailableMods] = useState<[]>([]);
+  const [pageChoice, setPageChoice] = useState("Mods"); // Mods is default state.
 
   const reloadMods = () => {
     if(dredgePath != null && dredgePath.length != 0) {
@@ -122,9 +107,20 @@ function App() {
     }
   }
 
+  const set_page_choice = async(option: string) => {
+    console.log(pageChoice);
+    setPageChoice(option);
+  }
+
   return (
-    <body className="bg-dark text-light min-vh-100">
-      <div className="h-100 w-100 container min-vh-100">
+    <div className="app-container text-light">
+      <Sidebar choice={pageChoice} start={start} setPage={set_page_choice} key="Sidebar"/>
+      <Content choice={pageChoice} key="Content" modsInfo={modInfos} reloadMods={reloadMods}/>
+    </div>
+  );
+
+  /*
+  <div className="h-100 w-100 container min-vh-100">
         <br/>
         <div className="d-flex">
           <h1>Dredge Mod Manager</h1>
@@ -159,9 +155,7 @@ function App() {
         <br/>
         {availableMods.length > 0 && AvailableMods()}
       </div>
-    </body>
-
-  );
+      */
 
   function AvailableMods() {
     return(
