@@ -9,7 +9,7 @@ interface IContentState extends React.PropsWithChildren<any>{
     choice: string;
 }
 
-export default class Content extends Component<{choice : string, modsInfo: ModInfo[], reloadMods: () => void}, IContentState>
+export default class Content extends Component<{choice : string, modsInfo: {}, reloadMods: () => void}, IContentState>
 {
     contentOptions: any;
 
@@ -18,7 +18,7 @@ export default class Content extends Component<{choice : string, modsInfo: ModIn
 
         this.contentOptions = new Map(
             [
-                ["Mods", <Mods selected="Installed" modsInfo={this.props.modsInfo} reload={this.props.reloadMods}/>],
+                ["Mods", <Mods selected="Installed" modsInfo={this.props.modsInfo} reload={props.reloadMods}/>],
                 ["Settings", <div>Settings</div>]
             ]
         )

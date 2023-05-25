@@ -2,83 +2,16 @@ import "./App.scss";
 import './scss/styles.scss'
 import * as bootstrap from 'bootstrap'
 import { open } from "@tauri-apps/api/dialog";
-import {useEffect, useState} from 'react';
+import {useEffect, useState, Component} from 'react';
 import { useDebouncedCallback } from "use-debounce";
 // When using the Tauri API npm package:
 import { invoke } from '@tauri-apps/api/tauri';
+import { debounce } from "lodash";
 
 import { Sidebar, Content } from './components';
 import { ModInfo } from './components';
 
-function App() {
-  const [pathCorrect, setPathCorrect] = useState(false);
-  const [dredgePath, setDredgePath] = useState("");
-  const [winchInfo, setWinchInfo] = useState<ModInfo>();
-  const [enabledMods, setEnabledMods] : any = useState({});
-  const [modInfos, setModInfos] : any = useState({});
-  const [database, setDatabase] = useState<Array<ModInfo>>([]);
-  const [availableMods, setAvailableMods] = useState<[]>([]);
-  const [pageChoice, setPageChoice] = useState("Mods"); // Mods is default state.
-
-  const reloadMods = () => {
-    if(dredgePath != null && dredgePath.length != 0) {
-      invoke('load', {"dredgePath" : dredgePath}).then((res : any) => {
-        setEnabledMods(res.enabled_mods);
-        setDatabase(res.database);
-
-        // Get the DB data for all the local mods if possible
-        res.database.forEach((databaseMod : ModInfo) => {
-          if (res.mods.hasOwnProperty(databaseMod.ModGUID)) {
-            var localMod = res.mods[databaseMod.ModGUID] as ModInfo;
-            localMod.Description = databaseMod.Description;
-            localMod.Downloads = databaseMod.Downloads;
-            localMod.LatestVersion = databaseMod.LatestVersion;
-            localMod.ReleaseDate = databaseMod.ReleaseDate;
-            localMod.Repo = databaseMod.Repo;
-          }
-        })
-
-        setModInfos(res.mods);
-
-        setAvailableMods(res.database.map((x : ModInfo) => x.ModGUID).filter((x : string) => !res.mods.hasOwnProperty(x)));
-        setWinchInfo(res.winch_mod_info);
-
-        setPathCorrect(true);
-      }).catch((e : { path_correct : boolean, message : string }) => {
-        alert(e.message);
-        setModInfos({});
-        setAvailableMods([]);
-        setWinchInfo(undefined);
-        setPathCorrect(e.path_correct);
-      });
-    }
-    else {
-      setEnabledMods({});
-    }
-  }
-
-  useEffect(() => {
-    // Runs at the start to get initial stuff
-    invoke('load_dredge_path').then((v) => {
-      setDredgePath(v as string);
-    }).catch((e) => alert(e.toString()));
-  }, [])
-
-  useEffect(() => {
-    // When the state changes, if it doesn't change within a second the rust fn will be invoked
-    debouncedDredgePathChanged();
-  }, [dredgePath])
-
-  const debouncedDredgePathChanged = useDebouncedCallback(
-    // function
-    () => {
-      invoke('dredge_path_changed', {"path": dredgePath})
-      .then(reloadMods)
-      .catch((e) => alert(e.toString()));
-    },
-    // delay in ms
-    1000
-  );
+function OldApp() {
 
   const readFileContents = async () => {
     try {
@@ -92,11 +25,6 @@ function App() {
       console.error(err);
     }
   };
-
-  const start = () => {
-    invoke('start_game', {dredgePath : dredgePath})
-    .catch((e) => alert(e.toString()));
-  }
 
   const uninstall_mod = (modMetaPath : string | undefined) => {
     if (modMetaPath != undefined) {
@@ -292,6 +220,120 @@ function App() {
 
   function string_null_or_empty(s : string | undefined) {
     return s == undefined || s == null || s.trim().length == 0;
+  }
+}
+
+interface IAppState extends React.PropsWithChildren{
+  pathCorrect: boolean | undefined;
+  dredgePath: string | undefined;
+  winchInfo: ModInfo | undefined;
+  availableMods: [] | undefined;
+  enabledMods: {} | undefined;
+  modInfos: {} | undefined;
+  database: ModInfo[] | undefined;
+  pageChoice: string | undefined;
+}
+
+class App extends Component<{}, IAppState>
+{
+  constructor(props: any) {
+    super(props);
+
+    this.state = {
+      pathCorrect: undefined,
+      dredgePath: undefined,
+      winchInfo: undefined,
+      availableMods: [],
+      enabledMods: undefined,
+      modInfos: {},
+      database: undefined,
+      pageChoice: "Mods"
+    }
+
+    // Binding ensures that when called,
+    // The context these functions use is of this component,
+    // Not of wherever it's called from.
+    this.start = this.start.bind(this);
+    this.set_page_choice = this.set_page_choice.bind(this);
+    this.reload_mods = this.reload_mods.bind(this);
+  }
+
+  // Start game on click
+  start() {
+    invoke('start_game', {dredgePath : this.state.dredgePath})
+    .catch((e) => alert(e.toString()));
+  }
+
+  set_page_choice(choice: string) {
+    this.setState({pageChoice: choice});
+  }
+
+  reload_mods() {
+    if (this.state.dredgePath != null && this.state.dredgePath.length != 0) {
+
+      invoke("load", {"dredgePath" : this.state.dredgePath}).then((fetch:any) => {
+        fetch.database.forEach((databaseMod : ModInfo) => {
+
+          // Populate data for local mods from the database for that mod.
+          if (fetch.mods.hasOwnProperty(databaseMod.ModGUID)) {
+            var localMod = fetch.mods[databaseMod.ModGUID] as ModInfo;
+            localMod.Description = databaseMod.Description;
+            localMod.Downloads = databaseMod.Downloads;
+            localMod.LatestVersion = databaseMod.LatestVersion;
+            localMod.ReleaseDate = databaseMod.ReleaseDate;
+            localMod.Repo = databaseMod.Repo;
+          }
+        });
+
+        this.setState({
+          enabledMods: fetch.enabled_mods,
+          database: fetch.database,
+          modInfos: fetch.mods,
+          availableMods: fetch.database.map((mod : ModInfo) => mod.ModGUID).filter((modGUID: string) => !fetch.mods.hasOwnProperty(modGUID)),
+          winchInfo: fetch.winch_mod_info,
+          pathCorrect: true,
+        }, () => {console.log(this.state);});
+
+      }).catch((error: {path_correct: boolean, message: string}) => {
+        alert(error.message);
+        this.setState({
+          pathCorrect: error.path_correct,
+        });
+      });
+    }
+  }
+
+  // React calls this when the component initially mounts after its first render.
+  // Doesn't need to be bound as it's inbuilt,
+  // Would need to be bound if called by us anywhere.
+  componentDidMount (): void {
+    invoke('load_dredge_path').then((path) => {
+      this.setState({dredgePath: path as string})
+    }).catch((error) => alert(error.toString()));
+    this.reload_mods();
+  }
+
+  componentDidUpdate (prevProps: any, prevState: any): void {
+    if (prevState.dredgePath != this.state.dredgePath) {
+      this.debounced_dredge_path_change();
+    }
+  }
+
+  debounced_dredge_path_change = debounce(() => {
+      invoke("dredge_path_changed", {"path": this.state.dredgePath})
+      .then(this.reload_mods)
+      .catch((error) => alert(error.toString()));
+    },
+    1000
+  )
+
+  render() {
+    return (
+      <div className="app-container text-light">
+        <Sidebar choice={this.state.pageChoice!} start={this.start} setPage={this.set_page_choice} key="Sidebar"/>
+        <Content choice={this.state.pageChoice!} key="Content" modsInfo={this.state.modInfos!} reloadMods={this.reload_mods}/>
+      </div>
+    )
   }
 }
 

@@ -7,7 +7,7 @@ interface IModsState extends React.PropsWithChildren<any>{
     selected: string;
 }
 
-export default class Mods extends Component<{selected: string, modsInfo: ModInfo[], reload: () => void}, IModsState>
+export default class Mods extends Component<{selected: string, modsInfo: {}, reload: () => void}, IModsState>
 {
     constructor(props: any) {
         super(props);
