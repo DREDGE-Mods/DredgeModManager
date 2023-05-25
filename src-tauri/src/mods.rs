@@ -1,9 +1,8 @@
-use std::io::{Write, Cursor};
+use std::io::Cursor;
 use std::path::PathBuf;
 use std::{path::Path, fs};
-use std::fs::File;
 use serde_json::Result as SerdeResult;
-#[path = "files.rs"] mod files;
+use crate::files;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 #[serde(rename_all = "PascalCase")]
