@@ -30,9 +30,9 @@ jobs:
             const { data } = await github.rest.repos.createRelease({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              tag_name: `app-v${process.env.PACKAGE_VERSION}`,
-              name: `Desktop App v${process.env.PACKAGE_VERSION}`,
-              body: 'Take a look at the assets to download and install this app.',
+              tag_name: `v${process.env.PACKAGE_VERSION}`,
+              name: `Dredge Mod Manager v${process.env.PACKAGE_VERSION}`,
+              body: 'An application for installing Dredge mods for use with the Winch mod loader',
               draft: true,
               prerelease: false
             })
@@ -62,7 +62,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
       - name: install frontend dependencies
-        run: yarn install # change this to npm or pnpm depending on which one you use
+        run: npm install 
       - uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
