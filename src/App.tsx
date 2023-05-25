@@ -223,6 +223,14 @@ function OldApp() {
   }
 }
 
+
+// ----------- Class based below here -----------
+
+
+
+
+
+
 interface IAppState extends React.PropsWithChildren{
   pathCorrect: boolean | undefined;
   dredgePath: string | undefined;
