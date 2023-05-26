@@ -30,8 +30,11 @@ fn load_dredge_path() -> Result<String, String> {
     let file: String = format!("{}/data.txt", files::get_local_dir()?);
     let dredge_path = match fs::read_to_string(&file) {
         Ok(v) => v,
-        // TODO: Shouldn't actually be an error because it likely just means this is the first time they run the manager
-        Err(_) => return Err(format!("Couldn't load manager metadata at {}", file).to_string())
+        Err(_) => match dredge_path_changed("".to_string()) 
+        {
+            Ok(_) => "".to_string(),
+            Err(err) => return Err(err.to_string())
+        }
     };
     Ok(dredge_path)
 }
