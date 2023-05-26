@@ -1,0 +1,7 @@
+@use './colours' as *;
+
+.content-container {
+    flex-grow: 1;
+    padding: 10px 10px;
+    background-color: $bg-primary-shade;
+}

@@ -1,0 +1,172 @@
+// TODO: actually separate into different files
+// so that it's relatively understandable,
+// is component-based after all.
+
+@use './colours' as *;
+
+@mixin sidebar-default {
+    font-style: normal;
+    font-weight: 350;
+    font-size: 20px;
+    line-height: 24px;
+    color: $text-light-secondary;
+}
+
+@mixin sidebar-selected {
+    color: $text-light-primary;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+}
+
+@mixin sidebar-separator {
+    &::before {
+        content: "";
+        cursor: default;
+        display: block;
+        position: absolute;
+        top: -8px;
+        width: 80%;
+        margin: 0 10%;
+        padding: 0 auto;
+        height: 2px;
+        background-color: $bg-primary-tint;
+    }
+}
+
+$--option-height: 80px;
+
+$--play-inner-radius: 5px;
+$--play-outer-radius: 9px;
+
+$--play-alt-width: 20px;
+
+.sidebar-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    min-height: 0;
+
+    width: 140px;
+    min-width: 120px;
+    height: 100vh;
+
+    background-color: $bg-primary-shade;
+
+    padding: 10px 0;
+}
+
+.sidebar-option {
+    @include sidebar-default;
+
+    position: relative;
+
+    background: none;
+    border: none;
+    border-radius: 0;
+
+    width: 100%;
+    height: $--option-height;
+
+    &.selected {
+        @include sidebar-selected;
+    }
+
+    &:hover {
+        background-color: $bg-primary-tint;
+    }
+}
+
+.sidebar-options-container {
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+
+    justify-content: start;
+
+    margin: 0 2px auto 2px;
+
+    overflow-y: auto;
+    // can adjust height of all options with this margin
+}
+
+.sidebar-option-container {
+    position: relative;
+    & + & {
+        @include sidebar-separator;
+    }
+}
+
+.sidebar-play-container {
+    position: relative;
+    min-height: $--option-height;
+    width: 100%;
+
+    display: grid;
+    place-items: center;
+
+    margin-top: 20px;
+
+    @include sidebar-separator;
+}
+
+.sidebar-play {
+    width: 70%;
+    height: 70%;
+
+    display: flex;
+    flex-flow: row nowrap;
+    gap: 4px;
+
+    & button {
+        border: none;
+        background-color: $interact-green-shade;
+        border-radius: $--play-inner-radius;
+        
+        padding-top: 1px;
+
+        &:hover {
+            background-color: $interact-green;
+        }
+    }
+}
+
+
+.sidebar-play-main {
+    flex-grow: 1;
+    border-top-left-radius: $--play-outer-radius !important;
+    border-bottom-left-radius: $--play-outer-radius !important;
+
+    & label {
+        color: $text-light-primary;
+        font-style: normal;
+        font-weight: 600;
+        font-size: 22px;
+        line-height: 27px;
+        text-transform: uppercase;
+        cursor: pointer;
+    }
+}
+
+.sidebar-play-alt {
+    flex-basis: $--play-alt-width;
+    max-width: $--play-alt-width;
+    border-top-right-radius: $--play-outer-radius !important;
+    border-bottom-right-radius: $--play-outer-radius !important;
+
+    &::before {
+        content: '';
+        display: block;
+        border-top: 3px solid white;
+        border-right: 3px solid white;
+        height: 10px;
+        width: 10px;
+        transform: rotate(45deg);
+        margin-top: 23px;
+        margin-left: -3px;
+    }
+
+    // Could import whatever icon set for a nice lil arrow,
+    // But just going to do it with a pseudo-element to remove unnecessary assets
+    // Although will probably end up using an icon set anyway for github/file icon later.
+}
