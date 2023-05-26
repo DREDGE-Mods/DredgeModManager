@@ -3,4 +3,6 @@
 export {default as Sidebar} from './sidebar';
 export {default as Content} from './content';
 
+export {default as AppContext, AppProvider, AppConsumer} from './appcontext';
+
 export type {ModInfo} from './modinfo';

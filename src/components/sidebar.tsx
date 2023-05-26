@@ -85,7 +85,7 @@ class SidebarPlay extends Component<{start: () => void}>
         return (
             <div className="sidebar-play-container">
                 <div className="sidebar-play">
-                    <button className="sidebar-play-main" id="play-main" onClick={() => {}}>
+                    <button className="sidebar-play-main" id="play-main" onClick={this.props.start}>
                         <label htmlFor="play-main">play</label>
                     </button>
                     <button className="sidebar-play-alt" id="play-alt">

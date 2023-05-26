@@ -1,15 +1,15 @@
-import React, {Component} from 'react';
+import React, {Component} from 'react'
 
 import '../scss/content.scss'
 
-import {default as Mods} from './mods';
-import {ModInfo} from './modinfo'
+import {default as Mods} from './mods'
+import {default as Settings} from './settings'
 
 interface IContentState extends React.PropsWithChildren<any>{
     choice: string;
 }
 
-export default class Content extends Component<{choice : string, modsInfo: {}, reloadMods: () => void}, IContentState>
+export default class Content extends Component<{choice : string}, IContentState>
 {
     contentOptions: any;
 
@@ -18,8 +18,8 @@ export default class Content extends Component<{choice : string, modsInfo: {}, r
 
         this.contentOptions = new Map(
             [
-                ["Mods", <Mods selected="Installed" modsInfo={this.props.modsInfo} reload={props.reloadMods}/>],
-                ["Settings", <div>Settings</div>]
+                ["Mods", <Mods selected="Installed"/>],
+                ["Settings", <Settings />]
             ]
         )
     }

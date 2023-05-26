@@ -46,14 +46,22 @@ button {
 
 // Scrollbar
 *::-webkit-scrollbar {
-    width: 5px;
+    width: 10px;
   }
 
-  *::-webkit-scrollbar-track {
+*::-webkit-scrollbar-track {
     background: transparent;
-  }
+}
 
-  *::-webkit-scrollbar-thumb {
+*::-webkit-scrollbar-thumb {
     background-color: $bg-primary-tint;
-    border-radius: 10px;
-  }
+    border-radius: 0;
+
+    &:hover {
+        background-color: $text-light-primary;
+    }
+}
+
+*::-webkit-scrollbar-corner {
+    background: $bg-primary;
+}

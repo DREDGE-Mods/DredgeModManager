@@ -2,69 +2,11 @@ import "./App.scss";
 import './scss/styles.scss'
 import * as bootstrap from 'bootstrap'
 import { open } from "@tauri-apps/api/dialog";
-import {useEffect, useState, Component} from 'react';
+import {useCallback, Component} from 'react';
 import { useDebouncedCallback } from "use-debounce";
 // When using the Tauri API npm package:
 import { invoke } from '@tauri-apps/api/tauri';
 import { debounce } from "lodash";
-
-import { Sidebar, Content } from './components';
-import { ModInfo } from './components';
-
-function OldApp() {
-
-  const readFileContents = async () => {
-    try {
-      const selectedPath = await open({
-        multiple: false,
-        title: "Select DREDGE game folder",
-        directory: true
-      });
-      setDredgePath(selectedPath as string);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const uninstall_mod = (modMetaPath : string | undefined) => {
-    if (modMetaPath != undefined) {
-      invoke('uninstall_mod', {modMetaPath : modMetaPath})
-      .then(reloadMods)
-      .catch((e) => alert(e.toString()));
-    }
-  }
-
-  const install_mod = (modInfo : ModInfo) => {
-    if (modInfo.Repo != undefined && modInfo.Download != undefined) {
-      invoke('install_mod', {repo: modInfo.Repo, download: modInfo.Download, dredgeFolder: dredgePath})
-      .then(reloadMods)
-      .catch((e) => alert(e.toString()));
-    }
-  }
-
-  const install_winch = () => {
-    if (winchInfo != undefined) {
-      invoke('install_winch', {dredge_path : dredgePath});
-    }
-  }
-
-  const openModDir = (path : string | undefined) => {
-    if (path != undefined) {
-      invoke('open_dir', { "path" : path }).catch((e) => alert(e.toString()));
-    }
-  }
-
-  const set_page_choice = async(option: string) => {
-    console.log(pageChoice);
-    setPageChoice(option);
-  }
-
-  return (
-    <div className="app-container text-light">
-      <Sidebar choice={pageChoice} start={start} setPage={set_page_choice} key="Sidebar"/>
-      <Content choice={pageChoice} key="Content" modsInfo={modInfos} reloadMods={reloadMods}/>
-    </div>
-  );
 
   /*
   <div className="h-100 w-100 container min-vh-100">
@@ -132,7 +74,7 @@ function OldApp() {
           ))
         }
       </div>
-      */
+
 
   function AvailableMods() {
     return(
@@ -223,19 +165,31 @@ function OldApp() {
   }
 }
 
-interface IAppState extends React.PropsWithChildren{
-  pathCorrect: boolean | undefined;
+*/
+
+import { Sidebar, Content } from './components';
+import { ModInfo, AppProvider, AppContext } from './components';
+
+
+export interface IAppState extends React.PropsWithChildren{
+  pathCorrect: boolean | undefined; // no clue
   dredgePath: string | undefined;
   winchInfo: ModInfo | undefined;
-  availableMods: [] | undefined;
-  enabledMods: {} | undefined;
-  modInfos: {} | undefined;
+  availableMods: [] | undefined; // All mods in database
+  enabledMods: IEnabledStruct | undefined; // All mods enabled
+  modInfos: Map<string, ModInfo> | undefined; // All installed mods
   database: ModInfo[] | undefined;
-  pageChoice: string | undefined;
+  pageChoice: string | undefined; // Choice of page from sidebar
+}
+
+interface IEnabledStruct {
+  [key: string]: boolean;
 }
 
 class App extends Component<{}, IAppState>
 {
+  static contextType = AppContext
+
   constructor(props: any) {
     super(props);
 
@@ -245,7 +199,7 @@ class App extends Component<{}, IAppState>
       winchInfo: undefined,
       availableMods: [],
       enabledMods: undefined,
-      modInfos: {},
+      modInfos: new Map(),
       database: undefined,
       pageChoice: "Mods"
     }
@@ -253,19 +207,28 @@ class App extends Component<{}, IAppState>
     // Binding ensures that when called,
     // The context these functions use is of this component,
     // Not of wherever it's called from.
+
+    // In order of definition:
     this.start = this.start.bind(this);
-    this.set_page_choice = this.set_page_choice.bind(this);
     this.reload_mods = this.reload_mods.bind(this);
+    this.read_file_contents = this.read_file_contents.bind(this);
+    this.uninstall_mod = this.uninstall_mod.bind(this);
+    this.install_mod = this.install_mod.bind(this);
+    this.install_winch = this.install_winch.bind(this);
+    this.open_mod_dir = this.open_mod_dir.bind(this);
+    this.toggle_enabled_mod = this.toggle_enabled_mod.bind(this);
+
+    this.set_page_choice = this.set_page_choice.bind(this);
+
+    this.get_state = this.get_state.bind(this);
   }
 
-  // Start game on click
+  // Functional
+
+  // Start game
   start() {
     invoke('start_game', {dredgePath : this.state.dredgePath})
     .catch((e) => alert(e.toString()));
-  }
-
-  set_page_choice(choice: string) {
-    this.setState({pageChoice: choice});
   }
 
   reload_mods() {
@@ -276,6 +239,7 @@ class App extends Component<{}, IAppState>
 
           // Populate data for local mods from the database for that mod.
           if (fetch.mods.hasOwnProperty(databaseMod.ModGUID)) {
+            console.log(`Found ${databaseMod.ModGUID}`);
             var localMod = fetch.mods[databaseMod.ModGUID] as ModInfo;
             localMod.Description = databaseMod.Description;
             localMod.Downloads = databaseMod.Downloads;
@@ -288,7 +252,7 @@ class App extends Component<{}, IAppState>
         this.setState({
           enabledMods: fetch.enabled_mods,
           database: fetch.database,
-          modInfos: fetch.mods,
+          modInfos: new Map(Object.entries(fetch.mods)),
           availableMods: fetch.database.map((mod : ModInfo) => mod.ModGUID).filter((modGUID: string) => !fetch.mods.hasOwnProperty(modGUID)),
           winchInfo: fetch.winch_mod_info,
           pathCorrect: true,
@@ -303,6 +267,62 @@ class App extends Component<{}, IAppState>
     }
   }
 
+  read_file_contents = async() => {
+    try {
+      const selectedPath = await open({
+        multiple: false,
+        title: "Select DREDGE game folder",
+        directory: true
+      });
+
+      if (selectedPath != null) {
+        this.setState({dredgePath: selectedPath as string});
+      }
+    } 
+    catch (err) {
+      console.error(err);
+    }
+  }
+
+  uninstall_mod (modMetaPath : string | undefined) {
+    if (modMetaPath != undefined) {
+      return invoke('uninstall_mod', {modMetaPath : modMetaPath})
+      .then(this.reload_mods)
+      .catch((e) => alert(e.toString()));
+    }
+  }
+
+  install_mod (modInfo : ModInfo) {
+    if (modInfo.Repo != undefined && modInfo.Download != undefined) {
+      invoke('install_mod', {repo: modInfo.Repo, download: modInfo.Download, dredgeFolder: this.state.dredgePath})
+      .then(this.reload_mods)
+      .catch((e) => alert(e.toString()));
+    }
+  }
+
+  install_winch () {
+    if (this.state.winchInfo != undefined) {
+      invoke('install_winch', {dredge_path : this.state.dredgePath});
+    }
+  }
+
+  open_mod_dir (path: string | undefined) {
+    if (path != undefined) {
+      invoke('open_dir', { "path" : path }).catch((e) => alert(e.toString()));
+    }
+  }
+
+  toggle_enabled_mod (modGUID: string, isEnabled: boolean) {
+    var updatedEnabled = this.state.enabledMods
+    updatedEnabled![modGUID] = !isEnabled
+    this.setState({enabledMods: updatedEnabled})
+    invoke('toggle_enabled_mod', { "modGuid": modGUID, "enabled": !isEnabled, "dredgePath" : this.state.dredgePath})
+      .catch((e) => alert(e.toString()))
+  }
+
+
+  // Inbuilt React
+
   // React calls this when the component initially mounts after its first render.
   // Doesn't need to be bound as it's inbuilt,
   // Would need to be bound if called by us anywhere.
@@ -311,6 +331,7 @@ class App extends Component<{}, IAppState>
       this.setState({dredgePath: path as string})
     }).catch((error) => alert(error.toString()));
     this.reload_mods();
+    console.log("forcing update")
   }
 
   componentDidUpdate (prevProps: any, prevState: any): void {
@@ -319,22 +340,46 @@ class App extends Component<{}, IAppState>
     }
   }
 
+  // Doesn't need to be bound
   debounced_dredge_path_change = debounce(() => {
       invoke("dredge_path_changed", {"path": this.state.dredgePath})
       .then(this.reload_mods)
       .catch((error) => alert(error.toString()));
     },
-    1000
+    100
   )
+
+
+  // Navigation
+
+  set_page_choice(choice: string) {
+    this.setState({pageChoice: choice});
+  }
+
+  
+  // Context
+
+  get_state () {
+    return this.state;
+  }
+
 
   render() {
     return (
-      <div className="app-container text-light">
-        <Sidebar choice={this.state.pageChoice!} start={this.start} setPage={this.set_page_choice} key="Sidebar"/>
-        <Content choice={this.state.pageChoice!} key="Content" modsInfo={this.state.modInfos!} reloadMods={this.reload_mods}/>
-      </div>
+      <AppProvider value={this as App}>
+        <div className="app-container text-light">
+          <Sidebar choice={this.state.pageChoice!} start={this.start} setPage={this.set_page_choice} key="Sidebar"/>
+          <Content choice={this.state.pageChoice!} key="Content" />
+        </div>
+      </AppProvider>
     )
   }
 }
 
 export default App;
+
+// TODO:
+// Implement Available Mods page,
+// Implement settings page, allowing set of dredge path
+// Allow start of un-modded game via change doorstop_config.ini
+// Full cleanup of code- could be significantly better quite easily

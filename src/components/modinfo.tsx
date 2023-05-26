@@ -15,4 +15,4 @@ export interface ModInfo {
     Author? : string,
     Version? : string,
     LocalPath? : string
-  }
+}
