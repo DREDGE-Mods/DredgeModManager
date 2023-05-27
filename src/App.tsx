@@ -59,12 +59,12 @@ function App() {
         setWinchInfo(res.winch_mod_info);
 
         setPathCorrect(true);
-      }).catch((e : { path_correct : boolean, message : string }) => {
+      }).catch((e : { error_code : string, message : string }) => {
         alert(e.message);
         setModInfos({});
         setAvailableMods([]);
         setWinchInfo(undefined);
-        setPathCorrect(e.path_correct);
+        setPathCorrect(e.error_code != "IncorrectPath");
       });
     }
     else {
