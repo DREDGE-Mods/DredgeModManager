@@ -144,7 +144,7 @@
             flex-direction: row;
             gap: 5px;
 
-            max-width: 80%;
+            max-width: 70%;
 
             overflow-x:hidden;
 
@@ -161,8 +161,34 @@
             }
         }
 
-        .primary-switch {
+        .primary-update {
             margin-left: auto;
+            margin-right: 10px;
+
+            & button {
+                border: 2px solid $interact-orange;
+                border-radius: 4px;
+                background-color: $interact-orange;
+
+                color: $text-light-primary;
+                font-weight: 500;
+
+                &:hover {
+                    background-color: $interact-orange-shade;
+                    border-color: $interact-orange-shade;
+                }
+
+                &:disabled,
+                &[disabled] {
+                    color: transparent;
+                    width: 0;
+                    border-color: transparent;
+                    background-color: transparent;
+                }
+            }
+        }
+
+        .primary-switch {
             margin-right: 5px;
             height: 100%;
 

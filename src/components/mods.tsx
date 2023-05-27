@@ -106,7 +106,7 @@ class ModList extends Component<{selected: string}>
         var installedList = new Array<JSX.Element>();
         if (this.props.selected === "Installed") {
             installedList = modList.map((mod) => {
-                return <InstalledModBox data={mod} enabled={enabled![mod.ModGUID]} update_enabled={(this.context as App).toggle_enabled_mod} uninstall_mod={this.uninstall_mod}/>
+                return <InstalledModBox key={mod.ModGUID} data={mod} enabled={enabled![mod.ModGUID]} update_enabled={(this.context as App).toggle_enabled_mod} uninstall_mod={this.uninstall_mod} install_mod={this.install_mod}/>
             })
         }
 
@@ -114,7 +114,7 @@ class ModList extends Component<{selected: string}>
         if (this.props.selected === "Available") {
             availableList = database!.map((mod) => {
                 if (!info!.has(mod.ModGUID)) {
-                    return <AvailableModBox data={mod} install_mod={this.install_mod}/>
+                    return <AvailableModBox key={mod.ModGUID} data={mod} install_mod={this.install_mod}/>
                 } else {
                 return <></>;
                 }
@@ -146,7 +146,7 @@ interface IInstalledModState extends IModBoxState{
     enabled: boolean;
 }
 
-class InstalledModBox extends Component<{data: ModInfo, enabled: boolean | undefined, update_enabled: (a: string, b: boolean) => void, uninstall_mod: (p:string) => void}, IInstalledModState>
+class InstalledModBox extends Component<{data: ModInfo, enabled: boolean | undefined, update_enabled: (a: string, b: boolean) => void, install_mod: (a: ModInfo) => void, uninstall_mod: (p:string) => void}, IInstalledModState>
 {
     constructor(props: any) {
         super(props);
@@ -180,6 +180,16 @@ class InstalledModBox extends Component<{data: ModInfo, enabled: boolean | undef
                         <span className="details-by">{this.props.data.Author ? "by" : ""}</span>
                         <span className="details-author">{this.props.data.Author}</span>
                     </label>
+                    <div className="primary-update">
+                        { (this.props.data.Repo || false) &&
+                        <button 
+                        className={`update`}
+                        onClick={() => this.props.install_mod(this.props.data)}
+                        disabled={this.props.data.Version!.trim() === this.props.data.LatestVersion?.trim()}
+                        title={(this.props.data.Version!.trim() === this.props.data.LatestVersion?.trim()) ? "" : this.props.data.LatestVersion}
+                        >Update</button>
+                        }
+                    </div>
                     <div className="primary-switch">
                         <button className={`switch ${this.state.enabled ? "switched" : ""}`} onClick={this.swap_enabled}/>
                     </div>
