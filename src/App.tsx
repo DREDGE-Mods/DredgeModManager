@@ -87,6 +87,7 @@ class App extends Component<{}, IAppState>
             localMod.LatestVersion = databaseMod.LatestVersion;
             localMod.ReleaseDate = databaseMod.ReleaseDate;
             localMod.Repo = databaseMod.Repo;
+            localMod.Download = databaseMod.Download;
           }
         });
 
@@ -172,7 +173,6 @@ class App extends Component<{}, IAppState>
       this.setState({dredgePath: path as string})
     }).catch((error) => alert(error.toString()));
     this.reload_mods();
-    console.log("forcing update")
   }
 
   componentDidUpdate (prevProps: any, prevState: any): void {
@@ -224,3 +224,4 @@ export default App;
 // Implement settings page, allowing set of dredge path
 // Allow start of un-modded game via change doorstop_config.ini
 // Full cleanup of code- could be significantly better quite easily
+// Queue for mod installs
