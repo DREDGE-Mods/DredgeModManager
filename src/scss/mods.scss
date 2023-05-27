@@ -152,10 +152,11 @@
             flex-direction: row;
             gap: 5px;
             flex: 1 0;
+            height: 40px;
 
             max-width: 70%;
 
-            overflow-x:hidden;
+            overflow:hidden;
 
             font-size: 17px;
 
@@ -281,19 +282,18 @@
             max-height: 200px;
         }
 
-        & .secondary-description {
+        .secondary-description {
             margin: 10px;
         }
 
-        & .secondary-interacts {
+        .secondary-interacts {
             display: flex;
             flex-flow: row nowrap;
             height: 35px;
             gap: 10px;
-            margin-left: 10px;
-            margin-bottom: 5px;
+            margin: 0px 10px 5px 10px;
 
-            & button {
+            .interact-button {
                 color: $text-light-primary;
                 font-weight: 500;
                 border: 2px solid $bg-primary-tint;
@@ -306,6 +306,34 @@
                 &:hover {
                     background-color: $bg-primary-tint;
                 }
+            }
+
+            .interact-icons {
+                display: flex;
+                flex-direction: row-reverse;
+                margin-left: auto;
+                margin-right: 10px;
+                gap: 10px;
+                font-size: 30px;
+                align-items: center;
+                line-height: 0;
+
+                a {
+                    color: $text-light-primary;
+                    text-align: center;
+                    &:hover {
+                        color: $text-light-secondary;
+                    }
+                }
+
+                .icon-folder {
+                    color: $text-light-primary;
+
+                    &:hover {
+                        color: $text-light-secondary;
+                    }
+                }
+
             }
         }
     }

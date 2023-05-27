@@ -102,11 +102,17 @@ class ModList extends Component<{selected: string}>
         for (let [k, v] of info!) {
             modList.push(v)
         }
-    
+        
         var installedList = new Array<JSX.Element>();
         if (this.props.selected === "Installed") {
             installedList = modList.map((mod) => {
-                return <InstalledModBox key={mod.ModGUID} data={mod} enabled={enabled![mod.ModGUID]} update_enabled={(this.context as App).toggle_enabled_mod} uninstall_mod={this.uninstall_mod} install_mod={this.install_mod}/>
+                return <InstalledModBox 
+                key={mod.ModGUID} 
+                data={mod} 
+                enabled={enabled![mod.ModGUID]} 
+                update_enabled={(this.context as App).toggle_enabled_mod} 
+                uninstall_mod={this.uninstall_mod}
+                open_mod_dir={(this.context as App).open_mod_dir}/>
             })
         }
 
@@ -114,7 +120,10 @@ class ModList extends Component<{selected: string}>
         if (this.props.selected === "Available") {
             availableList = database!.map((mod) => {
                 if (!info!.has(mod.ModGUID)) {
-                    return <AvailableModBox key={mod.ModGUID} data={mod} enabled={enabled![mod.ModGUID]} update_enabled={(this.context as App).toggle_enabled_mod} uninstall_mod={this.uninstall_mod} install_mod={this.install_mod}/>
+                    return <AvailableModBox 
+                    key={mod.ModGUID} 
+                    data={mod} 
+                    install_mod={this.install_mod}/>
                 } else {
                 return <></>;
                 }
@@ -146,10 +155,11 @@ interface IModBoxState {
 interface ModBoxProps
 {
     data: ModInfo, 
-    enabled: boolean | undefined, 
-    update_enabled: (a: string, b: boolean) => void, 
-    install_mod: (a: ModInfo) => void, 
-    uninstall_mod: (p:string) => void
+    enabled?: boolean | undefined, 
+    update_enabled?: (a: string, b: boolean) => void, 
+    install_mod?: (a: ModInfo) => void, 
+    uninstall_mod?: (p:string) => void,
+    open_mod_dir?: (p:string) => void
 }
 
 class ModBox<ISpecificState extends IModBoxState> extends Component<ModBoxProps, ISpecificState> {
@@ -182,7 +192,7 @@ class PrimaryDetails extends Component<{data : ModInfo}> {
     render () {
         return (
             <label className="primary-details" htmlFor={`expand-${this.props.data.ModGUID}`}>
-                <span className="details-name">{this.props.data.Name || this.props.data.ModGUID}</span>
+                <span className="details-name" title={`Version: ${this.props.data.Version}`}>{this.props.data.Name || this.props.data.ModGUID}</span>
                 <span className="details-by">{this.props.data.Author ? "by" : ""}</span>
                 <span className="details-author">{this.props.data.Author}</span>
             </label>
@@ -210,14 +220,32 @@ class SecondaryContainer extends Component<{expanded: boolean | undefined, child
 
 class SecondaryDetails extends Component<{data: ModInfo}> {
     render() {
-        return <div className="secondary-description">{this.props.data.Description}</div>
+        return <>
+            <div className="secondary-description">{this.props.data.Description}</div>
+        </>
     }
 }
 
-class SecondaryInteracts extends Component<{children: React.ReactNode}> {
+class SecondaryInteract extends Component<{children: React.ReactNode}> {
     render() {
         return (
             <div className="secondary-interacts">
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
+class InteractIcons extends Component<{data: ModInfo, children?: React.ReactNode}> {
+    render() {
+        var doGit = this.props.data.Repo ?? false;
+        const gitLink = `https://github.com/${this.props.data.Repo}`
+        return (
+            <div className="interact-icons">
+                {doGit && 
+                <a href={gitLink} title={gitLink} target="_blank">
+                    <i className="fa">&#xf09b;</i>
+                </a>}
                 {this.props.children}
             </div>
         )
@@ -242,7 +270,7 @@ class InstalledModBox extends ModBox<IInstalledModState>
     }
 
     swap_enabled() {
-        this.props.update_enabled(this.props.data.ModGUID, this.state.enabled)
+        this.props.update_enabled!(this.props.data.ModGUID, this.state.enabled)
         this.setState({enabled: !this.state.enabled});
     }
 
@@ -257,7 +285,7 @@ class InstalledModBox extends ModBox<IInstalledModState>
                         { (this.props.data.Repo || false) &&
                         <button 
                         className={`update`}
-                        onClick={() => this.props.install_mod(this.props.data)}
+                        onClick={() => this.props.install_mod!(this.props.data)}
                         disabled={this.props.data.Version!.trim() === this.props.data.LatestVersion?.trim()}
                         title={(this.props.data.Version!.trim() === this.props.data.LatestVersion?.trim()) ? "" : this.props.data.LatestVersion}
                         >Update</button>
@@ -272,10 +300,15 @@ class InstalledModBox extends ModBox<IInstalledModState>
 
                 <SecondaryContainer expanded={this.state.expanded}>
                     <SecondaryDetails data={this.props.data}/>
-                    <SecondaryInteracts>
-                        <button onClick={() => this.props.uninstall_mod(this.props.data.LocalPath!)}>Uninstall</button>
-                        <button onClick={this.swap_enabled}>{this.state.enabled ? "Disable" : "Enable"}</button>
-                    </SecondaryInteracts>
+                    <SecondaryInteract>
+                        <button className="interact-button" onClick={() => this.props.uninstall_mod!(this.props.data.LocalPath!)}>Uninstall</button>
+                        <button className="interact-button" onClick={this.swap_enabled}>{this.state.enabled ? "Disable" : "Enable"}</button>
+                        <InteractIcons data={this.props.data}>
+                            <button className="icon-folder" onClick={() => this.props.open_mod_dir!(this.props.data.LocalPath!)}>
+                                <i className="fa fa-sharp">&#xf07b;</i>
+                            </button>
+                        </InteractIcons>
+                    </SecondaryInteract>
                 </SecondaryContainer>
             </div>
         )
@@ -312,13 +345,14 @@ class AvailableModBox extends ModBox<IAvailableModState>
 
                 <SecondaryContainer expanded={this.state.expanded}>
                     <SecondaryDetails data={this.props.data}/>
-                    <SecondaryInteracts>
-                        <button onClick={() => {
-                            this.props.install_mod(this.props.data);
+                    <SecondaryInteract>
+                        <button className="interact-button" onClick={() => {
+                            this.props.install_mod!(this.props.data);
                             this.setState({installed: true});
                             }}>{installText}
                         </button>
-                    </SecondaryInteracts>
+                        <InteractIcons data={this.props.data} />
+                    </SecondaryInteract>
                 </SecondaryContainer>
             </div>
         )
