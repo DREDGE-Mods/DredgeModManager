@@ -88,7 +88,7 @@ class ModList extends Component<{selected: string}>
         this.debounce_force_update_slow();
     }
 
-    debounce_force_update_slow = debounce(() => {this.forceUpdate(); console.log("forced update")}, 1000);
+    debounce_force_update_slow = debounce(() => {this.forceUpdate()}, 1000);
 
     render() {
         var shownList = new Array<JSX.Element>();
@@ -114,7 +114,7 @@ class ModList extends Component<{selected: string}>
         if (this.props.selected === "Available") {
             availableList = database!.map((mod) => {
                 if (!info!.has(mod.ModGUID)) {
-                    return <AvailableModBox key={mod.ModGUID} data={mod} install_mod={this.install_mod}/>
+                    return <AvailableModBox key={mod.ModGUID} data={mod} enabled={enabled![mod.ModGUID]} update_enabled={(this.context as App).toggle_enabled_mod} uninstall_mod={this.uninstall_mod} install_mod={this.install_mod}/>
                 } else {
                 return <></>;
                 }
@@ -136,28 +136,109 @@ class ModList extends Component<{selected: string}>
     }
 }
 
-// Yes, this is very inefficient as of right now. This will be refactored once foundations are built.
+
+// Components for each mod in list
 
 interface IModBoxState {
-    expanded: boolean;
+    expanded?: boolean;
 }
+
+interface ModBoxProps
+{
+    data: ModInfo, 
+    enabled: boolean | undefined, 
+    update_enabled: (a: string, b: boolean) => void, 
+    install_mod: (a: ModInfo) => void, 
+    uninstall_mod: (p:string) => void
+}
+
+class ModBox<ISpecificState extends IModBoxState> extends Component<ModBoxProps, ISpecificState> {
+    constructor(props: any) {
+        super(props);
+
+        this.swap_expand = this.swap_expand.bind(this);
+    }
+
+    componentDidMount () {
+        this.setState({expanded: false});
+    }
+    
+    swap_expand() {
+        this.setState({expanded: !this.state.expanded});
+    }
+}
+
+class PrimaryContainer extends Component<{children: React.ReactNode}> {
+    render() {
+        return (
+            <div className="box-primary-container">
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
+class PrimaryDetails extends Component<{data : ModInfo}> {
+    render () {
+        return (
+            <label className="primary-details" htmlFor={`expand-${this.props.data.ModGUID}`}>
+                <span className="details-name">{this.props.data.Name || this.props.data.ModGUID}</span>
+                <span className="details-by">{this.props.data.Author ? "by" : ""}</span>
+                <span className="details-author">{this.props.data.Author}</span>
+            </label>
+        )
+    }
+}
+
+class PrimaryExpand extends Component<{data: ModInfo, swap_expand: () => void, expanded: boolean | undefined}> {
+    render() {
+        return (
+            <button className={`primary-expand ${this.props.expanded ? "expanded" : ""}`} onClick={this.props.swap_expand} id={`expand-${this.props.data.ModGUID}`}/>
+        )
+    }
+}
+
+class SecondaryContainer extends Component<{expanded: boolean | undefined, children: React.ReactNode}> {
+    render() {
+        return (
+            <div className={`box-secondary-container ${this.props.expanded ? "expanded" : ""}`}>
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
+class SecondaryDetails extends Component<{data: ModInfo}> {
+    render() {
+        return <div className="secondary-description">{this.props.data.Description}</div>
+    }
+}
+
+class SecondaryInteracts extends Component<{children: React.ReactNode}> {
+    render() {
+        return (
+            <div className="secondary-interacts">
+                {this.props.children}
+            </div>
+        )
+    }
+}
+
 
 interface IInstalledModState extends IModBoxState{
     enabled: boolean;
 }
 
-class InstalledModBox extends Component<{data: ModInfo, enabled: boolean | undefined, update_enabled: (a: string, b: boolean) => void, install_mod: (a: ModInfo) => void, uninstall_mod: (p:string) => void}, IInstalledModState>
+class InstalledModBox extends ModBox<IInstalledModState>
 {
     constructor(props: any) {
         super(props);
-        
+
         this.state = {
             enabled: this.props.enabled ?? false,
-            expanded: false,
         }
 
         this.swap_enabled = this.swap_enabled.bind(this);
-        this.swap_expand = this.swap_expand.bind(this);
     }
 
     swap_enabled() {
@@ -165,21 +246,13 @@ class InstalledModBox extends Component<{data: ModInfo, enabled: boolean | undef
         this.setState({enabled: !this.state.enabled});
     }
 
-    swap_expand() {
-        this.setState({expanded: !this.state.expanded});
-    }
-
     render() {
-        console.log(this.props.data);
-        console.log(this.state.enabled);
         return (
             <div className="mods-installed-box">
-                <div className="box-primary">
-                    <label className="primary-details" htmlFor={`expand-${this.props.data.ModGUID}`}>
-                        <span className="details-name">{this.props.data.Name || this.props.data.ModGUID}</span>
-                        <span className="details-by">{this.props.data.Author ? "by" : ""}</span>
-                        <span className="details-author">{this.props.data.Author}</span>
-                    </label>
+
+                <PrimaryContainer>
+                    <PrimaryDetails data={this.props.data}/> 
+
                     <div className="primary-update">
                         { (this.props.data.Repo || false) &&
                         <button 
@@ -193,15 +266,17 @@ class InstalledModBox extends Component<{data: ModInfo, enabled: boolean | undef
                     <div className="primary-switch">
                         <button className={`switch ${this.state.enabled ? "switched" : ""}`} onClick={this.swap_enabled}/>
                     </div>
-                    <button className={`primary-expand ${this.state.expanded ? "expanded" : ""}`} onClick={this.swap_expand} id={`expand-${this.props.data.ModGUID}`}/>
-                </div>
-                <div className={`box-secondary ${this.state.expanded ? "expanded" : ""}`}>
-                    <div className="secondary-description">{this.props.data.Description}</div>
-                    <div className="secondary-interacts">
+
+                    <PrimaryExpand data={this.props.data} swap_expand={this.swap_expand} expanded={this.state.expanded}/>
+                </PrimaryContainer>
+
+                <SecondaryContainer expanded={this.state.expanded}>
+                    <SecondaryDetails data={this.props.data}/>
+                    <SecondaryInteracts>
                         <button onClick={() => this.props.uninstall_mod(this.props.data.LocalPath!)}>Uninstall</button>
                         <button onClick={this.swap_enabled}>{this.state.enabled ? "Disable" : "Enable"}</button>
-                    </div>
-                </div>
+                    </SecondaryInteracts>
+                </SecondaryContainer>
             </div>
         )
     }
@@ -211,21 +286,14 @@ interface IAvailableModState extends IModBoxState{
     installed: boolean;
 }
 
-class AvailableModBox extends Component<{data: ModInfo, install_mod: (a: ModInfo) => void}, IAvailableModState>
+class AvailableModBox extends ModBox<IAvailableModState>
 {
     constructor(props: any) {
         super(props);
-        
+
         this.state = {
-            expanded: false,
             installed: false,
         }
-
-        this.swap_expand = this.swap_expand.bind(this);
-    }
-
-    swap_expand() {
-        this.setState({expanded: !this.state.expanded});
     }
 
     render() {
@@ -236,23 +304,22 @@ class AvailableModBox extends Component<{data: ModInfo, install_mod: (a: ModInfo
 
         return (
             <div className="mods-available-box">
-                <div className="box-primary">
-                    <label className="primary-details" htmlFor={`expand-${this.props.data.ModGUID}`}>
-                        <span className="details-name">{this.props.data.Name || this.props.data.ModGUID}</span>
-                        <span className="details-by">{this.props.data.Author ? "by" : ""}</span>
-                        <span className="details-author">{this.props.data.Author}</span>
-                    </label>
-                    <button className={`primary-expand ${this.state.expanded ? "expanded" : ""}`} onClick={this.swap_expand} id={`expand-${this.props.data.ModGUID}`}/>
-                </div>
-                <div className={`box-secondary ${this.state.expanded ? "expanded" : ""}`}>
-                    <div className="secondary-description">{this.props.data.Description}</div>
-                    <div className="secondary-interacts">
+
+                <PrimaryContainer>
+                    <PrimaryDetails data={this.props.data}/> 
+                    <PrimaryExpand data={this.props.data} swap_expand={this.swap_expand} expanded={this.state.expanded}/>
+                </PrimaryContainer>
+
+                <SecondaryContainer expanded={this.state.expanded}>
+                    <SecondaryDetails data={this.props.data}/>
+                    <SecondaryInteracts>
                         <button onClick={() => {
                             this.props.install_mod(this.props.data);
                             this.setState({installed: true});
-                            }}>{installText}</button>
-                    </div>
-                </div>
+                            }}>{installText}
+                        </button>
+                    </SecondaryInteracts>
+                </SecondaryContainer>
             </div>
         )
     }
