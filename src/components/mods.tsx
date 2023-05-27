@@ -65,7 +65,7 @@ class ModsSelector extends Component<{selected: string, children: string, setSel
 class ModList extends Component<{selected: string}>
 {
     static contextType = AppStateContext
-    data: App | undefined;
+    declare context: React.ContextType<typeof AppStateContext>
 
     constructor(props: any) {
         super(props);
