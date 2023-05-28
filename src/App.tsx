@@ -187,6 +187,10 @@ class App extends Component<{}, IAppState>
       this.setState({dredgePath: path as string})
     }).catch((error) => alert(error.toString()));
     this.reload_mods();
+
+    if (this.state.dredgePath === undefined) {
+      this.setState({pageChoice: "Settings"});
+    }
   }
 
   componentDidUpdate (prevProps: any, prevState: any): void {
@@ -223,8 +227,8 @@ class App extends Component<{}, IAppState>
     return (
       <AppProvider value={this as App}>
         <div className="app-container text-light">
-          <Sidebar choice={this.state.pageChoice!} start={this.start} setPage={this.set_page_choice} key="Sidebar"/>
-          <Content choice={this.state.pageChoice!} key="Content" />
+          <Sidebar choice={this.state.pageChoice! as string} start={this.start} setPage={this.set_page_choice} key="Sidebar" path_correct={this.state.pathCorrect}/>
+          <Content choice={this.state.pageChoice! as string} key="Content"/>
         </div>
       </AppProvider>
     )

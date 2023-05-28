@@ -70,9 +70,6 @@ export default class Settings extends Component<{}, ISettingsState>
                             />
                         <button className="button" onClick={this.handle_path_button}>...</button>
                     </div>
-                    <label className="setting-detail">
-                        ~ may not update here immediately after selecting in the file explorer.
-                    </label>
                 </div>
             </div>
         )

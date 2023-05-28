@@ -7,7 +7,7 @@ interface ISidebarState {
     start: () => void;
 }
 
-export default class Sidebar extends Component<{choice: string, start: () => void, setPage: (p: string) => void}, ISidebarState>
+export default class Sidebar extends Component<{choice: string, start: () => void, setPage: (p: string) => void, path_correct: boolean | undefined}, ISidebarState>
 {
     data: Array<Record<string, any>>;
 
@@ -31,17 +31,32 @@ export default class Sidebar extends Component<{choice: string, start: () => voi
         this.SetActiveOption = this.SetActiveOption.bind(this);
     }
 
+    componentDidUpdate() {
+        console.log(this.state.choice);
+        console.log(this.props.choice);
+        if (this.state.choice != this.props.choice) {
+            this.setState({choice: this.props.choice});
+        }
+    }
+
     SetActiveOption(option: string) {
         this.setState({choice:option});
         this.props.setPage(option);
     }
 
     render() {
+        var useData;
+        if (!this.props.path_correct) {
+            useData = [{name: "Settings"}]
+        } else {
+            useData = this.data;
+        }
+
         return (
             <div className="sidebar-container">
                 <div className="sidebar-options-container">
                     {
-                    this.data.map((item, index) => {
+                    useData.map((item, index) => {
                         return <SidebarOption name={item.name} index={index} selected={this.state.choice} func={this.SetActiveOption} key={index}/>
                     })}
                 </div>
