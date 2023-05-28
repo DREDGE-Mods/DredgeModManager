@@ -351,6 +351,30 @@
             margin-left: auto;
         }
     }
+
+    & .box-secondary-container .secondary-interacts {
+        .downloads {
+            margin-left: auto;
+            vertical-align: middle;
+            text-align: center;
+            display: flex;
+            flex-flow: row nowrap;
+            justify-items: center;
+            align-items: center;
+            & span {
+                margin-left: 5px;
+            }
+            & i {
+                margin-top: 5px;
+                font-size: 1.3em;
+            }
+        }
+
+        .interact-icons {
+            margin-left: 0;
+            margin-left: 30px;
+        }
+    }
 }
 
 .mods-not-found {

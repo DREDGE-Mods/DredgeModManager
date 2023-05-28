@@ -379,6 +379,10 @@ class AvailableModBox extends ModBox<IAvailableModState>
                             this.setState({installed: true});
                             }}>{installText}
                         </button>
+                        <div className="downloads">
+                            <i className="fa">&#xf019;</i>
+                            <span>{this.props.data.Downloads}</span>
+                        </div>
                         <InteractIcons data={this.props.data} />
                     </SecondaryInteract>
                 </SecondaryContainer>
