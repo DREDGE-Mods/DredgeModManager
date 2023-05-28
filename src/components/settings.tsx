@@ -22,19 +22,36 @@ export default class Settings extends Component<{}, ISettingsState>
             path: "",
         }
 
-        this.debounce_on_update = this.debounce_on_update.bind(this);
+        this.debounce_on_path_update = this.debounce_on_path_update.bind(this);
+        this.on_update = this.on_update.bind(this);
+        this.handle_path_button = this.handle_path_button.bind(this);
     }
 
     componentDidMount() {
         if (this.state.path === "") {
-            // one moment
+            this.setState({path : (this.context as App).state.dredgePath!})
         }
     }
 
-    debounce_on_update = debounce((value: string) => {
+    handle_path_button = async() => {
+        await this.context?.read_file_contents();
+        this.debounce_check_path();
+    }
+
+    on_update(value : string) {
+        this.setState({path: value});
+        this.debounce_on_path_update(value);
+    }
+
+    debounce_on_path_update = debounce((value: string) => {
         this.context?.setState({dredgePath: value});
     },
-    1000)
+    500)
+
+    debounce_check_path = debounce(() => {
+        this.setState({path: (this.context as App).state.dredgePath!})
+    },
+    500)
 
     render () {
         return (
@@ -47,11 +64,11 @@ export default class Settings extends Component<{}, ISettingsState>
                         <input 
                             id="setting-path-input"
                             type="text" 
-                            className="input" 
-                            onChange={(e) => {this.debounce_on_update(e.target.value)}} 
-                            value={this.context?.state.dredgePath!}
+                            className="input-text" 
+                            onChange={(e) => {this.on_update(e.target.value)}} 
+                            value={this.state.path}
                             />
-                        <button className="button" onClick={this.context?.read_file_contents}>...</button>
+                        <button className="button" onClick={this.handle_path_button}>...</button>
                     </div>
                     <label className="setting-detail">
                         ~ may not update here immediately after selecting in the file explorer.
