@@ -342,8 +342,13 @@
 }
 
 .mods-available-box {
-    & .box-primary-container .primary-expand {
-        margin-left: auto;
+    & .box-primary-container {
+        .primary-details {
+            max-width: 95%;
+        }
+        .primary-expand {
+            margin-left: auto;
+        }
     }
 }
 
