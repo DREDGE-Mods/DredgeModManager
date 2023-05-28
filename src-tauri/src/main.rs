@@ -4,6 +4,7 @@
 use std::{collections::HashMap, path::PathBuf};
 use std::fs;
 use std::process::Command;
+use serde::Serializer;
 use serde_json::Result as SerdeResult;
 use tauri::{Manager, PhysicalSize};
 mod database;
@@ -14,10 +15,8 @@ mod files;
 #[serde(rename_all(serialize = "PascalCase"))]
 enum ErrorCode {
     IncorrectPath,
-    MissingModsFolder,
-    FailedToSaveModsList,
-    NoModsInstalled,
-    WinchNotInstalled
+    FailedToCreateModsFolder,
+    FailedToSaveModsList
 }
 
 #[derive(serde::Serialize)]
@@ -25,7 +24,15 @@ struct InitialInfo {
     enabled_mods : HashMap<String, bool>,
     mods : HashMap<String, mods::ModInfo>,
     database: Vec<database::ModDatabaseInfo>,
-    winch_mod_info : mods::ModInfo
+    #[serde(serialize_with = "serialize_mod_info_option")]
+    winch_mod_info : Option<mods::ModInfo>
+}
+
+fn serialize_mod_info_option<S>(maybe_mod_info : &Option<mods::ModInfo>, serializer : S) -> Result<S::Ok, S::Error> where S : Serializer {
+    match maybe_mod_info {
+        Some(mod_info) => serializer.serialize_some(mod_info),
+        None => serializer.serialize_none()
+    }
 }
 
 #[derive(serde::Serialize)]
@@ -59,7 +66,13 @@ fn load(dredge_path : String) -> Result<InitialInfo, InitialInfoError> {
     // Search for installed mods
     let mods_dir_path = format!("{}/Mods", dredge_path);
     if !fs::metadata(&mods_dir_path).is_ok() {
-        return Err(InitialInfoError { error_code: ErrorCode::MissingModsFolder, message : format!("Couldn't find the Mods folder at [{}]", mods_dir_path).to_string() });
+        match fs::create_dir(&mods_dir_path) {
+            Ok(_) => (),
+            Err(e) => return Err(InitialInfoError {
+                error_code: ErrorCode::FailedToCreateModsFolder, 
+                message: format!("Couldn't create mods folder at [{}] - {}", mods_dir_path, e) 
+            })
+        }
     }
 
     // If it fails to find/read the file this will just be an empty dictionary and we'll write a new file
@@ -102,27 +115,13 @@ fn load(dredge_path : String) -> Result<InitialInfo, InitialInfoError> {
         }
     }
 
-    if mods.len() == 0 {
-        return Err(InitialInfoError { error_code: ErrorCode::NoModsInstalled, message : format!("Couldn't find any installed mods at [{}]", dredge_path).to_string()});
-    }
-
     let database: Vec<database::ModDatabaseInfo> = database::access_database();
 
     // Get Winch mod info
     let winch_mod_meta_path = format!("{}/mod_meta.json", dredge_path);
-    if !fs::metadata(&winch_mod_meta_path).is_ok() {
-        return Err(InitialInfoError {
-            error_code : ErrorCode::WinchNotInstalled,
-            message : format!("Winch was not installed at [{}]", winch_mod_meta_path).to_string()
-        });
-    }
-
     let winch_mod_info = match mods::load_mod_info(winch_mod_meta_path) {
-        Ok(x) => x,
-        Err(e) => return Err(InitialInfoError {
-            error_code : ErrorCode::WinchNotInstalled,
-            message : format!("Could not parse Winch mod info - {}", e).to_string()
-        })
+        Ok(x) => Some(x),
+        Err(_) => None
     };
 
     Ok(InitialInfo {enabled_mods, mods, database, winch_mod_info})
@@ -133,12 +132,12 @@ fn check_enabled_mods(enabled_mods_path : String) -> HashMap<String, bool> {
         let enabled_mods_json_string = match fs::read_to_string(&enabled_mods_path) {
             Ok(v) => v,
             Err(e) => {
-                println!("Couldn't read mod list json");
+                println!("Couldn't read mod list json {}", e);
                 return HashMap::new()
             }
         };
     
-        let mut enabled_mods = match serde_json::from_str(&enabled_mods_json_string) as SerdeResult<HashMap<String, bool>> {
+        let enabled_mods = match serde_json::from_str(&enabled_mods_json_string) as SerdeResult<HashMap<String, bool>> {
             Ok(v) => v,
             Err(_) => {
                 println!("Couldn't parse mod list json");
@@ -156,10 +155,16 @@ fn dredge_path_changed(path: String) -> Result<(), String> {
     let folder: String = files::get_local_dir()?;
     let file: String = format!("{}/data.txt", folder);
     if !fs::metadata(&folder).is_ok() {
-        fs::create_dir_all(&folder).expect("Failed to create DredgeModManager appdata directory.");
+        match fs::create_dir_all(&folder) {
+            Ok(_) => (),
+            Err(e) => return Err(format!("Failed to create DredgeModManager appdata directory - {}", e))
+        };
     }
 
-    fs::write(&file, path).expect(format!("Unable to write to file {}", &file).as_str());
+    match fs::write(&file, path) {
+        Ok(_) => (),
+        Err(e) => return Err(format!("Failed to write to manager meta data file at [{}] - {}", file, e))
+    }
 
     println!("DREDGE folder path saved to: {}", file);
 
@@ -169,29 +174,30 @@ fn dredge_path_changed(path: String) -> Result<(), String> {
 #[tauri::command]
 fn toggle_enabled_mod(mod_guid : String, enabled : bool, dredge_path : String) -> Result<(), String> {
     let enabled_mods_path = files::get_enabled_mods_path(&dredge_path);
-    let file_contents = fs::read_to_string(&enabled_mods_path).expect("Mod list");
+    let file_contents = match fs::read_to_string(&enabled_mods_path) {
+        Ok(x) => x,
+        Err(e) => return Err(format!("Could not load mods json - {}", e))
+    };
+
     let mut json = match serde_json::from_str(&file_contents) as SerdeResult<HashMap<String, bool>> {
         Ok(v) => v,
-        Err(_) => return Err("Could not load mods json".to_string())
+        Err(e) => return Err(format!("Could not parse mods json - {}", e))
     };
 
     json.insert(mod_guid, enabled);
 
     match write_enabled_mods(json, enabled_mods_path) {
         Ok(()) => (),
-        Err(_) => return Err("Could not update mods json".to_string())
+        Err(e) => return Err(format!("Could not update mods json - {}", e))
     };
 
     Ok(())
 }
 
-fn write_enabled_mods(json : HashMap<String, bool>, enabled_mods_path : String) -> Result<(), String> {
-    let json_string = match serde_json::to_string_pretty(&json) {
-        Ok(v) => v,
-        Err(_) => return Err("Could not format string to json".to_string())
-    };
+fn write_enabled_mods(json : HashMap<String, bool>, enabled_mods_path : String) -> Result<(), Box<dyn std::error::Error>> {
+    let json_string = serde_json::to_string_pretty(&json)?;
 
-    fs::write(&enabled_mods_path, json_string).expect(format!("Unable to write to file {}", &enabled_mods_path).as_str());
+    fs::write(&enabled_mods_path, json_string)?;
 
     Ok(())
 }
