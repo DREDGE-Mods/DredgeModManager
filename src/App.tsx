@@ -100,10 +100,10 @@ class App extends Component<{}, IAppState>
           pathCorrect: true,
         }, () => {console.log(this.state);});
 
-      }).catch((error: {path_correct: boolean, message: string}) => {
+      }).catch((error: { error_code : string, message : string }) => {
         alert(error.message);
         this.setState({
-          pathCorrect: error.path_correct,
+          pathCorrect: error.error_code != "IncorrectPath",
         });
       });
     }

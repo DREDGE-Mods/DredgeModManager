@@ -8,10 +8,10 @@ pub fn get_local_dir() -> Result<String, String> {
     Ok(format!("{}/Dredge Mod Manager", local_dir.to_string()))
 }
 
-pub fn get_enabled_mods_path(dredge_path : &str) -> Result<String, String> {
+pub fn get_enabled_mods_path(dredge_path : &str) -> String {
     let mod_list_path: String = format!("{}/mod_list.json", dredge_path);
 
-    Ok(mod_list_path.to_string())
+    return mod_list_path.to_string()
 }
 
 // https://stackoverflow.com/questions/26958489/how-to-copy-a-folder-recursively-in-rust
