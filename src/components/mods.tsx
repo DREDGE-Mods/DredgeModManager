@@ -116,6 +116,7 @@ class ModList extends Component<{selected: string}>
                     enabled={enabled![mod.ModGUID]} 
                     update_enabled={(this.context as App).toggle_enabled_mod} 
                     uninstall_mod={this.uninstall_mod}
+                    install_mod={this.install_mod}
                     open_mod_dir={(this.context as App).open_mod_dir}/>
                 })
             }
@@ -274,6 +275,7 @@ class InteractIcons extends Component<{data: ModInfo, children?: React.ReactNode
 
 interface IInstalledModState extends IModBoxState{
     enabled: boolean;
+    updated: boolean;
 }
 
 class InstalledModBox extends ModBox<IInstalledModState>
@@ -283,9 +285,16 @@ class InstalledModBox extends ModBox<IInstalledModState>
 
         this.state = {
             enabled: this.props.enabled ?? false,
+            updated: false,
         }
 
         this.swap_enabled = this.swap_enabled.bind(this);
+        this.install_mod = this.install_mod.bind(this);
+    }
+
+    install_mod() {
+        this.props.install_mod!(this.props.data);
+        this.setState({updated: true});
     }
 
     swap_enabled() {
@@ -304,8 +313,8 @@ class InstalledModBox extends ModBox<IInstalledModState>
                         { (this.props.data.Repo || false) &&
                         <button 
                         className={`update`}
-                        onClick={() => this.props.install_mod!(this.props.data)}
-                        disabled={this.props.data.Version!.trim() === this.props.data.LatestVersion?.trim()}
+                        onClick={this.install_mod}
+                        disabled={this.props.data.Version!.trim() === this.props.data.LatestVersion?.trim() || this.state.updated}
                         title={(this.props.data.Version!.trim() === this.props.data.LatestVersion?.trim()) ? "" : this.props.data.LatestVersion}
                         >Update</button>
                         }

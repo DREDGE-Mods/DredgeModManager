@@ -144,6 +144,7 @@
         display: flex;
         flex-direction: row;
 
+
         align-items: center;
         min-height: 40px;
 
@@ -153,10 +154,10 @@
             display: flex;
             flex-direction: row;
             gap: 5px;
-            flex: 1 0;
+            flex: 1 1;
             height: 40px;
 
-            max-width: 70%;
+            max-width: 52vw;
 
             overflow:hidden;
 
@@ -344,7 +345,7 @@
 .mods-available-box {
     & .box-primary-container {
         .primary-details {
-            max-width: 95%;
+            max-width: 90%;
         }
         .primary-expand {
             margin-left: auto;

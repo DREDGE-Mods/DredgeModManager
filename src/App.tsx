@@ -80,7 +80,6 @@ class App extends Component<{}, IAppState>
 
           // Populate data for local mods from the database for that mod.
           if (fetch.mods.hasOwnProperty(databaseMod.ModGUID)) {
-            console.log(`Found ${databaseMod.ModGUID}`);
             var localMod = fetch.mods[databaseMod.ModGUID] as ModInfo;
             localMod.Description = databaseMod.Description;
             localMod.Downloads = databaseMod.Downloads;
@@ -144,7 +143,9 @@ class App extends Component<{}, IAppState>
     if (modInfo.Repo != undefined && modInfo.Download != undefined) {
       invoke('install_mod', {repo: modInfo.Repo, download: modInfo.Download, dredgeFolder: this.state.dredgePath})
       .then(this.reload_mods)
-      .catch((e) => alert(e.toString()));
+      .catch((e) => {
+        alert(e.toString())
+      });
     }
   }
 
