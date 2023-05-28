@@ -58,5 +58,11 @@
                 border-radius: 3px;
             }
         }
+
+        .warning {
+            font-weight: 600;
+            font-size: 1.2em;
+            color: $interact-red;
+        }
     }
 }

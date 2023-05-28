@@ -9,22 +9,22 @@ interface IContentState extends React.PropsWithChildren<any>{
     choice: string;
 }
 
-export default class Content extends Component<{choice : string}, IContentState>
+export default class Content extends Component<{choice : string, pathCorrect: boolean | undefined}, IContentState>
 {
     contentOptions: any;
 
     constructor(props: any) {
         super(props);
-
-        this.contentOptions = new Map(
-            [
-                ["Mods", <Mods selected="Installed"/>],
-                ["Settings", <Settings />]
-            ]
-        )
     }
 
     render() {
+        this.contentOptions = new Map(
+            [
+                ["Mods", <Mods selected="Installed"/>],
+                ["Settings", <Settings path_correct ={this.props.pathCorrect}/>]
+            ]
+        )
+
         const renderedContent = this.contentOptions.get(this.props.choice);
 
         return (

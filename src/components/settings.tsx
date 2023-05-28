@@ -10,7 +10,7 @@ interface ISettingsState {
     path: string;
 }
 
-export default class Settings extends Component<{}, ISettingsState>
+export default class Settings extends Component<{path_correct: boolean | undefined}, ISettingsState>
 {
     static contextType = AppStateContext
     declare context: React.ContextType<typeof AppStateContext>
@@ -31,6 +31,7 @@ export default class Settings extends Component<{}, ISettingsState>
         if (this.state.path === "") {
             this.setState({path : (this.context as App).state.dredgePath!})
         }
+        this.debounce_check_path();
     }
 
     handle_path_button = async() => {
@@ -49,11 +50,20 @@ export default class Settings extends Component<{}, ISettingsState>
     500)
 
     debounce_check_path = debounce(() => {
-        this.setState({path: (this.context as App).state.dredgePath!})
+        this.setState({path: (this.context as App).state.dredgePath!});
     },
     500)
 
     render () {
+        var pathWarning:JSX.Element | string;
+        if (!this.props.path_correct) {
+            pathWarning = <div className="warning">
+                        Invalid DREDGE path
+                        </div>
+        } else {
+            pathWarning = "";
+        }
+
         return (
             <div className="settings-container">
                 <div className="setting">
@@ -70,6 +80,7 @@ export default class Settings extends Component<{}, ISettingsState>
                             />
                         <button className="button" onClick={this.handle_path_button}>...</button>
                     </div>
+                    {pathWarning}
                 </div>
             </div>
         )

@@ -102,14 +102,11 @@ class App extends Component<{}, IAppState>
       }).catch((error: { error_code : string, message : string }) => {
         // Pattern matching could be implemented with the ts-pattern library,
         // But only using it for one thing here so not going to bother
-        (error.error_code === "MissingModsFolder") ? 
-        this.handle_missing_mods_dir() : 
-        (error.error_code === "NoModsInstalled") ?
-        {} : 
-        alert(error.message);
+        (error.error_code === "IncorrectPath") ?
         this.setState({
           pathCorrect: error.error_code != "IncorrectPath",
-        });
+        }) :
+        alert(error.message);
       });
     }
   }
@@ -227,8 +224,8 @@ class App extends Component<{}, IAppState>
     return (
       <AppProvider value={this as App}>
         <div className="app-container text-light">
-          <Sidebar choice={this.state.pageChoice! as string} start={this.start} setPage={this.set_page_choice} key="Sidebar" path_correct={this.state.pathCorrect}/>
-          <Content choice={this.state.pageChoice! as string} key="Content"/>
+          <Sidebar choice={this.state.pageChoice! as string} start={this.start} setPage={this.set_page_choice} key="Sidebar" pathCorrect={this.state.pathCorrect}/>
+          <Content choice={this.state.pageChoice! as string} pathCorrect={this.state.pathCorrect} key="Content" />
         </div>
       </AppProvider>
     )
@@ -238,8 +235,6 @@ class App extends Component<{}, IAppState>
 export default App;
 
 // TODO:
-// Implement Available Mods page,
-// Implement settings page, allowing set of dredge path
 // Allow start of un-modded game via change doorstop_config.ini
 // Full cleanup of code- could be significantly better quite easily
 // Queue for mod installs

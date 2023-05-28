@@ -7,7 +7,7 @@ interface ISidebarState {
     start: () => void;
 }
 
-export default class Sidebar extends Component<{choice: string, start: () => void, setPage: (p: string) => void, path_correct: boolean | undefined}, ISidebarState>
+export default class Sidebar extends Component<{choice: string, start: () => void, setPage: (p: string) => void, pathCorrect: boolean | undefined}, ISidebarState>
 {
     data: Array<Record<string, any>>;
 
@@ -32,8 +32,6 @@ export default class Sidebar extends Component<{choice: string, start: () => voi
     }
 
     componentDidUpdate() {
-        console.log(this.state.choice);
-        console.log(this.props.choice);
         if (this.state.choice != this.props.choice) {
             this.setState({choice: this.props.choice});
         }
@@ -46,7 +44,7 @@ export default class Sidebar extends Component<{choice: string, start: () => voi
 
     render() {
         var useData;
-        if (!this.props.path_correct) {
+        if (!this.props.pathCorrect) {
             useData = [{name: "Settings"}]
         } else {
             useData = this.data;
