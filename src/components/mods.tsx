@@ -92,6 +92,8 @@ class ModList extends Component<{selected: string}>
 
     render() {
         var shownList = new Array<JSX.Element>();
+        var availableList = new Array<JSX.Element | undefined>();
+        var installedList = new Array<JSX.Element>();
 
         const app = (this.context as App).state
 
@@ -102,44 +104,61 @@ class ModList extends Component<{selected: string}>
         for (let [k, v] of info!) {
             modList.push(v)
         }
-        
-        var installedList = new Array<JSX.Element>();
-        if (this.props.selected === "Installed") {
-            installedList = modList.map((mod) => {
-                return <InstalledModBox 
-                key={mod.ModGUID} 
-                data={mod} 
-                enabled={enabled![mod.ModGUID]} 
-                update_enabled={(this.context as App).toggle_enabled_mod} 
-                uninstall_mod={this.uninstall_mod}
-                open_mod_dir={(this.context as App).open_mod_dir}/>
-            })
-        }
 
-        var availableList = new Array<JSX.Element>();
-        if (this.props.selected === "Available") {
-            availableList = database!.map((mod) => {
-                if (!info!.has(mod.ModGUID)) {
-                    return <AvailableModBox 
+        if (database === undefined) {}
+        else {
+        
+            if (this.props.selected === "Installed") {
+                installedList = modList.map((mod) => {
+                    return <InstalledModBox 
                     key={mod.ModGUID} 
                     data={mod} 
-                    install_mod={this.install_mod}/>
-                } else {
-                return <></>;
-                }
-            })
+                    enabled={enabled![mod.ModGUID]} 
+                    update_enabled={(this.context as App).toggle_enabled_mod} 
+                    uninstall_mod={this.uninstall_mod}
+                    open_mod_dir={(this.context as App).open_mod_dir}/>
+                })
+            }
+
+            
+            if (this.props.selected === "Available") {
+                availableList = database!.map((mod) => {
+                    if (!info!.has(mod.ModGUID)) {
+                        return <AvailableModBox 
+                        key={mod.ModGUID} 
+                        data={mod} 
+                        install_mod={this.install_mod}/>
+                    } return undefined
+                })
+            }
         }
+
         
 
         if (this.props.selected === "Installed") {
             shownList = installedList;
+            if (shownList.length === 0) shownList = [<ModsNotFound key={"mods-not-found"} reload={this.debounce_force_update_slow}/>]
         } else {
-            shownList = availableList;
+            shownList = availableList.filter((element) => {return (element!=undefined)}) as Array<JSX.Element>;
         }
 
         return (
-            <div className="mods-installed-list">
+            <div className="mods-list">
                 {shownList}
+            </div>
+        )
+    }
+}
+
+class ModsNotFound extends Component<{reload: () => void}>
+{
+    render() {
+        return (
+            <div className="mods-not-found">
+                <span className="info">Oh no! Looks like you've not got any mods, check out the Available tab!</span>
+                <div className="reload">
+                    Think that's wrong?
+                    <button onClick={this.props.reload}>Reload</button></div>
             </div>
         )
     }
@@ -194,7 +213,7 @@ class PrimaryDetails extends Component<{data : ModInfo}> {
             <label className="primary-details" htmlFor={`expand-${this.props.data.ModGUID}`}>
                 <span className="details-name" title={`Version: ${this.props.data.Version}`}>{this.props.data.Name || this.props.data.ModGUID}</span>
                 <span className="details-by">{this.props.data.Author ? "by" : ""}</span>
-                <span className="details-author">{this.props.data.Author}</span>
+                <span className="details-author" title={this.props.data.Author}>{this.props.data.Author}</span>
             </label>
         )
     }

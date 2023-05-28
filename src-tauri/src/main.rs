@@ -102,9 +102,12 @@ fn load(dredge_path : String) -> Result<InitialInfo, InitialInfoError> {
         }
     }
 
-    if mods.len() == 0 {
-        return Err(InitialInfoError { error_code: ErrorCode::NoModsInstalled, message : format!("Couldn't find any installed mods at [{}]", dredge_path).to_string()});
-    }
+    /*if mods.len() == 0 {
+        return Err(InitialInfoError { 
+            error_code: ErrorCode::NoModsInstalled,
+             message : format!("Couldn't find any installed mods at [{}]", dredge_path).to_string()
+            });
+    }*/
 
     let database: Vec<database::ModDatabaseInfo> = database::access_database();
 

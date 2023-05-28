@@ -89,8 +89,10 @@
     gap: 10px;
 }
 
-.mods-installed-list {
+.mods-list {
     @include mods-list-generic;
+
+    min-height: 100%;
 }
 
 
@@ -117,13 +119,6 @@
 
     display: flex;
     flex-direction: column;
-}
-
-.mods-installed-box,
-.mods-available-box {
-    @include mods-box-generic;
-
-    position: relative;
 
     & + & {
         &::before {
@@ -136,6 +131,13 @@
             margin-top: -6px;
         }
     }
+}
+
+.mods-installed-box,
+.mods-available-box {
+    @include mods-box-generic;
+
+    position: relative;
 
     .box-primary-container {
         padding: 0 10px;
@@ -228,7 +230,7 @@
                     background-color: $bg-secondary-tint;
                     border-radius: 2px;
 
-                    transition: margin 100ms ease;
+                    transition: margin 60ms cubic-bezier(.4,0,1,1);
                 }
 
                 &.switched {
@@ -342,5 +344,67 @@
 .mods-available-box {
     & .box-primary-container .primary-expand {
         margin-left: auto;
+    }
+}
+
+.mods-not-found {
+    display: flex;
+    flex-flow: column nowrap;
+    gap: 10px;
+    
+    justify-content: center;
+    
+    flex-grow: 1;
+    text-align:center;
+
+    margin: auto auto;
+    max-width: 400px;
+
+    & .info,
+    & .reload {
+        @include detail-bold;
+
+        border: 2px solid $bg-primary-tint;
+        background-color: $bg-primary-tint;
+        border-radius: 10px;
+    }
+
+    & .info {
+        display: grid;
+        place-items: center;
+
+        inline-size: inherit;
+        height: 150px;
+
+        border: 2px solid $bg-primary-tint;
+        background-color: $bg-primary-tint;
+
+        padding: 30px 10px;
+    }
+
+    & .reload {
+        padding: 15px 20px;
+        display: flex;
+        gap: 5px;
+        flex-flow: column nowrap;
+
+        button {
+            background-color: $interact-green-shade;
+            border: 2px solid $interact-green-shade;
+            border-radius: 6px;
+            padding: 5px 0;
+            margin: 0 25px;
+            color: $text-light-primary;
+            font-weight: 600;
+
+            &:hover {
+                background-color: $interact-green;
+                border-color: $interact-green;
+            }
+
+            &:active {
+                transform: translateY(2px);
+            }
+        }
     }
 }

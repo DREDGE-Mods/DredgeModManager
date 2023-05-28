@@ -101,6 +101,12 @@ class App extends Component<{}, IAppState>
         }, () => {console.log(this.state);});
 
       }).catch((error: { error_code : string, message : string }) => {
+        // Pattern matching could be implemented with the ts-pattern library,
+        // But only using it for one thing here so not going to bother
+        (error.error_code === "MissingModsFolder") ? 
+        this.handle_missing_mods_dir() : 
+        (error.error_code === "NoModsInstalled") ?
+        {} : 
         alert(error.message);
         this.setState({
           pathCorrect: error.error_code != "IncorrectPath",
@@ -160,6 +166,13 @@ class App extends Component<{}, IAppState>
     this.setState({enabledMods: updatedEnabled})
     invoke('toggle_enabled_mod', { "modGuid": modGUID, "enabled": !isEnabled, "dredgePath" : this.state.dredgePath})
       .catch((e) => alert(e.toString()))
+  }
+
+  
+  // Error Handling
+
+  handle_missing_mods_dir() {
+    alert("missing mods folder");
   }
 
 

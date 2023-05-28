@@ -6,7 +6,11 @@ import AppStateContext from './appcontext'
 import App from '../App'
 import { debounce } from 'lodash';
 
-export default class Settings extends Component
+interface ISettingsState {
+    path: string;
+}
+
+export default class Settings extends Component<{}, ISettingsState>
 {
     static contextType = AppStateContext
     declare context: React.ContextType<typeof AppStateContext>
@@ -14,12 +18,23 @@ export default class Settings extends Component
     constructor(props:any) {
         super(props);
 
-        this.on_update = this.on_update.bind(this);
+        this.state = {
+            path: "",
+        }
+
+        this.debounce_on_update = this.debounce_on_update.bind(this);
     }
 
-    on_update() {
-        document.getElementById("setting-path-input")?.setAttribute("value", this.context?.state.dredgePath!);
+    componentDidMount() {
+        if (this.state.path === "") {
+            // one moment
+        }
     }
+
+    debounce_on_update = debounce((value: string) => {
+        this.context?.setState({dredgePath: value});
+    },
+    1000)
 
     render () {
         return (
@@ -30,14 +45,15 @@ export default class Settings extends Component
                     </label>
                     <div className="path">
                         <input 
-                        id="setting-path-input"
-                        type="text" 
-                        className="input" 
-                        onChange={(e) => {this.context?.setState({dredgePath: e.target.value}); this.on_update()}} 
-                        defaultValue={this.context?.state.dredgePath!}/>
+                            id="setting-path-input"
+                            type="text" 
+                            className="input" 
+                            onChange={(e) => {this.debounce_on_update(e.target.value)}} 
+                            value={this.context?.state.dredgePath!}
+                            />
                         <button className="button" onClick={this.context?.read_file_contents}>...</button>
                     </div>
-                    <label>
+                    <label className="setting-detail">
                         ~ may not update here immediately after selecting in the file explorer.
                     </label>
                 </div>
@@ -45,7 +61,3 @@ export default class Settings extends Component
         )
     }
 }
-
-
-//<input type="text" className="flex-fill m-2" onChange={(e) => setDredgePath(e.target.value)} value={dredgePath}></input>
-  //        <button className="m-2" onClick={readFileContents}>Select Folder</button>

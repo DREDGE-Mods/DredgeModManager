@@ -34,6 +34,11 @@
         label {
             font-weight: 500;
             margin-bottom: 5px;
+
+            &.setting-detail {
+                color: $text-light-secondary;
+                font-size: 0.8em;
+            }
         }
         
         .path {

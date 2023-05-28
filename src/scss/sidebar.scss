@@ -128,6 +128,10 @@ $--play-alt-width: 20px;
         &:hover {
             background-color: $interact-green;
         }
+
+        &:active {
+            transform: translateY(2px);
+        }
     }
 }
 
