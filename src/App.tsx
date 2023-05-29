@@ -167,13 +167,6 @@ class App extends Component<{}, IAppState>
   }
 
   
-  // Error Handling
-
-  handle_missing_mods_dir() {
-    alert("missing mods folder");
-  }
-
-
   // Inbuilt React
 
   // React calls this when the component initially mounts after its first render.
@@ -181,13 +174,14 @@ class App extends Component<{}, IAppState>
   // Would need to be bound if called by us anywhere.
   componentDidMount (): void {
     invoke('load_dredge_path').then((path) => {
-      this.setState({dredgePath: path as string})
-    }).catch((error) => alert(error.toString()));
-    this.reload_mods();
+      this.setState({dredgePath: path as string}, () => {
+        this.reload_mods();
 
-    if (this.state.dredgePath === undefined) {
+    if (this.state.dredgePath === undefined || !this.state.pathCorrect) {
       this.setState({pageChoice: "Settings"});
     }
+      })
+    }).catch((error) => alert(error.toString()));
   }
 
   componentDidUpdate (prevProps: any, prevState: any): void {
