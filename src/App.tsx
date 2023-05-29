@@ -72,7 +72,7 @@ class App extends Component<{}, IAppState>
     .catch((e) => alert(e.toString()));
   }
 
-  reload_mods() {
+  reload_mods = async() => {
     if (this.state.dredgePath != null && this.state.dredgePath.length != 0) {
 
       invoke("load", {"dredgePath" : this.state.dredgePath}).then((fetch:any) => {
@@ -97,7 +97,7 @@ class App extends Component<{}, IAppState>
           availableMods: fetch.database.map((mod : ModInfo) => mod.ModGUID).filter((modGUID: string) => !fetch.mods.hasOwnProperty(modGUID)),
           winchInfo: fetch.winch_mod_info,
           pathCorrect: true,
-        }, () => {console.log(this.state);});
+        }, () => {console.log(this.state); return});
 
       }).catch((error: { error_code : string, message : string }) => {
         // Pattern matching could be implemented with the ts-pattern library,
@@ -107,7 +107,11 @@ class App extends Component<{}, IAppState>
           pathCorrect: error.error_code != "IncorrectPath",
         }) :
         alert(error.message);
+        return
       });
+    }
+    else {
+      return
     }
   }
 
@@ -175,11 +179,13 @@ class App extends Component<{}, IAppState>
   componentDidMount (): void {
     invoke('load_dredge_path').then((path) => {
       this.setState({dredgePath: path as string}, () => {
-        this.reload_mods();
-
-    if (this.state.dredgePath === undefined || !this.state.pathCorrect) {
-      this.setState({pageChoice: "Settings"});
-    }
+        this.reload_mods().then(() => {
+          if (this.state.pathCorrect === false) {
+            console.log(this.state.pathCorrect);
+            console.log("settings");
+            this.setState({pageChoice: "Settings"});
+          }
+        });
       })
     }).catch((error) => alert(error.toString()));
   }
@@ -193,7 +199,7 @@ class App extends Component<{}, IAppState>
   // Doesn't need to be bound
   debounced_dredge_path_change = debounce(() => {
       invoke("dredge_path_changed", {"path": this.state.dredgePath})
-      .then(this.reload_mods)
+      .then(() => {this.reload_mods()})
       .catch((error) => alert(error.toString()));
     },
     100

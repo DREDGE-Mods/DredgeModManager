@@ -25,7 +25,11 @@ export default class Content extends Component<{choice : string, pathCorrect: bo
             ]
         )
 
-        const renderedContent = this.contentOptions.get(this.props.choice);
+        var renderedContent = this.contentOptions.get(this.props.choice);
+
+        if (!this.props.pathCorrect) {
+            renderedContent = this.contentOptions.get("Settings")
+        }
 
         return (
             <div className="content-container" key="Content">

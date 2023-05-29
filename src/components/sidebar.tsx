@@ -55,7 +55,11 @@ export default class Sidebar extends Component<{choice: string, start: () => voi
                 <div className="sidebar-options-container">
                     {
                     useData.map((item, index) => {
-                        return <SidebarOption name={item.name} index={index} selected={this.state.choice} func={this.SetActiveOption} key={index}/>
+                        let selected = this.state.choice;
+                        if (!this.props.pathCorrect) {
+                            selected = "Settings"
+                        }
+                        return <SidebarOption name={item.name} index={index} selected={selected} func={this.SetActiveOption} key={index}/>
                     })}
                 </div>
                 <SidebarPlay start={this.props.start}/>
