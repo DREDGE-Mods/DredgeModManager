@@ -250,7 +250,7 @@ function InteractIcons(props: {data: ModInfo, children?: React.ReactNode}) {
         <div className="interact-icons">
             {doGit && 
             <a href={gitLink} title={gitLink} target="_blank">
-                <i className="fa">&#xf09b;</i>
+                <i className="fa-brands">&#xf09b;</i>
             </a>}
             {props.children}
         </div>
