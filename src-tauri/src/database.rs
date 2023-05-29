@@ -8,10 +8,14 @@ pub struct ModDatabaseInfo {
     mod_guid : String,
     repo : String,
     download : String,
+    author: String,
     description : String,
-    release_date: String,
-    latest_version: String,
-    downloads: i16
+    release_date : String,
+    asset_update_date: String,
+    latest_version : String,
+    downloads: i16,
+    readme_url: String,
+    readme_raw: String
 }
 
 async fn async_access_database() -> Result<Vec<ModDatabaseInfo>, Box<dyn std::error::Error>> {
