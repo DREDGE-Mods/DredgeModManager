@@ -125,6 +125,7 @@ class ModList extends Component<{selected: string}>
             if (this.props.selected === "Available") {
                 availableList = database!.map((mod) => {
                     if (!info!.has(mod.ModGUID)) {
+                        mod.Author = mod.Repo?.split("/")[0]
                         return <AvailableModBox 
                         key={mod.ModGUID} 
                         data={mod} 
