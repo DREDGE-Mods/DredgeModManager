@@ -296,6 +296,13 @@
             gap: 10px;
             margin: 0px 10px 5px 10px;
 
+            .interact-buttons {
+                display: flex;
+                flex-direction: row;
+                gap: 10px;
+                margin-right: auto;
+            }
+
             .interact-button {
                 color: $text-light-primary;
                 font-weight: 500;
@@ -311,10 +318,26 @@
                 }
             }
 
+            .downloads {
+                vertical-align: middle;
+                text-align: center;
+                display: flex;
+                flex-flow: row nowrap;
+                justify-items: center;
+                align-items: center;
+                & span {
+                    margin-left: 5px;
+                }
+                & i {
+                    margin-top: 5px;
+                    font-size: 1.3em;
+                }
+            }
+
             .interact-icons {
                 display: flex;
                 flex-direction: row-reverse;
-                margin-left: auto;
+                margin-left: 30px;
                 margin-right: 10px;
                 gap: 10px;
                 font-size: 30px;

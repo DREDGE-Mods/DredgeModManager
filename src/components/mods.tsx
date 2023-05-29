@@ -199,78 +199,81 @@ class ModBox<ISpecificState extends IModBoxState> extends Component<ModBoxProps,
     }
 }
 
-class PrimaryContainer extends Component<{children: React.ReactNode}> {
-    render() {
-        return (
-            <div className="box-primary-container">
-                {this.props.children}
-            </div>
-        )
-    }
+function PrimaryContainer (props: {children: React.ReactNode}) {
+    return (
+        <div className="box-primary-container">
+            {props.children}
+        </div>
+    )
 }
 
-class PrimaryDetails extends Component<{data : ModInfo}> {
-    render () {
-        return (
-            <label className="primary-details" htmlFor={`expand-${this.props.data.ModGUID}`}>
-                <span className="details-name" title={`Version: ${this.props.data.Version}`}>{this.props.data.Name || this.props.data.ModGUID}</span>
-                <span className="details-by">{this.props.data.Author ? "by" : ""}</span>
-                <span className="details-author" title={this.props.data.Author}>{this.props.data.Author}</span>
-            </label>
-        )
-    }
+function PrimaryDetails (props: {data: ModInfo}) {
+    return (
+        <label className="primary-details" htmlFor={`expand-${props.data.ModGUID}`}>
+            <span className="details-name" title={`Version: ${props.data.Version}`}>{props.data.Name || props.data.ModGUID}</span>
+            <span className="details-by">{props.data.Author ? "by" : ""}</span>
+            <span className="details-author" title={props.data.Author}>{props.data.Author}</span>
+        </label>
+    )
 }
 
-class PrimaryExpand extends Component<{data: ModInfo, swap_expand: () => void, expanded: boolean | undefined}> {
-    render() {
-        return (
-            <button className={`primary-expand ${this.props.expanded ? "expanded" : ""}`} onClick={this.props.swap_expand} id={`expand-${this.props.data.ModGUID}`}/>
-        )
-    }
+function PrimaryExpand (props: {data: ModInfo, swap_expand: () => void, expanded: boolean | undefined}) {
+    return (
+        <button className={`primary-expand ${props.expanded ? "expanded" : ""}`} onClick={props.swap_expand} id={`expand-${props.data.ModGUID}`}/>
+    )
 }
 
-class SecondaryContainer extends Component<{expanded: boolean | undefined, children: React.ReactNode}> {
-    render() {
-        return (
-            <div className={`box-secondary-container ${this.props.expanded ? "expanded" : ""}`}>
-                {this.props.children}
-            </div>
-        )
-    }
+function SecondaryContainer (props: {expanded: boolean | undefined, children: React.ReactNode}) {
+    return (
+        <div className={`box-secondary-container ${props.expanded ? "expanded" : ""}`}>
+            {props.children}
+        </div>
+    )
 }
 
-class SecondaryDetails extends Component<{data: ModInfo}> {
-    render() {
+function SecondaryDetails (props: {data: ModInfo}) {
         return <>
-            <div className="secondary-description">{this.props.data.Description}</div>
+            <div className="secondary-description">{props.data.Description}</div>
         </>
-    }
 }
 
-class SecondaryInteract extends Component<{children: React.ReactNode}> {
-    render() {
-        return (
-            <div className="secondary-interacts">
-                {this.props.children}
-            </div>
-        )
-    }
+function SecondaryInteract (props: {children: React.ReactNode}) {
+    return (
+        <div className="secondary-interacts">
+            {props.children}
+        </div>
+    )
 }
 
-class InteractIcons extends Component<{data: ModInfo, children?: React.ReactNode}> {
-    render() {
-        var doGit = this.props.data.Repo ?? false;
-        const gitLink = `https://github.com/${this.props.data.Repo}`
-        return (
-            <div className="interact-icons">
-                {doGit && 
-                <a href={gitLink} title={gitLink} target="_blank">
-                    <i className="fa">&#xf09b;</i>
-                </a>}
-                {this.props.children}
-            </div>
-        )
-    }
+function InteractIcons(props: {data: ModInfo, children?: React.ReactNode}) {
+    var doGit = props.data.Repo ?? false;
+    const gitLink = `https://github.com/${props.data.Repo}`
+    return (
+        <div className="interact-icons">
+            {doGit && 
+            <a href={gitLink} title={gitLink} target="_blank">
+                <i className="fa">&#xf09b;</i>
+            </a>}
+            {props.children}
+        </div>
+    )
+}
+
+function InteractButtons (props: {children: React.ReactNode}) {
+    return (
+        <div className="interact-buttons">
+            {props.children}
+        </div>
+    )
+}
+
+function Downloads (props: {downloads: number}) {
+    return ((props.downloads > 0) ?
+    <div className="downloads">
+        <i className="fa">&#xf019;</i>
+        <span>{props.downloads}</span>
+    </div> :
+    <></>)
 }
 
 
@@ -330,8 +333,11 @@ class InstalledModBox extends ModBox<IInstalledModState>
                 <SecondaryContainer expanded={this.state.expanded}>
                     <SecondaryDetails data={this.props.data}/>
                     <SecondaryInteract>
-                        <button className="interact-button" onClick={() => this.props.uninstall_mod!(this.props.data.LocalPath!)}>Uninstall</button>
-                        <button className="interact-button" onClick={this.swap_enabled}>{this.state.enabled ? "Disable" : "Enable"}</button>
+                        <InteractButtons>
+                            <button className="interact-button" onClick={() => this.props.uninstall_mod!(this.props.data.LocalPath!)}>Uninstall</button>
+                            <button className="interact-button" onClick={this.swap_enabled}>{this.state.enabled ? "Disable" : "Enable"}</button>
+                        </InteractButtons>
+                        <Downloads downloads={this.props.data.Downloads!}/>
                         <InteractIcons data={this.props.data}>
                             <button className="icon-folder" onClick={() => this.props.open_mod_dir!(this.props.data.LocalPath!)}>
                                 <i className="fa fa-sharp">&#xf07b;</i>
@@ -375,15 +381,14 @@ class AvailableModBox extends ModBox<IAvailableModState>
                 <SecondaryContainer expanded={this.state.expanded}>
                     <SecondaryDetails data={this.props.data}/>
                     <SecondaryInteract>
-                        <button className="interact-button" onClick={() => {
-                            this.props.install_mod!(this.props.data);
-                            this.setState({installed: true});
-                            }}>{installText}
-                        </button>
-                        <div className="downloads">
-                            <i className="fa">&#xf019;</i>
-                            <span>{this.props.data.Downloads}</span>
-                        </div>
+                        <InteractButtons>
+                            <button className="interact-button" onClick={() => {
+                                this.props.install_mod!(this.props.data);
+                                this.setState({installed: true});
+                                }}>{installText}
+                            </button>
+                        </InteractButtons>
+                        <Downloads downloads={this.props.data.Downloads!}/>
                         <InteractIcons data={this.props.data} />
                     </SecondaryInteract>
                 </SecondaryContainer>
