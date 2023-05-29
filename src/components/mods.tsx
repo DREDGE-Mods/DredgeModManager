@@ -107,7 +107,6 @@ class ModList extends Component<{selected: string}>
 
         if (database === undefined) {}
         else {
-        
             if (this.props.selected === "Installed") {
                 installedList = modList.map((mod) => {
                     return <InstalledModBox 
@@ -125,7 +124,6 @@ class ModList extends Component<{selected: string}>
             if (this.props.selected === "Available") {
                 availableList = database!.map((mod) => {
                     if (!info!.has(mod.ModGUID)) {
-                        mod.Author = mod.Repo?.split("/")[0]
                         return <AvailableModBox 
                         key={mod.ModGUID} 
                         data={mod} 
