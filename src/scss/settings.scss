@@ -1,0 +1,68 @@
+@use './colours' as *;
+
+.settings-container {
+    height: 100%;
+    background-color: $bg-primary;
+
+    border: 2px solid $bg-primary-tint;
+    border-top-left-radius: 25px;
+    border-top-right-radius: 25px;
+    padding: 10px;
+
+    overflow: scroll;
+
+    &::-webkit-scrollbar-thumb {
+        border-radius: 0;
+    }
+
+    &::-webkit-scrollbar {
+        -webkit-appearance: none;
+        width: 10px;
+    }
+
+    &::-webkit-scrollbar-corner {
+        background: $bg-primary;
+    }
+
+
+    .setting {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+        align-items: center;
+
+        label {
+            font-weight: 500;
+            margin-bottom: 5px;
+
+            &.setting-detail {
+                color: $text-light-secondary;
+                font-size: 0.8em;
+            }
+        }
+        
+        .path {
+            width: 100%;
+            margin: 0 auto;
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+
+            .input-text {
+                width: 85%;
+                border-radius: 3px !important;
+                margin-right: 10px;
+            }
+            .button {
+                background-color: white;
+                border-radius: 3px;
+            }
+        }
+
+        .warning {
+            font-weight: 600;
+            font-size: 1.2em;
+            color: $interact-red;
+        }
+    }
+}

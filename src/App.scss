@@ -1,0 +1,67 @@
+@use './scss/colours' as *;
+
+@mixin default {
+    background-color: $bg-primary !important;
+    box-sizing: border-box;
+
+    height: 100%;
+    width: 100%;
+}
+
+html,
+body,
+#root {
+    @include default;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+
+    // 99.7 while in dev to accommodate red border debug
+    min-height: 99.7vh;
+}
+
+.app-container {
+    @include default;
+
+    background-color: $bg-primary;
+    overflow-y: hidden;
+
+    display: flex;
+    flex-direction: row;
+    flex-grow: 1;
+}
+
+input {
+    border: none;
+    border-radius: 5px ! important;
+}
+
+button {
+    border: none;
+    background-color: transparent;
+    user-select: none;
+}
+
+// Scrollbar
+*::-webkit-scrollbar {
+    width: 10px;
+  }
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: $bg-primary-tint;
+    border-radius: 0;
+
+    &:hover {
+        background-color: $text-light-primary;
+    }
+}
+
+*::-webkit-scrollbar-corner {
+    background: $bg-primary;
+}
