@@ -38,13 +38,23 @@ pub fn load_mod_info(file : String) -> Result<ModInfo, String> {
 }
 
 pub fn uninstall_mod(mod_meta_path : String) -> () {
+    // TODO: add error checking here
+    
+    let mod_meta = load_mod_info(mod_meta_path.clone()).unwrap();
     let dir = Path::new(&mod_meta_path).parent().unwrap();
-    if dir.is_dir() && dir.is_absolute() && dir.parent().unwrap().display().to_string().ends_with("Mods") {
-        let path = dir.display().to_string();
-        println!("Deleting folder at {}", &path);
-        match fs::remove_dir_all(&path) {
-            Ok(_) => (),
-            Err(e) => println!("Failed to delete folder {} {}", &path, e.to_string())
+
+    if mod_meta.mod_guid == "hacktix.winch" {
+        fs::remove_file(format!("{}/Winch.dll", dir.display().to_string())).unwrap();
+        fs::remove_file(mod_meta_path).unwrap();
+    }
+    else {
+        if dir.is_dir() && dir.is_absolute() && dir.parent().unwrap().display().to_string().ends_with("Mods") {
+            let path = dir.display().to_string();
+            println!("Deleting folder at {}", &path);
+            match fs::remove_dir_all(&path) {
+                Ok(_) => (),
+                Err(e) => println!("Failed to delete folder {} {}", &path, e.to_string())
+            }
         }
     }
 }
@@ -98,20 +108,15 @@ pub fn install_mod(repo : String, download : String, dredge_folder : String) -> 
     let mod_meta_path = format!("{}/mod_meta.json", &temp_dir);
     let mod_meta = load_mod_info(mod_meta_path)?;
 
-    // Create destination dir
-    let destination = format!("{}/Mods/{}", dredge_folder, mod_meta.mod_guid);
+    if mod_meta.mod_guid == "hacktix.winch" {
+        copy_mod(temp_dir, dredge_folder)?;
+    }
+    else {
+        // Create destination dir
+        let destination = format!("{}/Mods/{}", dredge_folder, mod_meta.mod_guid);
 
-    copy_mod(temp_dir, destination)?;
-
-    Ok(())
-}
-
-pub fn install_winch(dredge_folder : String) -> Result<(), Box<dyn std::error::Error>> {
-    let url = "https://github.com/Hacktix/Winch/releases/latest/download/Winch.zip".to_string();
-
-    let temp_dir = download_mod(url)?;
-
-    copy_mod(temp_dir, dredge_folder)?;
+        copy_mod(temp_dir, destination)?;
+    }
 
     Ok(())
 }

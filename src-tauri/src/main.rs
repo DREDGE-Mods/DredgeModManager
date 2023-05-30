@@ -82,26 +82,34 @@ fn load(dredge_path : String) -> Result<InitialInfo, InitialInfoError> {
     // Check all installed mods to see if any are missing
     let mut mods: HashMap<String, mods::ModInfo> = HashMap::new();
     let mut update_enabled_mods_list_flag = false;
+
+    let mut check_enabled_mod_meta_json = |file_path : String| {
+        let mod_info_res = mods::load_mod_info(file_path);
+    
+        match mod_info_res {
+            Ok(mod_info) => {
+                let key = mod_info.mod_guid.clone();
+                mods.insert(key.clone(), mod_info);
+                // Check that the mod is included in the file
+                if !enabled_mods.contains_key(&key) {
+                    enabled_mods.insert(key, true);
+                    update_enabled_mods_list_flag = true;
+                }
+            },
+            Err(e) => println!("Failed to load mod {}", e)
+        }
+    };
+
+    // Check Winch installed
+    check_enabled_mod_meta_json(format!("{}/mod_meta.json", dredge_path));
+
     for entry in walkdir::WalkDir::new(&mods_dir_path) {
         let entry = entry.unwrap();
         let file_path : String = entry.path().display().to_string();
 
         if file_path.contains("mod_meta.json") {
             println!("Found mod: {}", entry.path().display());
-            let mod_info_res = mods::load_mod_info(file_path);
-
-            match mod_info_res {
-                Ok(mod_info) => {
-                    let key = mod_info.mod_guid.clone();
-                    mods.insert(key.clone(), mod_info);
-                    // Check that the mod is included in the file
-                    if !enabled_mods.contains_key(&key) {
-                        enabled_mods.insert(key, true);
-                        update_enabled_mods_list_flag = true;
-                    }
-                },
-                Err(e) => println!("Failed to load mod {}", e)
-            }
+            check_enabled_mod_meta_json(file_path)
         }
     }
     if update_enabled_mods_list_flag {
@@ -240,14 +248,6 @@ fn open_dir(path : String) -> Result<(), String> {
     }
 }
 
-#[tauri::command]
-fn install_winch(dredge_path : String) -> Result<(), String> {
-    match mods::install_winch(dredge_path) {
-        Ok(_) => return Ok(()),
-        Err(error) => return Err(format!("Couldn't install Winch {}", error))
-    }
-}
-
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -258,7 +258,6 @@ fn main() {
             start_game,
             uninstall_mod,
             install_mod,
-            install_winch,
             open_dir
             ])
         .setup(|app| {
