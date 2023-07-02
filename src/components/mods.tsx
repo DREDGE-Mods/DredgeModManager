@@ -107,6 +107,13 @@ class ModList extends Component<{selected: string}>
 
         if (database === undefined) {}
         else {
+            // Make sure winch is always at the top of all lists
+            let index = modList.findIndex(mod => mod.ModGUID == "hacktix.winch");
+            modList.unshift(modList.splice(index, 1)[0]);
+
+            index = database.findIndex(mod => mod.ModGUID == "hacktix.winch");
+            database.unshift(database.splice(index, 1)[0]);
+
             if (this.props.selected === "Installed") {
                 installedList = modList.map((mod) => {
                     return <InstalledModBox 
@@ -120,7 +127,6 @@ class ModList extends Component<{selected: string}>
                 })
             }
 
-            
             if (this.props.selected === "Available") {
                 availableList = database!.map((mod) => {
                     if (!info!.has(mod.ModGUID)) {
@@ -132,8 +138,6 @@ class ModList extends Component<{selected: string}>
                 })
             }
         }
-
-        
 
         if (this.props.selected === "Installed") {
             shownList = installedList;
