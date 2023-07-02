@@ -21,6 +21,12 @@ jobs:
           file: latest.json
           field: notes
           value: ${{ github.event.head_commit.message }}
+      - name: Get draft
+        id: last_release
+        uses: InsonusK/get-latest-release@v1.0.1
+        with:
+          myToken: ${{ secrets.GITHUB_TOKEN }}
+          exclude_types: "release|prerelease"
       - name: Upload latest.json
         uses: xresloader/upload-to-github-release@v1
         env:
@@ -28,5 +34,4 @@ jobs:
         with:
           file: "latest.json"
           overwrite: true
-          update_latest_release: true
-          draft: true
+          release_id: ${{ steps.last_release.outputs.id }}"
