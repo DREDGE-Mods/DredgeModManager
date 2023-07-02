@@ -107,6 +107,13 @@ class ModList extends Component<{selected: string}>
 
         if (database === undefined) {}
         else {
+            // Make sure winch is always at the top of all lists
+            let index = modList.findIndex(mod => mod.ModGUID == "hacktix.winch");
+            modList.unshift(modList.splice(index, 1)[0]);
+
+            index = database.findIndex(mod => mod.ModGUID == "hacktix.winch");
+            database.unshift(database.splice(index, 1)[0]);
+
             if (this.props.selected === "Installed") {
                 installedList = modList.map((mod) => {
                     return <InstalledModBox 
@@ -120,7 +127,6 @@ class ModList extends Component<{selected: string}>
                 })
             }
 
-            
             if (this.props.selected === "Available") {
                 availableList = database!.map((mod) => {
                     if (!info!.has(mod.ModGUID)) {
@@ -133,14 +139,21 @@ class ModList extends Component<{selected: string}>
             }
         }
 
-        
-
         if (this.props.selected === "Installed") {
+            // #6 Prompt user to install Winch if it is not installed
+            if (modList.findIndex(mod => mod.ModGUID == "hacktix.winch") == -1) {
+                return (
+                    <div className="mods-not-found">
+                        All mods require the Winch modloader to be installed. Download it in the "Available" tab.
+                    </div>
+                )
+            }
             shownList = installedList;
-            if (shownList.length === 0) shownList = [<ModsNotFound key={"mods-not-found"} reload={this.debounce_force_update_slow}/>]
         } else {
             shownList = availableList.filter((element) => {return (element!=undefined)}) as Array<JSX.Element>;
         }
+
+        if (shownList.length === 0) shownList = [<ModsNotFound key={"mods-not-found"} reload={this.debounce_force_update_slow} installed={this.props.selected === "Installed"}/>]
 
         return (
             <div className="mods-list">
@@ -150,12 +163,16 @@ class ModList extends Component<{selected: string}>
     }
 }
 
-class ModsNotFound extends Component<{reload: () => void}>
+class ModsNotFound extends Component<{reload: () => void, installed: boolean}>
 {
     render() {
         return (
             <div className="mods-not-found">
-                <span className="info">Oh no! Looks like you've not got any mods, check out the Available tab!</span>
+                {this.props.installed ? 
+                    <span className="info">Oh no! Looks like you've not got any mods, check out the Available tab!</span>
+                    :
+                    <span className="info">You have installed all mods currently available on the database. Check back another time to see if there are more!</span>
+                }
                 <div className="reload">
                     Think that's wrong?
                     <button onClick={this.props.reload}>Reload</button></div>
@@ -304,25 +321,37 @@ class InstalledModBox extends ModBox<IInstalledModState>
         this.setState({enabled: !this.state.enabled});
     }
 
+    is_mod_outdated() {
+        // Either the latest version tags match or the release time of the asset when downloading matches whats in the DB
+        // Bit of a hacky way to deal with multi mod repos
+        let mod = this.props.data;
+        let doesVersionMatch = mod.Version!.trim() === mod.LatestVersion?.trim();
+        let doesUpdateDateMatch = mod.LocalAssetUpdateDate?.trim() === mod.AssetUpdateDate?.trim();
+        return !doesVersionMatch && !doesUpdateDateMatch;
+    }
+
     render() {
         return (
             <div className="mods-installed-box">
 
                 <PrimaryContainer>
                     <PrimaryDetails data={this.props.data}/> 
-
                     <div className="primary-update">
                         { (this.props.data.Repo || false) &&
                         <button 
                         className={`update`}
                         onClick={this.install_mod}
-                        disabled={this.props.data.Version!.trim() === this.props.data.LatestVersion?.trim() || this.state.updated}
-                        title={(this.props.data.Version!.trim() === this.props.data.LatestVersion?.trim()) ? "" : this.props.data.LatestVersion}
+                        disabled={!this.is_mod_outdated() || this.state.updated}
+                        title={this.is_mod_outdated() ? `${this.props.data.Version} -> ${this.props.data.LatestVersion}` : ""}
                         >Update</button>
                         }
                     </div>
                     <div className="primary-switch">
-                        <button className={`switch ${this.state.enabled ? "switched" : ""}`} onClick={this.swap_enabled}/>
+                        {this.props.data.ModGUID != "hacktix.winch" ?
+                            <button className={`switch ${this.state.enabled ? "switched" : ""}`} onClick={this.swap_enabled}/>
+                            :
+                            ""
+                        }
                     </div>
 
                     <PrimaryExpand data={this.props.data} swap_expand={this.swap_expand} expanded={this.state.expanded}/>
@@ -333,7 +362,11 @@ class InstalledModBox extends ModBox<IInstalledModState>
                     <SecondaryInteract>
                         <InteractButtons>
                             <button className="interact-button" onClick={() => this.props.uninstall_mod!(this.props.data.LocalPath!)}>Uninstall</button>
-                            <button className="interact-button" onClick={this.swap_enabled}>{this.state.enabled ? "Disable" : "Enable"}</button>
+                            {this.props.data.ModGUID != "hacktix.winch" ?
+                                <button className="interact-button" onClick={this.swap_enabled}>{this.state.enabled ? "Disable" : "Enable"}</button>
+                                :
+                                ""
+                            }
                         </InteractButtons>
                         <Downloads downloads={this.props.data.Downloads!}/>
                         <InteractIcons data={this.props.data}>

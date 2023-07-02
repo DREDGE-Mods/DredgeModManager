@@ -138,8 +138,10 @@ $--play-alt-width: 20px;
 
 .sidebar-play-main {
     flex-grow: 1;
-    border-top-left-radius: $--play-outer-radius !important;
-    border-bottom-left-radius: $--play-outer-radius !important;
+    // TODO: uncomment this when the alt-play button is implemented
+    //border-top-left-radius: $--play-outer-radius !important;
+    //border-bottom-left-radius: $--play-outer-radius !important;
+    border-radius: $--play-outer-radius !important;
 
     & label {
         color: $text-light-primary;

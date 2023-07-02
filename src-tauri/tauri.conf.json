@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "Dredge Mod Manager",
-    "version": "0.0.4"
+    "version": "0.0.5"
   },
   "tauri": {
     "allowlist": {
@@ -24,6 +24,11 @@
         "message": true, 
         "open": true,
         "save": true 
+      },
+      "app": {
+        "all": true,
+        "show": true,
+        "hide": true
       }
     },
     "bundle": {
@@ -36,7 +41,23 @@
         "icons/icon.ico"
       ],
       "identifier": "com.xen-42.dredge-mod-manager",
-      "targets": "all"
+      "targets": "all",
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": "",
+        "wix": {
+            "license": "../LICENSE",
+            "bannerPath": "installer-images/wix/TopBanner.png",
+            "dialogImagePath": "installer-images/wix/Background.png"
+        },
+        "nsis": {
+            "license": "../LICENSE",
+            "installerIcon": "icons/icon.ico",
+            "installMode": "both",
+            "headerImage": "installer-images/nsis/Header.bmp"
+        }
+      }
     },
     "security": {
       "csp": null

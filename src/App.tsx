@@ -87,6 +87,8 @@ class App extends Component<{}, IAppState>
             localMod.ReleaseDate = databaseMod.ReleaseDate;
             localMod.Repo = databaseMod.Repo;
             localMod.Download = databaseMod.Download;
+            localMod.AssetUpdateDate = databaseMod.AssetUpdateDate;
+            if (!localMod.Author) localMod.Author = databaseMod.Author;
           }
         });
 
@@ -142,7 +144,7 @@ class App extends Component<{}, IAppState>
 
   install_mod (modInfo : ModInfo) {
     if (modInfo.Repo != undefined && modInfo.Download != undefined) {
-      invoke('install_mod', {repo: modInfo.Repo, download: modInfo.Download, dredgeFolder: this.state.dredgePath})
+      invoke('install_mod', {repo: modInfo.Repo, download: modInfo.Download, assetUpdateDate: modInfo.AssetUpdateDate ?? "", dredgeFolder: this.state.dredgePath})
       .then(this.reload_mods)
       .catch((e) => {
         alert(e.toString())
@@ -157,9 +159,7 @@ class App extends Component<{}, IAppState>
   }
 
   open_mod_dir (path: string | undefined) {
-    if (path != undefined) {
-      invoke('open_dir', { "path" : path }).catch((e) => alert(e.toString()));
-    }
+    invoke('open_dir', { "path" : path }).catch((e) => alert(e.toString()));
   }
 
   toggle_enabled_mod (modGUID: string, isEnabled: boolean) {

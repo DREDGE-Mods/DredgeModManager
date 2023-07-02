@@ -6,6 +6,9 @@ import AppStateContext from './appcontext'
 import App from '../App'
 import { debounce } from 'lodash';
 
+import { getVersion } from '@tauri-apps/api/app';
+const appVersion = await getVersion();
+
 interface ISettingsState {
     path: string;
 }
@@ -64,9 +67,20 @@ export default class Settings extends Component<{path_correct: boolean | undefin
             pathWarning = "";
         }
 
+        var dredgeFolderButton:JSX.Element | string;
+        if (this.props.path_correct) {
+            dredgeFolderButton = <div className="d-flex w-100 justify-content-end">
+                <button className="button icon-folder" onClick={() => (this.context as App).open_mod_dir(this.state.path)}>
+                    <i className="fa fa-sharp">&#xf07b;</i> Open DREDGE folder
+                </button>
+            </div>
+        } else {
+            dredgeFolderButton = "";
+        }
+
         return (
             <div className="settings-container">
-                <div className="setting">
+                <div className="setting d-flex h-100">
                     <label>
                         DREDGE Install Location
                     </label>
@@ -81,6 +95,13 @@ export default class Settings extends Component<{path_correct: boolean | undefin
                         <button className="button" onClick={this.handle_path_button}>...</button>
                     </div>
                     {pathWarning}
+                    {dredgeFolderButton}
+
+                    <div className="flex-fill"></div>
+
+                    <div>
+                        Dredge Mod Manager version {appVersion}
+                    </div>
                 </div>
             </div>
         )
