@@ -87,6 +87,7 @@ class App extends Component<{}, IAppState>
             localMod.ReleaseDate = databaseMod.ReleaseDate;
             localMod.Repo = databaseMod.Repo;
             localMod.Download = databaseMod.Download;
+            if (!localMod.Author) localMod.Author = databaseMod.Author;
           }
         });
 
