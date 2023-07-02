@@ -1,6 +1,12 @@
 name: 'Publish new release'
 
-on: workflow_dispatch
+on: 
+  push:
+    branches: [main]
+    paths-ignore:
+    - "*.md"
+    - "LICENSE"
+    - ".gitignore"
 
 env:
   TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
