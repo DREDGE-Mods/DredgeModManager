@@ -225,8 +225,8 @@ fn uninstall_mod(mod_meta_path : String) -> () {
 }
 
 #[tauri::command]
-fn install_mod(repo : String, download : String, dredge_folder : String) -> Result<(), String> {
-    let unique_id: String = match mods::install_mod(repo, download, dredge_folder.to_string()) {
+fn install_mod(repo : String, download : String, asset_update_date : String, dredge_folder : String) -> Result<(), String> {
+    let unique_id: String = match mods::install_mod(repo, download, asset_update_date, dredge_folder.to_string()) {
         Ok(s) => s,
         Err(error) => return Err(format!("Failed to install mod {}", error.to_string()))
     };

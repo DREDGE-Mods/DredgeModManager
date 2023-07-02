@@ -1,5 +1,6 @@
 use std::io::Cursor;
 use std::path::PathBuf;
+use std::string;
 use std::{path::Path, fs};
 use serde_json::Result as SerdeResult;
 use crate::files;
@@ -21,6 +22,9 @@ pub struct ModInfo {
 
     #[serde(default)]
     pub local_path : String,
+
+    #[serde(default)]
+    pub local_asset_update_date : String
 }
 
 pub fn load_mod_info(file : String) -> Result<ModInfo, String> {
@@ -32,9 +36,33 @@ pub fn load_mod_info(file : String) -> Result<ModInfo, String> {
         Ok(v) => v,
         Err(e) => return Err(format!("Couldn't load mod metadata {} {}", file, e.to_string()).to_string())
     };
-    json.local_path = file;
+
+    json.local_path = file.to_string();
+
+    // Get the latest asset upload date
+    let dir = get_parent_folder(file.to_string())?;
+
+    let asset_update_date = match fs::read_to_string(format!("{}/asset_update_date.txt", dir)) {
+        Ok(v) => v,
+        Err(_) => "".to_string()
+    };
+
+    json.local_asset_update_date = asset_update_date;
 
     Ok(json)
+}
+
+fn get_parent_folder(file_path : String) -> Result<String, String> {
+    let path = Path::new(&file_path);
+    if !path.is_dir() {
+        let parent = match path.parent() {
+            Some(v) => v,
+            None => return Err(format!("Couldn't find parent directory of file {}", file_path.to_string()))
+        };
+
+        return Ok(parent.display().to_string())
+    }
+    return Ok(file_path)
 }
 
 pub fn uninstall_mod(mod_meta_path : String) -> () {
@@ -102,24 +130,31 @@ fn copy_mod(source : String, destination : String) -> Result<(), Box<dyn std::er
     Ok(())
 }
 
-pub fn install_mod(repo : String, download : String, dredge_folder : String) -> Result<String, Box<dyn std::error::Error>> {
+pub fn install_mod(repo : String, download : String, asset_update_date : String, dredge_folder : String) -> Result<String, Box<dyn std::error::Error>> {
     let url = format!("https://github.com/{}/releases/latest/download/{}", repo, download).replace("//", "/");
 
     let temp_dir = download_mod(url)?;
 
     // Read the mod meta file
     let mod_meta_path = format!("{}/mod_meta.json", &temp_dir);
-    let mod_meta = load_mod_info(mod_meta_path)?;
+    let mut mod_meta: ModInfo = load_mod_info(mod_meta_path.to_string())?;
 
-    if mod_meta.mod_guid == "hacktix.winch" {
-        copy_mod(temp_dir, dredge_folder)?;
-    }
-    else {
-        // Create destination dir
-        let destination = format!("{}/Mods/{}", dredge_folder, mod_meta.mod_guid);
+    let destination = if mod_meta.mod_guid == "hacktix.winch" {
+        dredge_folder
+    } 
+    else { 
+        format!("{}/Mods/{}", dredge_folder, mod_meta.mod_guid)
+    };
 
-        copy_mod(temp_dir, destination)?;
-    }
+    copy_mod(temp_dir, destination.to_string())?;
+
+    mod_meta.local_asset_update_date = asset_update_date.to_string();
+
+    // Serialize the latest update date for later
+    std::fs::write(
+        format!("{}/asset_update_date.txt", destination),
+        asset_update_date
+    )?;
 
     Ok(mod_meta.mod_guid)
 }

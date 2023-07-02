@@ -153,7 +153,6 @@ class ModList extends Component<{selected: string}>
             shownList = availableList.filter((element) => {return (element!=undefined)}) as Array<JSX.Element>;
         }
 
-
         if (shownList.length === 0) shownList = [<ModsNotFound key={"mods-not-found"} reload={this.debounce_force_update_slow} installed={this.props.selected === "Installed"}/>]
 
         return (
@@ -322,20 +321,28 @@ class InstalledModBox extends ModBox<IInstalledModState>
         this.setState({enabled: !this.state.enabled});
     }
 
+    is_mod_outdated() {
+        // Either the latest version tags match or the release time of the asset when downloading matches whats in the DB
+        // Bit of a hacky way to deal with multi mod repos
+        let mod = this.props.data;
+        let doesVersionMatch = mod.Version!.trim() === mod.LatestVersion?.trim();
+        let doesUpdateDateMatch = mod.LocalAssetUpdateDate?.trim() === mod.AssetUpdateDate?.trim();
+        return !doesVersionMatch && !doesUpdateDateMatch;
+    }
+
     render() {
         return (
             <div className="mods-installed-box">
 
                 <PrimaryContainer>
                     <PrimaryDetails data={this.props.data}/> 
-
                     <div className="primary-update">
                         { (this.props.data.Repo || false) &&
                         <button 
                         className={`update`}
                         onClick={this.install_mod}
-                        disabled={this.props.data.Version!.trim() === this.props.data.LatestVersion?.trim() || this.state.updated}
-                        title={(this.props.data.Version!.trim() === this.props.data.LatestVersion?.trim()) ? "" : this.props.data.LatestVersion}
+                        disabled={!this.is_mod_outdated() || this.state.updated}
+                        title={this.is_mod_outdated() ? `${this.props.data.Version} -> ${this.props.data.LatestVersion}` : ""}
                         >Update</button>
                         }
                     </div>
