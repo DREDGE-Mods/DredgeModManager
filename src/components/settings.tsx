@@ -6,6 +6,9 @@ import AppStateContext from './appcontext'
 import App from '../App'
 import { debounce } from 'lodash';
 
+import { getVersion } from '@tauri-apps/api/app';
+const appVersion = await getVersion();
+
 interface ISettingsState {
     path: string;
 }
@@ -77,7 +80,7 @@ export default class Settings extends Component<{path_correct: boolean | undefin
 
         return (
             <div className="settings-container">
-                <div className="setting">
+                <div className="setting d-flex h-100">
                     <label>
                         DREDGE Install Location
                     </label>
@@ -93,6 +96,12 @@ export default class Settings extends Component<{path_correct: boolean | undefin
                     </div>
                     {pathWarning}
                     {dredgeFolderButton}
+
+                    <div className="flex-fill"></div>
+
+                    <div>
+                        Dredge Mod Manager version {appVersion}
+                    </div>
                 </div>
             </div>
         )

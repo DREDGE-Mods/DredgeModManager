@@ -24,6 +24,11 @@
         "message": true, 
         "open": true,
         "save": true 
+      },
+      "app": {
+        "all": true,
+        "show": true,
+        "hide": true
       }
     },
     "bundle": {
