@@ -340,7 +340,11 @@ class InstalledModBox extends ModBox<IInstalledModState>
                         }
                     </div>
                     <div className="primary-switch">
-                        <button className={`switch ${this.state.enabled ? "switched" : ""}`} onClick={this.swap_enabled}/>
+                        {this.props.data.ModGUID != "hacktix.winch" ?
+                            <button className={`switch ${this.state.enabled ? "switched" : ""}`} onClick={this.swap_enabled}/>
+                            :
+                            ""
+                        }
                     </div>
 
                     <PrimaryExpand data={this.props.data} swap_expand={this.swap_expand} expanded={this.state.expanded}/>
@@ -351,7 +355,11 @@ class InstalledModBox extends ModBox<IInstalledModState>
                     <SecondaryInteract>
                         <InteractButtons>
                             <button className="interact-button" onClick={() => this.props.uninstall_mod!(this.props.data.LocalPath!)}>Uninstall</button>
-                            <button className="interact-button" onClick={this.swap_enabled}>{this.state.enabled ? "Disable" : "Enable"}</button>
+                            {this.props.data.ModGUID != "hacktix.winch" ?
+                                <button className="interact-button" onClick={this.swap_enabled}>{this.state.enabled ? "Disable" : "Enable"}</button>
+                                :
+                                ""
+                            }
                         </InteractButtons>
                         <Downloads downloads={this.props.data.Downloads!}/>
                         <InteractIcons data={this.props.data}>
