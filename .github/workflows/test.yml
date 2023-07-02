@@ -29,3 +29,4 @@ jobs:
           file: "latest.json"
           overwrite: true
           update_latest_release: true
+          draft: true
