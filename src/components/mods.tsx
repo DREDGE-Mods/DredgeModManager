@@ -140,10 +140,19 @@ class ModList extends Component<{selected: string}>
         }
 
         if (this.props.selected === "Installed") {
+            // #6 Prompt user to install Winch if it is not installed
+            if (modList.findIndex(mod => mod.ModGUID == "hacktix.winch") == -1) {
+                return (
+                    <div className="mods-not-found">
+                        All mods require the Winch modloader to be installed. Download it in the "Available" tab.
+                    </div>
+                )
+            }
             shownList = installedList;
         } else {
             shownList = availableList.filter((element) => {return (element!=undefined)}) as Array<JSX.Element>;
         }
+
 
         if (shownList.length === 0) shownList = [<ModsNotFound key={"mods-not-found"} reload={this.debounce_force_update_slow} installed={this.props.selected === "Installed"}/>]
 
