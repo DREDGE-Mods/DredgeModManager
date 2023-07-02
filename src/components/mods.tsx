@@ -137,10 +137,11 @@ class ModList extends Component<{selected: string}>
 
         if (this.props.selected === "Installed") {
             shownList = installedList;
-            if (shownList.length === 0) shownList = [<ModsNotFound key={"mods-not-found"} reload={this.debounce_force_update_slow}/>]
         } else {
             shownList = availableList.filter((element) => {return (element!=undefined)}) as Array<JSX.Element>;
         }
+
+        if (shownList.length === 0) shownList = [<ModsNotFound key={"mods-not-found"} reload={this.debounce_force_update_slow} installed={this.props.selected === "Installed"}/>]
 
         return (
             <div className="mods-list">
@@ -150,12 +151,16 @@ class ModList extends Component<{selected: string}>
     }
 }
 
-class ModsNotFound extends Component<{reload: () => void}>
+class ModsNotFound extends Component<{reload: () => void, installed: boolean}>
 {
     render() {
         return (
             <div className="mods-not-found">
-                <span className="info">Oh no! Looks like you've not got any mods, check out the Available tab!</span>
+                {this.props.installed ? 
+                    <span className="info">Oh no! Looks like you've not got any mods, check out the Available tab!</span>
+                    :
+                    <span className="info">You have installed all mods currently available on the database. Check back another time to see if there are more!</span>
+                }
                 <div className="reload">
                     Think that's wrong?
                     <button onClick={this.props.reload}>Reload</button></div>
