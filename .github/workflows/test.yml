@@ -20,7 +20,7 @@ jobs:
         with:
           file: latest.json
           field: notes
-          value: ${{github.event.pull_request.title}} ${{github.event.pull_request.body}}
+          value: "Test"
       - name: Upload latest.json
         uses: xresloader/upload-to-github-release@v1
         env:
