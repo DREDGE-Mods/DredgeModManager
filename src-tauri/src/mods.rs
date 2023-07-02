@@ -77,6 +77,7 @@ pub fn uninstall_mod(mod_meta_path : String) -> () {
         fs::remove_file(&mod_meta_path).unwrap();
         fs::remove_file(format!("{}/Winch.dll", dir.display().to_string())).unwrap();
         fs::remove_file(format!("{}/winhttp.dll", dir.display().to_string())).unwrap();
+        fs::remove_file(format!("{}/asset_update_date.txt", dir.display().to_string())).unwrap();
     }
     else {
         if dir.is_dir() && dir.is_absolute() && dir.parent().unwrap().display().to_string().ends_with("Mods") {
