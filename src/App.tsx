@@ -157,9 +157,7 @@ class App extends Component<{}, IAppState>
   }
 
   open_mod_dir (path: string | undefined) {
-    if (path != undefined) {
-      invoke('open_dir', { "path" : path }).catch((e) => alert(e.toString()));
-    }
+    invoke('open_dir', { "path" : path }).catch((e) => alert(e.toString()));
   }
 
   toggle_enabled_mod (modGUID: string, isEnabled: boolean) {

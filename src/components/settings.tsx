@@ -64,6 +64,17 @@ export default class Settings extends Component<{path_correct: boolean | undefin
             pathWarning = "";
         }
 
+        var dredgeFolderButton:JSX.Element | string;
+        if (this.props.path_correct) {
+            dredgeFolderButton = <div className="d-flex w-100 justify-content-end">
+                <button className="button icon-folder" onClick={() => (this.context as App).open_mod_dir(this.state.path)}>
+                    <i className="fa fa-sharp">&#xf07b;</i> Open DREDGE folder
+                </button>
+            </div>
+        } else {
+            dredgeFolderButton = "";
+        }
+
         return (
             <div className="settings-container">
                 <div className="setting">
@@ -81,6 +92,7 @@ export default class Settings extends Component<{path_correct: boolean | undefin
                         <button className="button" onClick={this.handle_path_button}>...</button>
                     </div>
                     {pathWarning}
+                    {dredgeFolderButton}
                 </div>
             </div>
         )

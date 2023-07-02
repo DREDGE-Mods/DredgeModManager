@@ -30,11 +30,16 @@
         flex-direction: column;
         width: 100%;
         align-items: center;
+        padding: 0 20px;
+
+        div {
+            margin-bottom: 8px;
+        }
 
         label {
             font-weight: 500;
+            font-size: larger;
             margin-bottom: 5px;
-
             &.setting-detail {
                 color: $text-light-secondary;
                 font-size: 0.8em;
@@ -43,20 +48,20 @@
         
         .path {
             width: 100%;
-            margin: 0 auto;
             display: flex;
             flex-flow: row nowrap;
             justify-content: center;
 
             .input-text {
-                width: 85%;
+                width: 100%;
                 border-radius: 3px !important;
                 margin-right: 10px;
             }
-            .button {
-                background-color: white;
-                border-radius: 3px;
-            }
+        }
+
+        .button {
+            background-color: white;
+            border-radius: 3px;
         }
 
         .warning {
