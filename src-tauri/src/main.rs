@@ -226,10 +226,16 @@ fn uninstall_mod(mod_meta_path : String) -> () {
 
 #[tauri::command]
 fn install_mod(repo : String, download : String, dredge_folder : String) -> Result<(), String> {
-    match mods::install_mod(repo, download, dredge_folder) {
-        Ok(_) => return Ok(()),
+    let unique_id: String = match mods::install_mod(repo, download, dredge_folder.to_string()) {
+        Ok(s) => s,
         Err(error) => return Err(format!("Failed to install mod {}", error.to_string()))
-    }
+    };
+
+    // #12 newly installed mods should be enabled by default
+   match toggle_enabled_mod(unique_id.to_string(), true, dredge_folder.to_string()) {
+        Ok(_) => Ok(()),
+        Err(err) => return Err(format!("Failed to enable mod {} after installing {}", unique_id.to_string(), err))
+   }
 }
 
 #[tauri::command]

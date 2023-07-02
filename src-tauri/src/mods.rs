@@ -102,7 +102,7 @@ fn copy_mod(source : String, destination : String) -> Result<(), Box<dyn std::er
     Ok(())
 }
 
-pub fn install_mod(repo : String, download : String, dredge_folder : String) -> Result<(), Box<dyn std::error::Error>> {
+pub fn install_mod(repo : String, download : String, dredge_folder : String) -> Result<String, Box<dyn std::error::Error>> {
     let url = format!("https://github.com/{}/releases/latest/download/{}", repo, download).replace("//", "/");
 
     let temp_dir = download_mod(url)?;
@@ -121,5 +121,5 @@ pub fn install_mod(repo : String, download : String, dredge_folder : String) -> 
         copy_mod(temp_dir, destination)?;
     }
 
-    Ok(())
+    Ok(mod_meta.mod_guid)
 }
