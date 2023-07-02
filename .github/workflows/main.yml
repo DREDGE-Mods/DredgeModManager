@@ -116,9 +116,11 @@ jobs:
         with:
           file: "latest.md"
           overwrite: true
+          
   write-changelog:
     permissions: write-all
     runs-on: windows-latest
+    needs: [publish-release]
     steps:
       - name: Get draft
         id: last_release
