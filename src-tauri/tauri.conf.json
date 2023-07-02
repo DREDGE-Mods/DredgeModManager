@@ -42,12 +42,12 @@
         "digestAlgorithm": "sha256",
         "timestampUrl": "",
         "wix": {
-            "license": "../../LICENSE",
+            "license": "../LICENSE",
             "bannerPath": "installer-images/wix/TopBanner.png",
             "dialogImagePath": "installer-images/wix/Background.png"
         },
         "nsis": {
-            "license": "../../LICENSE",
+            "license": "../LICENSE",
             "installerIcon": "icons/icon.ico",
             "installMode": "both",
             "headerImage": "installer-images/nsis/Header.bmp"
