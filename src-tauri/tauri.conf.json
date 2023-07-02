@@ -36,7 +36,23 @@
         "icons/icon.ico"
       ],
       "identifier": "com.xen-42.dredge-mod-manager",
-      "targets": "all"
+      "targets": "all",
+      "windows": {
+        "certificateThumbprint": null,
+        "digestAlgorithm": "sha256",
+        "timestampUrl": "",
+        "wix": {
+            "license": "../../LICENSE",
+            "bannerPath": "installer-images/wix/TopBanner.png",
+            "dialogImagePath": "installer-images/wix/Background.png"
+        },
+        "nsis": {
+            "license": "../../LICENSE",
+            "installerIcon": "icons/icon.ico",
+            "installMode": "both",
+            "headerImage": "installer-images/nsis/Header.bmp"
+        }
+      }
     },
     "security": {
       "csp": null
