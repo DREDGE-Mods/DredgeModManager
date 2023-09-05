@@ -13,7 +13,7 @@ Recommended IDE Setup:
 
 To regenerate the icon replace `app-icon.png` and run `npm run tauri icon`.
 
-To create a new update, make a PR from dev into main. The commit message will be used as the changelog.
+To create a new update, make a PR from dev into main. The commit message will be used as the changelog. Make sure to search for the previous version number in the manager files and update it.
 
 ## Thanks
 
