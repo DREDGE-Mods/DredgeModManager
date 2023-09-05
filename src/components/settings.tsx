@@ -7,6 +7,7 @@ import App from '../App'
 import { debounce } from 'lodash';
 
 import { getVersion } from '@tauri-apps/api/app';
+import { WinchConfig } from './winchconfig'
 const appVersion = await getVersion();
 
 interface ISettingsState {
@@ -78,12 +79,57 @@ export default class Settings extends Component<{path_correct: boolean | undefin
             dredgeFolderButton = "";
         }
 
+        var config:WinchConfig|undefined = (this.context as App).state.winchConfig;
+
+        var configOptions:JSX.Element | string;
+        if (config) {
+            configOptions = <div className="w-100">
+                    <h5 className="d-flex justify-content-center">
+                        Winch Modloader Settings
+                    </h5>
+                    <div className="w-100">
+
+                    <input
+                        id="enable-developer-console"
+                        name="enable-developer-console"
+                        type="checkbox"
+                        checked={config.EnableDeveloperConsole}
+                        />
+                    <label htmlFor="enable-developer-console">Enable Developer Console</label>
+
+                    <br/>
+
+                    <input
+                        id="detailed-log-sources"
+                        name="detailed-log-sources"
+                        type="checkbox"
+                        checked={config.DetailedLogSources}
+                        />
+                    <label htmlFor="detailed-log-sources">Detailed Log Sources</label>
+
+                    <br/>
+
+                    <input
+                        id="write-logs-to-file"
+                        name="write-logs-to-file"
+                        type="checkbox"
+                        checked={config.WriteLogsToFile}
+                        />
+                    <label htmlFor="write-logs-to-file">Write Logs to File</label>
+
+                    </div>
+            </div>
+        }
+        else {
+            configOptions = "";
+        }
+
         return (
             <div className="settings-container">
                 <div className="setting d-flex h-100">
-                    <label>
+                    <h5>
                         DREDGE Install Location
-                    </label>
+                    </h5>
                     <div className="path">
                         <input 
                             id="setting-path-input"
@@ -96,6 +142,8 @@ export default class Settings extends Component<{path_correct: boolean | undefin
                     </div>
                     {pathWarning}
                     {dredgeFolderButton}
+                    <br/>
+                    {configOptions}
 
                     <div className="flex-fill"></div>
 
