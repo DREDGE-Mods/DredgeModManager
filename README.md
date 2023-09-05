@@ -13,7 +13,11 @@ Recommended IDE Setup:
 
 To regenerate the icon replace `app-icon.png` and run `npm run tauri icon`.
 
-To create a new update, make a PR from dev into main. The commit message will be used as the changelog. Make sure to search for the previous version number in the manager files and update it.
+### Releasing updates
+
+First make sure to search for the previous version number in the manager files and update it to the new value. Follow semver.
+Make a PR from dev into main. When the PR is actually merged, the commit message will be used as the changelog, so update it accordingly. We should really have the release action copy the description of the PR into there too.
+The action will then create a draft release from that dev->main PR. Make sure to write in the changelog into the description of the release, and change the tag to the format vX.X.X (put actual version number). Then publish.
 
 ## Thanks
 
