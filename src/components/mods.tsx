@@ -179,7 +179,8 @@ class ModsNotFound extends Component<{reload: () => void, installed: boolean}>
                 }
                 <div className="reload">
                     Think that's wrong?
-                    <button onClick={this.props.reload}>Reload</button></div>
+                    <button onClick={this.props.reload}>Reload</button>
+                </div>
             </div>
         )
     }
