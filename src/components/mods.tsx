@@ -229,7 +229,7 @@ function PrimaryContainer (props: {children: React.ReactNode}) {
 function PrimaryDetails (props: {data: ModInfo}) {
     return (
         <label className="primary-details" htmlFor={`expand-${props.data.ModGUID}`}>
-            <span className="details-name" title={`Version: ${props.data.Version}`}>{props.data.Name || props.data.ModGUID}</span>
+            <span className="details-name" title={`Version: ${props.data.Version ?? props.data.LatestVersion}`}>{props.data.Name || props.data.ModGUID}</span>
             <span className="details-by">{props.data.Author ? "by" : ""}</span>
             <span className="details-author" title={props.data.Author}>{props.data.Author}</span>
         </label>
