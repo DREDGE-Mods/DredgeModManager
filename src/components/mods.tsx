@@ -329,8 +329,11 @@ class InstalledModBox extends ModBox<IInstalledModState>
     is_mod_outdated() {
         // Either the latest version tags match or the release time of the asset when downloading matches whats in the DB
         // Bit of a hacky way to deal with multi mod repos
+        // Also ignore "v" prefix on version numbers
         let mod = this.props.data;
-        let doesVersionMatch = mod.Version!.trim() === mod.LatestVersion?.trim();
+        let trimmedLocalVersion = mod.Version!.trim().replace(/^v/, '');
+        let trimmedLatestVersion = mod.LatestVersion?.trim().replace(/^v/, '');
+        let doesVersionMatch = trimmedLocalVersion === trimmedLatestVersion;
         let doesUpdateDateMatch = mod.LocalAssetUpdateDate?.trim() === mod.AssetUpdateDate?.trim();
         return !doesVersionMatch && !doesUpdateDateMatch;
     }
