@@ -109,10 +109,14 @@ class ModList extends Component<{selected: string}>
         else {
             // Make sure winch is always at the top of all lists
             let index = modList.findIndex(mod => mod.ModGUID == "hacktix.winch");
-            modList.unshift(modList.splice(index, 1)[0]);
+            if (index != -1) {
+                modList.unshift(modList.splice(index, 1)[0]);
+            }
 
             index = database.findIndex(mod => mod.ModGUID == "hacktix.winch");
-            database.unshift(database.splice(index, 1)[0]);
+            if (index != -1) {
+                database.unshift(database.splice(index, 1)[0]);
+            }
 
             if (this.props.selected === "Installed") {
                 installedList = modList.map((mod) => {
@@ -175,7 +179,8 @@ class ModsNotFound extends Component<{reload: () => void, installed: boolean}>
                 }
                 <div className="reload">
                     Think that's wrong?
-                    <button onClick={this.props.reload}>Reload</button></div>
+                    <button onClick={this.props.reload}>Reload</button>
+                </div>
             </div>
         )
     }
@@ -225,7 +230,7 @@ function PrimaryContainer (props: {children: React.ReactNode}) {
 function PrimaryDetails (props: {data: ModInfo}) {
     return (
         <label className="primary-details" htmlFor={`expand-${props.data.ModGUID}`}>
-            <span className="details-name" title={`Version: ${props.data.Version}`}>{props.data.Name || props.data.ModGUID}</span>
+            <span className="details-name" title={`Version: ${props.data.Version ?? props.data.LatestVersion}`}>{props.data.Name || props.data.ModGUID}</span>
             <span className="details-by">{props.data.Author ? "by" : ""}</span>
             <span className="details-author" title={props.data.Author}>{props.data.Author}</span>
         </label>
@@ -324,8 +329,11 @@ class InstalledModBox extends ModBox<IInstalledModState>
     is_mod_outdated() {
         // Either the latest version tags match or the release time of the asset when downloading matches whats in the DB
         // Bit of a hacky way to deal with multi mod repos
+        // Also ignore "v" prefix on version numbers
         let mod = this.props.data;
-        let doesVersionMatch = mod.Version!.trim() === mod.LatestVersion?.trim();
+        let trimmedLocalVersion = mod.Version!.trim().replace(/^v/, '');
+        let trimmedLatestVersion = mod.LatestVersion?.trim().replace(/^v/, '');
+        let doesVersionMatch = trimmedLocalVersion === trimmedLatestVersion;
         let doesUpdateDateMatch = mod.LocalAssetUpdateDate?.trim() === mod.AssetUpdateDate?.trim();
         return !doesVersionMatch && !doesUpdateDateMatch;
     }

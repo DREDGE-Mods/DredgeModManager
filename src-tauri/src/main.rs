@@ -200,7 +200,8 @@ fn toggle_enabled_mod(mod_guid : String, enabled : bool, dredge_path : String) -
     let enabled_mods_path = files::get_enabled_mods_path(&dredge_path);
     let file_contents = match fs::read_to_string(&enabled_mods_path) {
         Ok(x) => x,
-        Err(e) => return Err(format!("Could not load mods json - {}", e))
+        // #28 - If the enabled mods file doesn't exist we need to create it from scratch
+        Err(_) => "{}".to_string()
     };
 
     let mut json = match serde_json::from_str(&file_contents) as SerdeResult<HashMap<String, bool>> {
