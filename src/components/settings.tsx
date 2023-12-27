@@ -29,6 +29,16 @@ export default class Settings extends Component<{path_correct: boolean | undefin
         this.debounce_on_path_update = this.debounce_on_path_update.bind(this);
         this.on_update = this.on_update.bind(this);
         this.handle_path_button = this.handle_path_button.bind(this);
+        this.onUpdateWinchConfig = this.onUpdateWinchConfig.bind(this);
+    }
+
+    onUpdateWinchConfig(prop : string, state : any) {
+        // Unsafe but oh well
+        var config : any = (this.context as App).state.winchConfig;
+
+        config[prop] = state;
+
+        (this.context as App).update_winch_config();
     }
 
     componentDidMount() {
@@ -94,8 +104,9 @@ export default class Settings extends Component<{path_correct: boolean | undefin
                         name="enable-developer-console"
                         type="checkbox"
                         checked={config.EnableDeveloperConsole}
+                        onChange={(e) => {this.onUpdateWinchConfig("EnableDeveloperConsole", e.target.checked)}}
                         />
-                    <label htmlFor="enable-developer-console">Enable Developer Console</label>
+                    <label htmlFor="enable-developer-console">Enable In-Game Developer Console</label>
 
                     <br/>
 
@@ -104,8 +115,9 @@ export default class Settings extends Component<{path_correct: boolean | undefin
                         name="detailed-log-sources"
                         type="checkbox"
                         checked={config.DetailedLogSources}
+                        onChange={(e) => {this.onUpdateWinchConfig("DetailedLogSources", e.target.checked)}} 
                         />
-                    <label htmlFor="detailed-log-sources">Detailed Log Sources</label>
+                    <label htmlFor="detailed-log-sources">Use Detailed Log Sources</label>
 
                     <br/>
 
@@ -114,8 +126,20 @@ export default class Settings extends Component<{path_correct: boolean | undefin
                         name="write-logs-to-file"
                         type="checkbox"
                         checked={config.WriteLogsToFile}
+                        onChange={(e) => {this.onUpdateWinchConfig("WriteLogsToFile", e.target.checked)}} 
                         />
                     <label htmlFor="write-logs-to-file">Write Logs to File</label>
+
+                    <br/>
+                    
+                    <input
+                        id="write-logs-to-console"
+                        name="write-logs-to-console"
+                        type="checkbox"
+                        checked={config.WriteLogsToConsole}
+                        onChange={(e) => {this.onUpdateWinchConfig("WriteLogsToConsole", e.target.checked)}} 
+                        />
+                    <label htmlFor="write-logs-to-console">Write Logs to Console</label>
 
                     </div>
             </div>

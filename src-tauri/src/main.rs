@@ -271,6 +271,14 @@ fn open_dir(path : String) -> Result<(), String> {
     }
 }
 
+#[tauri::command]
+fn update_winch_config(json : String, dredge_path : String) -> Result<(), String> {
+    match winch_config::write_winch_config(json, dredge_path) {
+        Ok(_) => return Ok(()),
+        Err(error) => return Err(error)
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -281,7 +289,8 @@ fn main() {
             start_game,
             uninstall_mod,
             install_mod,
-            open_dir
+            open_dir,
+            update_winch_config
             ])
         .setup(|app| {
                 let main_window: tauri::Window = app.get_window("main").unwrap();

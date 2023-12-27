@@ -20,7 +20,10 @@ pub struct WinchConfig {
     pub write_logs_to_file : bool,
 
     #[serde(default)]
-    pub log_folder : String,
+    pub write_logs_to_console : bool,
+
+    #[serde(default)]
+    pub logs_folder : String,
 
     #[serde(default)]
     pub log_level : LogLevel,
@@ -35,7 +38,7 @@ pub struct WinchConfig {
     pub max_log_files : i32,
 
     #[serde(default)]
-    pub check_for_updates : bool
+    pub log_port : String
 }
 
 pub fn load_winch_config(dredge_folder : String) -> Result<WinchConfig, String> {
@@ -50,4 +53,12 @@ pub fn load_winch_config(dredge_folder : String) -> Result<WinchConfig, String> 
     };
 
     Ok(json)
+}
+
+pub fn write_winch_config(json : String, dredge_folder : String) -> Result<(), String> {
+    let file = format!("{}/WinchConfig.json", dredge_folder);
+    match fs::write(file.to_string(), json.to_string()) {
+        Ok(_) => return Ok(()),
+        Err(_) => return Err(format!("Couldn't save WinchConfig at {} with settings {}", file, json).to_string())
+    };
 }

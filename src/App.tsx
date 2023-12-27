@@ -174,6 +174,12 @@ class App extends Component<{}, IAppState>
       .catch((e) => alert(e.toString()))
   }
 
+  update_winch_config() {
+    console.log(this.state.winchConfig);
+    invoke("update_winch_config", {"json": JSON.stringify(this.state.winchConfig, null, 2), dredgePath: this.state.dredgePath})
+      .then(this.reload_mods)
+      .catch((error : any) => alert(error.toString()));
+  }
   
   // Inbuilt React
 
