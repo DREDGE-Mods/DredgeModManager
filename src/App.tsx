@@ -214,6 +214,7 @@ class App extends Component<{}, IAppState>
 
   set_page_choice(choice: string) {
     this.setState({pageChoice: choice});
+    this.reload_mods();
   }
 
   
