@@ -10,12 +10,14 @@ import { debounce } from "lodash";
 
 import { Sidebar, Content } from './components';
 import { ModInfo, AppProvider, AppContext } from './components';
+import { WinchConfig } from "./components/winchconfig";
 
 
 export interface IAppState extends React.PropsWithChildren{
   pathCorrect: boolean | undefined; // no clue
   dredgePath: string | undefined;
   winchInfo: ModInfo | undefined;
+  winchConfig : WinchConfig | undefined;
   availableMods: [] | undefined; // All mods in database
   enabledMods: IEnabledStruct | undefined; // All mods enabled
   modInfos: Map<string, ModInfo> | undefined; // All installed mods
@@ -38,6 +40,7 @@ class App extends Component<{}, IAppState>
       pathCorrect: undefined,
       dredgePath: undefined,
       winchInfo: undefined,
+      winchConfig : undefined,
       availableMods: [],
       enabledMods: undefined,
       modInfos: new Map(),
@@ -98,6 +101,7 @@ class App extends Component<{}, IAppState>
           modInfos: new Map(Object.entries(fetch.mods)),
           availableMods: fetch.database.map((mod : ModInfo) => mod.ModGUID).filter((modGUID: string) => !fetch.mods.hasOwnProperty(modGUID)),
           winchInfo: fetch.winch_mod_info,
+          winchConfig: fetch.winch_config,
           pathCorrect: true,
         }, () => {console.log(this.state); return});
 
@@ -170,6 +174,12 @@ class App extends Component<{}, IAppState>
       .catch((e) => alert(e.toString()))
   }
 
+  update_winch_config() {
+    console.log(this.state.winchConfig);
+    invoke("update_winch_config", {"json": JSON.stringify(this.state.winchConfig, null, 2), dredgePath: this.state.dredgePath})
+      .then(this.reload_mods)
+      .catch((error : any) => alert(error.toString()));
+  }
   
   // Inbuilt React
 
@@ -210,6 +220,7 @@ class App extends Component<{}, IAppState>
 
   set_page_choice(choice: string) {
     this.setState({pageChoice: choice});
+    this.reload_mods();
   }
 
   

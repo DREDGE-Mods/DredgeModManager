@@ -36,7 +36,7 @@
             margin-bottom: 8px;
         }
 
-        label {
+        h5 {
             font-weight: 500;
             font-size: larger;
             margin-bottom: 5px;
@@ -44,6 +44,10 @@
                 color: $text-light-secondary;
                 font-size: 0.8em;
             }
+        }
+
+        label {
+            margin-left: 16px;
         }
         
         .path {
