@@ -71,12 +71,23 @@ pub fn uninstall_mod(mod_meta_path : String) -> () {
     let dir = Path::new(&mod_meta_path).parent().unwrap();
 
     if mod_meta.mod_guid == "hacktix.winch" {
-        fs::remove_file(format!("{}/0Harmony.dll", dir.display().to_string())).unwrap();
-        fs::remove_file(format!("{}/doorstop_config.ini", dir.display().to_string())).unwrap();
-        fs::remove_file(&mod_meta_path).unwrap();
-        fs::remove_file(format!("{}/Winch.dll", dir.display().to_string())).unwrap();
-        fs::remove_file(format!("{}/winhttp.dll", dir.display().to_string())).unwrap();
-        fs::remove_file(format!("{}/asset_update_date.txt", dir.display().to_string())).unwrap();
+        // using "let _ =" allows us to ignore any errors
+        let _ = fs::remove_file(format!("{}/0Harmony.dll", dir.display().to_string()));
+        let _ = fs::remove_file(format!("{}/doorstop_config.ini", dir.display().to_string()));
+        let _ = fs::remove_file(&mod_meta_path);
+
+        let _ = fs::remove_file(format!("{}/Winch.dll", dir.display().to_string()));
+        let _ = fs::remove_file(format!("{}/Winch.pdb", dir.display().to_string()));
+
+        let _ = fs::remove_file(format!("{}/WinchCommon.dll", dir.display().to_string()));
+        let _ = fs::remove_file(format!("{}/WinchCommon.pdb", dir.display().to_string()));
+
+        let _ = fs::remove_file(format!("{}/WinchConsole.exe", dir.display().to_string()));
+        let _ = fs::remove_file(format!("{}/WinchConsole.exe.config", dir.display().to_string()));
+        let _ = fs::remove_file(format!("{}/WinchConsole.pdb", dir.display().to_string()));
+
+        let _ = fs::remove_file(format!("{}/winhttp.dll", dir.display().to_string()));
+        let _ = fs::remove_file(format!("{}/asset_update_date.txt", dir.display().to_string()));
     }
     else {
         if dir.is_dir() && dir.is_absolute() && dir.parent().unwrap().display().to_string().ends_with("Mods") {

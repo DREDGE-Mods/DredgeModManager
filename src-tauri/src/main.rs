@@ -10,6 +10,7 @@ use tauri::{Manager, PhysicalSize};
 mod database;
 mod mods;
 mod files;
+mod winch_config;
 
 #[derive(serde::Serialize)]
 #[serde(rename_all(serialize = "PascalCase"))]
@@ -25,12 +26,21 @@ struct InitialInfo {
     mods : HashMap<String, mods::ModInfo>,
     database: Vec<database::ModDatabaseInfo>,
     #[serde(serialize_with = "serialize_mod_info_option")]
-    winch_mod_info : Option<mods::ModInfo>
+    winch_mod_info : Option<mods::ModInfo>,
+    #[serde(serialize_with = "serialize_winch_config_option")]
+    winch_config : Option<winch_config::WinchConfig>
 }
 
 fn serialize_mod_info_option<S>(maybe_mod_info : &Option<mods::ModInfo>, serializer : S) -> Result<S::Ok, S::Error> where S : Serializer {
     match maybe_mod_info {
         Some(mod_info) => serializer.serialize_some(mod_info),
+        None => serializer.serialize_none()
+    }
+}
+
+fn serialize_winch_config_option<S>(maybe_winch_config : &Option<winch_config::WinchConfig>, serializer : S) -> Result<S::Ok, S::Error> where S : Serializer {
+    match maybe_winch_config {
+        Some(winch_config) => serializer.serialize_some(winch_config),
         None => serializer.serialize_none()
     }
 }
@@ -132,7 +142,13 @@ fn load(dredge_path : String) -> Result<InitialInfo, InitialInfoError> {
         Err(_) => None
     };
 
-    Ok(InitialInfo {enabled_mods, mods, database, winch_mod_info})
+    // Get Winch config
+    let winch_config = match winch_config::load_winch_config(dredge_path) {
+        Ok(config) => Some(config),
+        Err(_) => None
+    };
+
+    Ok(InitialInfo {enabled_mods, mods, database, winch_mod_info, winch_config})
 }
 
 fn check_enabled_mods(enabled_mods_path : String) -> HashMap<String, bool> {
@@ -255,6 +271,14 @@ fn open_dir(path : String) -> Result<(), String> {
     }
 }
 
+#[tauri::command]
+fn update_winch_config(json : String, dredge_path : String) -> Result<(), String> {
+    match winch_config::write_winch_config(json, dredge_path) {
+        Ok(_) => return Ok(()),
+        Err(error) => return Err(error)
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -265,7 +289,8 @@ fn main() {
             start_game,
             uninstall_mod,
             install_mod,
-            open_dir
+            open_dir,
+            update_winch_config
             ])
         .setup(|app| {
                 let main_window: tauri::Window = app.get_window("main").unwrap();
