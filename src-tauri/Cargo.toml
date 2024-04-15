@@ -1,6 +1,6 @@
 [package]
 name = "dredge_mod_manager"
-version = "0.0.10"
+version = "0.0.11"
 description = "Mod manager application for DREDGE"
 authors = ["xen-42"]
 license = "MIT"
