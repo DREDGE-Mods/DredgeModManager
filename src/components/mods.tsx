@@ -90,6 +90,32 @@ class ModList extends Component<{selected: string}>
 
     debounce_force_update_slow = debounce(() => {this.forceUpdate()}, 1000);
 
+    sortMod(enabled: any, mod1: ModInfo, mod2: ModInfo) {
+        if (mod1.ModGUID == "hacktix.winch") {
+            return -1;
+        }
+        else if (mod2.ModGUID == "hacktix.winch") {
+            return 1;
+        }
+
+        var mod1Enabled = enabled![mod1.ModGUID];
+        var mod2Enabled = enabled![mod2.ModGUID];
+
+        // Sort by download count
+        // Keep all enabled mods at the top
+        if (mod1Enabled == mod2Enabled) {
+            if ((mod1.Downloads ?? 0) > (mod2.Downloads ?? 0)) {
+                return -1;
+            }
+            else {
+                return 1;
+            }
+        }
+        else {
+            return mod1Enabled ? -1 : 1;
+        }
+    }
+
     render() {
         var shownList = new Array<JSX.Element>();
         var availableList = new Array<JSX.Element | undefined>();
@@ -119,7 +145,7 @@ class ModList extends Component<{selected: string}>
             }
 
             if (this.props.selected === "Installed") {
-                installedList = modList.map((mod) => {
+                installedList = modList.sort((m1, m2) => this.sortMod(enabled, m1, m2)).map((mod) => {
                     return <InstalledModBox 
                     key={mod.ModGUID} 
                     data={mod} 
