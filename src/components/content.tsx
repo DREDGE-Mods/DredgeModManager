@@ -5,12 +5,12 @@ import '../scss/content.scss'
 import {default as Mods} from './mods'
 import {default as Settings} from './settings'
 
-interface IContentState {
+interface IContentProps {
     choice: string,
     pathCorrect: boolean | undefined
 }
 
-const Content = (props : IContentState) => {
+const Content = (props : IContentProps) => {
 
     const content_options = new Map(
         [
