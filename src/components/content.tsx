@@ -1,40 +1,31 @@
-import React, {Component} from 'react'
+import React from 'react'
 
 import '../scss/content.scss'
 
 import {default as Mods} from './mods'
 import {default as Settings} from './settings'
 
-interface IContentState extends React.PropsWithChildren<any>{
-    choice: string;
+interface IContentState {
+    choice: string,
+    pathCorrect: boolean | undefined
 }
 
-export default class Content extends Component<{choice : string, pathCorrect: boolean | undefined}, IContentState>
-{
-    contentOptions: any;
+const Content = (props : IContentState) => {
 
-    constructor(props: any) {
-        super(props);
-    }
+    const content_options = new Map(
+        [
+            ["Mods", <Mods selected="Installed"/>],
+            ["Settings", <Settings path_correct ={props.pathCorrect}/>]
+        ]
+    )
 
-    render() {
-        this.contentOptions = new Map(
-            [
-                ["Mods", <Mods selected="Installed"/>],
-                ["Settings", <Settings path_correct ={this.props.pathCorrect}/>]
-            ]
-        )
+    let rendered_content = props.pathCorrect !== true ?
+        content_options.get("Settings") :
+        content_options.get(props.choice)
 
-        var renderedContent = this.contentOptions.get(this.props.choice);
-
-        if (!this.props.pathCorrect) {
-            renderedContent = this.contentOptions.get("Settings")
-        }
-
-        return (
-            <div className="content-container" key="Content">
-                {renderedContent}
-            </div>
-        )
-    }
+    return <div className="content-container" key="Content">
+        {rendered_content}
+    </div>
 }
+
+export default Content
