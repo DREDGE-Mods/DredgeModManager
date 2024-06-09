@@ -23,7 +23,7 @@ const Sidebar = (props: ISidebarProps) => {
     ]
 
     if (!props.pathCorrect) {
-        displayedOptions = [{name:"Settings"}]
+        displayedOptions = [{name: "Settings"}]
     }
 
     return <div className={"sidebar-container"}>
@@ -37,7 +37,9 @@ const Sidebar = (props: ISidebarProps) => {
                     return <SidebarOption name={item.name}
                                           index={index}
                                           isSelected={selected === item.name}
-                                          setSelected={() => {props.setPage(item.name)}}
+                                          setSelected={() => {
+                                              props.setPage(item.name)
+                                          }}
                                           key={index}/>
                 })
             }
