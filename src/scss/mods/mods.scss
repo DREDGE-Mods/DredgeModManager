@@ -1,0 +1,134 @@
+@use '../colours' as *;
+
+@mixin mods-default {
+    font-style: normal;
+    font-weight: 350;
+    font-size: 20px;
+    line-height: 24px;
+    color: $text-light-secondary;
+}
+
+@mixin mods-selected {
+    color: $text-light-primary;
+    font-weight: 400;
+}
+
+
+.mods-container {
+    display: flex;
+    flex-direction: column;
+
+    height: 100%;
+    width: 100%;
+
+    background-color: transparent;
+}
+
+.mods-selectors {
+    display: flex;
+    flex-direction: row;
+
+    min-height: 50px;
+    margin-bottom: -2px; // Merge selectors and list borders seamlessly
+
+    & .mods-filler {
+        min-width: 0;
+        flex-grow: 1;
+        border-bottom: 4px solid $bg-primary-tint;
+    }
+
+    & button {
+        @include mods-default;
+
+        text-align: center;
+
+        border-color: $bg-primary-tint;
+        border-bottom: 4px solid $bg-primary-tint;
+        
+        $--border-radius: 25px;
+
+        border-top-left-radius: $--border-radius;
+        border-top-right-radius: $--border-radius;
+
+        max-width: 240px;
+        min-width: 240px;
+
+        &.selected {
+            @include mods-selected;
+
+            border: 2px solid $bg-primary-tint;
+            border-bottom-color: transparent;
+
+            background-color: $bg-primary;
+        }
+
+        & label {
+            cursor: pointer;
+        }
+
+        &:hover {
+            background-color: $bg-primary;
+        }
+    }
+}
+
+.mods-list-container {
+    background-color: $bg-primary;
+    flex-grow: 1;
+
+    border: 2px solid $bg-primary-tint;
+    border-top: 0 solid;
+    padding: 10px;
+
+    overflow: scroll;
+}
+
+@mixin mods-list-generic {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.mods-list {
+    @include mods-list-generic;
+
+    min-height: 100%;
+}
+
+
+@mixin detail {
+    font-size: 1em;
+    color: $text-light-primary;
+    align-self: center;
+}
+
+@mixin detail-dull {
+    @include detail;
+    font-size: 0.9em;
+    color: $text-light-secondary;
+}
+
+@mixin detail-bold {
+    @include detail;
+    font-weight: 500;
+}
+
+@mixin mods-box-generic {
+    background-color: transparent;
+    border-radius: 2px;
+
+    display: flex;
+    flex-direction: column;
+
+    & + & {
+        &::before {
+            content: '';
+            display: block;
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background-color: $bg-primary-tint;
+            margin-top: -6px;
+        }
+    }
+}
