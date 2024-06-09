@@ -1,0 +1,70 @@
+// TODO: actually separate into different files
+// so that it's relatively understandable,
+// is component-based after all.
+
+@use '../colours' as *;
+
+@mixin default {
+    font-style: normal;
+    font-weight: 350;
+    font-size: 20px;
+    line-height: 24px;
+    color: $text-light-secondary;
+}
+
+@mixin selected {
+    color: $text-light-primary;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+}
+
+@mixin sidebar-separator {
+    &::before {
+        content: "";
+        cursor: default;
+        display: block;
+        position: absolute;
+        top: -8px;
+        width: 80%;
+        margin: 0 10%;
+        padding: 0;
+        height: 2px;
+        background-color: $bg-primary-tint;
+    }
+}
+
+$option-height: 80px;
+
+$play-inner-radius: 5px;
+$play-outer-radius: 9px;
+
+$play-alt-width: 20px;
+
+.sidebar-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    min-height: 0;
+
+    width: 140px;
+    min-width: 140px;
+    height: 100vh;
+
+    background-color: $bg-primary-shade;
+
+    padding: 10px 0;
+}
+
+.sidebar-options-container {
+    display: flex;
+    flex-direction: column;
+
+    gap: 14px;
+
+    justify-content: start;
+
+    margin: 0 2px auto 2px;
+
+    overflow-y: auto;
+    // can adjust height of all options with this margin
+}
