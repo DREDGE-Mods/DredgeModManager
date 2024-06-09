@@ -1,9 +1,9 @@
-@use '../colours';
-@use './sidebar';
+@use '../colours' as *;
+@use './sidebar' as *;
 
 .sidebar-play-container {
   position: relative;
-  min-height: sidebar.$option-height;
+  min-height: $option-height;
   width: 100%;
 
   display: grid;
@@ -11,7 +11,7 @@
 
   margin-top: 20px;
 
-  @include sidebar.sidebar-separator;
+  @include sidebar-separator;
 }
 
 .sidebar-play {
@@ -24,13 +24,13 @@
 
   & button {
     border: none;
-    background-color: colours.$interact-green-shade;
-    border-radius: sidebar.$play-inner-radius;
+    background-color: $interact-green-shade;
+    border-radius: $play-inner-radius;
 
     padding-top: 1px;
 
     &:hover {
-      background-color: colours.$interact-green;
+      background-color: $interact-green;
     }
 
     &:active {
@@ -43,12 +43,12 @@
 .sidebar-play-main {
   flex-grow: 1;
   // TODO: uncomment this when the alt-play button is implemented
-  // border-top-left-radius: sidebar.$play-outer-radius !important;
-  // border-bottom-left-radius: sidebar.$play-outer-radius !important;
-  border-radius: sidebar.$play-outer-radius;
+  // border-top-left-radius: $play-outer-radius !important;
+  // border-bottom-left-radius: $play-outer-radius !important;
+  border-radius: $play-outer-radius;
 
   & label {
-    color: colours.$text-light-primary;
+    color: $text-light-primary;
     font-style: normal;
     font-weight: 600;
     font-size: 22px;
@@ -59,10 +59,10 @@
 }
 
 .sidebar-play-alt {
-  flex-basis: sidebar.$play-alt-width;
-  max-width: sidebar.$play-alt-width;
-  border-top-right-radius: sidebar.$play-outer-radius !important;
-  border-bottom-right-radius: sidebar.$play-outer-radius !important;
+  flex-basis: $play-alt-width;
+  max-width: $play-alt-width;
+  border-top-right-radius: $play-outer-radius !important;
+  border-bottom-right-radius: $play-outer-radius !important;
 
   &::before {
     content: '';
