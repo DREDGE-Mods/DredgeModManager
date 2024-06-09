@@ -10,7 +10,7 @@ interface ISidebarOption {
     setSelected: () => void
 }
 
-const SidebarOption = (props: ISidebarOption) => {
+export const SidebarOption = (props: ISidebarOption) => {
     return <div className={"sidebar-option-container"}>
         <button className={`sidebar-option ${props.isSelected ? "selected" : ""}`}
                 id={`sidebarOption-${props.index}`}
@@ -23,5 +23,3 @@ const SidebarOption = (props: ISidebarOption) => {
         </button>
     </div>
 }
-
-export default SidebarOption

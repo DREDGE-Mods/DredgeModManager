@@ -1,7 +1,7 @@
 import React from 'react';
 
-import SidebarOption from './SidebarOption'
-import SidebarPlay from "./SidebarPlay";
+import { SidebarOption } from './SidebarOption'
+import { SidebarPlay } from "./SidebarPlay";
 
 import '../../scss/sidebar/sidebar.scss'
 
@@ -12,7 +12,7 @@ interface ISidebarProps {
     pathCorrect?: boolean
 }
 
-const Sidebar = (props: ISidebarProps) => {
+export const Sidebar = (props: ISidebarProps) => {
     let displayedOptions = [
         {
             name: "Mods",
@@ -47,5 +47,3 @@ const Sidebar = (props: ISidebarProps) => {
         <SidebarPlay start={props.start}/>
     </div>
 }
-
-export default Sidebar

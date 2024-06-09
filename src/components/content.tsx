@@ -2,7 +2,7 @@ import React from 'react'
 
 import '../scss/content.scss'
 
-import {default as Mods} from './mods'
+import { Mods } from './mods/Mods'
 import {default as Settings} from './settings'
 
 interface IContentProps {
@@ -10,7 +10,7 @@ interface IContentProps {
     pathCorrect: boolean | undefined
 }
 
-const Content = (props : IContentProps) => {
+export const Content = (props : IContentProps) => {
 
     const content_options = new Map(
         [
@@ -27,5 +27,3 @@ const Content = (props : IContentProps) => {
         {rendered_content}
     </div>
 }
-
-export default Content

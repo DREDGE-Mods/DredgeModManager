@@ -2,7 +2,7 @@ import React, {Component, useContext} from 'react'
 
 import '../scss/settings.scss'
 import { ModInfo } from './modinfo'
-import AppStateContext from './appcontext'
+import { AppContext } from './appcontext'
 import App from '../App'
 import { debounce } from 'lodash';
 
@@ -16,8 +16,8 @@ interface ISettingsState {
 
 export default class Settings extends Component<{path_correct: boolean | undefined}, ISettingsState>
 {
-    static contextType = AppStateContext
-    declare context: React.ContextType<typeof AppStateContext>
+    static contextType = AppContext
+    declare context: React.ContextType<typeof AppContext>
 
     constructor(props:any) {
         super(props);

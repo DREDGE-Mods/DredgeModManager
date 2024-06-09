@@ -3,7 +3,7 @@ import React from "react";
 import '../../scss/sidebar/sidebarPlay.scss'
 
 
-const SidebarPlay = (props: { start: () => void }) => {
+export const SidebarPlay = (props: { start: () => void }) => {
     return <div className={"sidebar-play-container"}>
         <div className={"sidebar-play"}>
             <button className={"sidebar-play-main"} id={"play-main"} onClick={props.start}>
@@ -17,5 +17,3 @@ const SidebarPlay = (props: { start: () => void }) => {
         </div>
     </div>
 }
-
-export default SidebarPlay
