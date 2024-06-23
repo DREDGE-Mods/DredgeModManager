@@ -50,14 +50,11 @@ export const InstalledMod = (props: IInstalledModProps) => {
         // Either the latest version tags match or the release time of the asset when downloading matches whats in the DB
         // Bit of a hacky way to deal with multi mod repos
         // Also ignore "v" prefix on version numbers
-        console.log("called isModOutdated");
         let mod = props.data;
         let trimmedLocalVersion = mod.Version!.trim().replace(/^v/, '');
         let trimmedLatestVersion = mod.LatestVersion?.trim().replace(/^v/, '');
         let doesVersionMatch = trimmedLocalVersion === trimmedLatestVersion;
         let doesUpdateDateMatch = mod.LocalAssetUpdateDate?.trim() === mod.AssetUpdateDate?.trim();
-        console.log(mod)
-        console.log(!doesVersionMatch && !doesUpdateDateMatch)
         return !doesVersionMatch && !doesUpdateDateMatch;
     }
 
