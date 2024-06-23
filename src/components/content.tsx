@@ -3,7 +3,7 @@ import React from 'react'
 import '../scss/content.scss'
 
 import { Mods } from './mods/Mods'
-import {default as Settings} from './settings'
+import {default as Settings} from './settings/settings'
 
 interface IContentProps {
     choice: string,
