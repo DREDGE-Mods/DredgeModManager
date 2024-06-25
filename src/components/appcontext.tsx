@@ -6,7 +6,7 @@ import {ModInfo} from "./modinfo";
 import {open} from "@tauri-apps/api/dialog";
 import {debounce} from "lodash";
 
-interface IAppContextType {
+interface IAppContextType { // see AppProvider for implementations, defaultContext for initialized defaults
     state: IAppState;
     setState: (newState: IAppState) => void
     start: () => void;
