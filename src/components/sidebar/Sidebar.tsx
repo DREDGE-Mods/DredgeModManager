@@ -1,18 +1,15 @@
-import React from 'react';
+import React, {useContext} from 'react';
 
 import { SidebarOption } from './SidebarOption'
 import { SidebarPlay } from "./SidebarPlay";
 
 import '../../scss/sidebar/sidebar.scss'
+import {AppContext} from "../appcontext";
 
-interface ISidebarProps {
-    choice: string,
-    start: () => void,
-    setPage: (page: string) => void
-    pathCorrect?: boolean
-}
+export const Sidebar = () => {
 
-export const Sidebar = (props: ISidebarProps) => {
+    const context = useContext(AppContext);
+
     let displayedOptions = [
         {
             name: "Mods",
@@ -22,7 +19,7 @@ export const Sidebar = (props: ISidebarProps) => {
         }
     ]
 
-    if (!props.pathCorrect) {
+    if (!context.state.pathCorrect) {
         displayedOptions = [{name: "Settings"}]
     }
 
@@ -30,20 +27,20 @@ export const Sidebar = (props: ISidebarProps) => {
         <div className={"sidebar-options-container"}>
             {
                 displayedOptions.map((item, index) => {
-                    let selected = props.choice
-                    if (!props.pathCorrect) {
+                    let selected = context.state.pageChoice
+                    if (!context.state.pathCorrect) {
                         selected = "Settings"
                     }
                     return <SidebarOption name={item.name}
                                           index={index}
                                           isSelected={selected === item.name}
                                           setSelected={() => {
-                                              props.setPage(item.name)
+                                              context.setPageChoice(item.name)
                                           }}
                                           key={index}/>
                 })
             }
         </div>
-        <SidebarPlay start={props.start}/>
+        <SidebarPlay start={context.start}/>
     </div>
 }

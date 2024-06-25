@@ -34,7 +34,7 @@ export const Settings = (props: {path_correct?: boolean}) => {
 
     const updateContextPath = () => {
         if (path !== undefined && path !== "") {
-            context!.setState({dredgePath: path});
+            context!.setState({...context.state, dredgePath: path});
         }
     }
 
@@ -43,7 +43,7 @@ export const Settings = (props: {path_correct?: boolean}) => {
     const debouncedUpdatePathFromContext = debounce(updatePathFromContext,  500);
 
     const handleDredgePath = async () => {
-        await context?.read_file_contents();
+        await context?.readFileContents();
         updatePathFromContext();
     }
 
@@ -54,7 +54,7 @@ export const Settings = (props: {path_correct?: boolean}) => {
         // @ts-ignore: typescript here is just annoying https://stackoverflow.com/questions/57086672
         context!.state.winchConfig![label] = value;
 
-        context?.update_winch_config()
+        context?.updateWinchConfig()
     }
 
     useEffect(() => {
@@ -64,7 +64,7 @@ export const Settings = (props: {path_correct?: boolean}) => {
 
     const dredgeFolderButton = !props.path_correct ? "" : <>
         <div className="d-flex w-100 justify-content-end">
-            <button className="button icon-folder" onClick={() => context!.open_mod_dir(path)}>
+            <button className="button icon-folder" onClick={() => context!.openModDir(path)}>
                 <i className="fa fa-sharp">&#xf07b;</i> Open DREDGE folder
             </button>
         </div>

@@ -19,12 +19,12 @@ export const ModList = (props: {selected: string}) => {
     }, [])
 
     const uninstallMod = (path: string) => {
-        context!.uninstall_mod(path)
+        context!.uninstallMod(path)
         debouncedForceUpdate()
     }
 
     const installMod = (mod: ModInfo) => {
-        context!.install_mod(mod)
+        context!.installMod(mod)
         debouncedForceUpdate()
     }
 
@@ -83,8 +83,8 @@ export const ModList = (props: {selected: string}) => {
                     enabled={enabled![mod.ModGUID]}
                     uninstallMod={uninstallMod}
                     installMod={installMod}
-                    updateEnabled={context!.toggle_enabled_mod}
-                    openModDir={context!.open_mod_dir}/>
+                    updateEnabled={context!.toggleEnabledMod}
+                    openModDir={context!.openModDir}/>
             })
         }
 
