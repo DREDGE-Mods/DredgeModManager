@@ -1,7 +1,7 @@
 # Dredge Mod Manager
-A mod manager for Dredge mods using the Winch mod loader. Can download and install mods from the [DREDGE Mod Database](https://github.com/xen-42/DredgeModDatabase) and handles enabling/disabling the mods using [Winch](https://github.com/Hacktix/Winch).
+A mod manager for Dredge mods using the Winch mod loader. Can download and install mods from the [DREDGE Mod Database](https://github.com/DREDGE-Mods/DredgeModDatabase) and handles enabling/disabling the mods using [Winch](https://github.com/Hacktix/Winch).
 
-![Mod manager screenshot](https://github.com/xen-42/DredgeModManager/assets/22628069/8bf559b9-d952-4a9b-92c7-ad0d7fd282d8)
+![Mod manager screenshot](https://github.com/DREDGE-Mods/DredgeModManager/assets/22628069/8bf559b9-d952-4a9b-92c7-ad0d7fd282d8)
 
 ## Development
 

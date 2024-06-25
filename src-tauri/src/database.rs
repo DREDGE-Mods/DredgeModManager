@@ -19,7 +19,7 @@ pub struct ModDatabaseInfo {
 }
 
 async fn async_access_database() -> Result<Vec<ModDatabaseInfo>, Box<dyn std::error::Error>> {
-    let body = reqwest::get("https://raw.githubusercontent.com/xen-42/DredgeModDatabase/database/database.json")
+    let body = reqwest::get("https://raw.githubusercontent.com/DREDGE-Mods/DredgeModDatabase/database/database.json")
         .await?
         .text()
         .await?;
