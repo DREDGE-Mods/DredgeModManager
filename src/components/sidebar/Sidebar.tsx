@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 
 import { SidebarOption } from './SidebarOption'
 import { SidebarPlay } from "./SidebarPlay";
@@ -10,6 +10,8 @@ export const Sidebar = () => {
 
     const context = useContext(AppContext);
 
+    const [selected, setSelected] = useState("Settings");
+
     let displayedOptions = [
         {
             name: "Mods",
@@ -19,27 +21,31 @@ export const Sidebar = () => {
         }
     ]
 
+    useEffect(() => {
+        if (!context.state.pathCorrect) {
+            setSelected("Settings");
+        } else {
+            setSelected(context.state.pageChoice);
+        }
+    }, [context.state.pathCorrect, context.state.pageChoice]);
+
     if (!context.state.pathCorrect) {
         displayedOptions = [{name: "Settings"}]
     }
 
+    const rendered = displayedOptions.map((item, index) => {
+        return <SidebarOption name={item.name}
+                              index={index}
+                              isSelected={selected === item.name}
+                              setSelected={() => {
+                                  context.setPageChoice(item.name)
+                              }}
+                              key={index}/>
+    })
+
     return <div className={"sidebar-container"}>
         <div className={"sidebar-options-container"}>
-            {
-                displayedOptions.map((item, index) => {
-                    let selected = context.state.pageChoice
-                    if (!context.state.pathCorrect) {
-                        selected = "Settings"
-                    }
-                    return <SidebarOption name={item.name}
-                                          index={index}
-                                          isSelected={selected === item.name}
-                                          setSelected={() => {
-                                              context.setPageChoice(item.name)
-                                          }}
-                                          key={index}/>
-                })
-            }
+            {rendered}
         </div>
         <SidebarPlay start={context.start}/>
     </div>

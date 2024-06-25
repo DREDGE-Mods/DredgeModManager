@@ -38,9 +38,13 @@ export const Settings = (props: {path_correct?: boolean}) => {
         }
     }
 
-    const debouncedUpdateContextPath = debounce(updateContextPath, 500);
+    // THIS CAN CAUSE PROBLEMS
+    // if this is greater than ~200ms? if the user goes between pages as mods -> settings -> mods within that 200ms,
+    // this will cause it to be set back to the settings page
+    // presumably due to setState calling with an outdated context.state.pageChoice
+    const debouncedUpdateContextPath = debounce(updateContextPath, 50);
 
-    const debouncedUpdatePathFromContext = debounce(updatePathFromContext,  500);
+    const debouncedUpdatePathFromContext = debounce(updatePathFromContext,  100);
 
     const handleDredgePath = async () => {
         await context?.readFileContents();
@@ -49,16 +53,12 @@ export const Settings = (props: {path_correct?: boolean}) => {
 
     const onConfigUpdate = (label: string, value: any) => {
         // "Unsafe but oh well"
-        const config = context!.state.winchConfig!;
 
         // @ts-ignore: typescript here is just annoying https://stackoverflow.com/questions/57086672
         context!.state.winchConfig![label] = value;
 
         context?.updateWinchConfig()
     }
-
-    useEffect(() => {
-    }, [props.path_correct])
 
     const pathWarning = props.path_correct ? "" : <div className="warning">Invalid DREDGE path</div>
 
