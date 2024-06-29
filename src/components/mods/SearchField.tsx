@@ -19,8 +19,8 @@ export const Search = (props: ISearchProps) => {
 
     // needs tabIndex: https://stackoverflow.com/a/49662770
     return <label htmlFor={"search-bar"} className={`search ${selected || text !== "" ? "active" : ""}`} tabIndex={-1}
-                  onFocus={(e) => setSelected(true)}
-                  onBlur={(e) => setSelected(false)}>
+                  onFocus={() => setSelected(true)}
+                  onBlur={() => setSelected(false)}>
         <i className={"fa-solid fa-magnifying-glass"}></i>
         <input type={"text"} placeholder={"Search..."} value={text} id={"search-bar"}
                onChange={(e) => {
