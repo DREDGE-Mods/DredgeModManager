@@ -1,13 +1,16 @@
-import React, { useContext, useEffect, useReducer } from "react";
+import React, {useContext, useEffect, useReducer, useState} from "react";
 import {AppContext} from "../appcontext";
 import {ModInfo} from "../modinfo";
 import {debounce} from "lodash";
 import {InstalledMod} from "./InstalledMod";
 import {AvailableMod} from "./AvailableMod";
 import {ModsNotFound} from "./ModsNotFound";
+import {Search} from "./SearchField";
 
 export const ModList = (props: {selected: string}) => {
     const context = useContext(AppContext)
+
+    const [searchQuery, setSearchQuery] = useState("");
 
     // https://legacy.reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
     const [_, forceUpdate] = useReducer((x) => x + 1, 0);
@@ -17,6 +20,10 @@ export const ModList = (props: {selected: string}) => {
     useEffect(() => {
         debouncedForceUpdate()
     }, [])
+
+    useEffect(() => {
+        setSearchQuery("");
+    }, [props.selected]);
 
     const uninstallMod = (path: string) => {
         context!.uninstallMod(path)
@@ -50,6 +57,33 @@ export const ModList = (props: {selected: string}) => {
         }
     }
 
+    const filterMods = (mods: ModInfo[], query: string) => {
+        let filtered: ModInfo[] = [];
+
+        query = query.toLowerCase();
+
+        if (searchQuery === "" || searchQuery === undefined) {
+            return mods;
+        }
+
+        const tryCompare = (query: string, str?: string) => {
+            if (str === undefined) return false;
+            return str.toLowerCase().includes(query);
+        }
+
+        filtered = mods.filter((mod) => {
+            if (tryCompare(query, mod.Name)) return true;
+
+            if (tryCompare(query, mod.Author)) return true;
+
+            if (tryCompare(query, mod.Description)) return true;
+
+            return false;
+        })
+
+        return filtered;
+    }
+
     let availableList = new Array<React.ReactNode>()
     let installedList = new Array<React.ReactNode>()
 
@@ -62,6 +96,7 @@ export const ModList = (props: {selected: string}) => {
     let modList = Array.from(info!.values())
 
     if (database !== undefined) {
+
         // Make sure winch is always at the top of all lists
         let index = modList.findIndex(mod => mod.ModGUID == "hacktix.winch");
         if (index != -1) {
@@ -76,7 +111,8 @@ export const ModList = (props: {selected: string}) => {
         if (props.selected === "Installed") {
             // not keen on cyclic dependency of IEnabledStruct, but also want to avoid usage of 'any' in sortMod
             // so casting to exact same definition as IEnabledStruct to use
-            installedList = modList.sort((m1, m2) => sortMod((enabled as {[key: string]: boolean}), m1, m2)).map((mod) => {
+            const filteredMods = filterMods(modList, searchQuery);
+            installedList = filteredMods.sort((m1, m2) => sortMod((enabled as {[key: string]: boolean}), m1, m2)).map((mod) => {
                 return <InstalledMod
                     key={mod.ModGUID}
                     data={mod}
@@ -89,7 +125,8 @@ export const ModList = (props: {selected: string}) => {
         }
 
         if (props.selected === "Available") {
-            availableList = database!.map((mod) => {
+            const filteredMods = filterMods(database!, searchQuery);
+            availableList = filteredMods.map((mod) => {
                 if (!info!.has(mod.ModGUID)) {
                     return <AvailableMod
                         key={mod.ModGUID}
@@ -119,7 +156,15 @@ export const ModList = (props: {selected: string}) => {
                           installed={props.selected === "Installed"}/>
         ]
 
-    return <div className="mods-list">
+    return <>
+        <div className={"mods-filter"}>
+            <Search defaultValue={searchQuery} updateValue={setSearchQuery} />
+            <div>
+
+            </div>
+        </div>
+        <div className="mods-list">
             {shownList}
         </div>
+    </>
 }
