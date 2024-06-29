@@ -1,0 +1,65 @@
+@use '../colours' as *;
+@use './mods' as *;
+
+
+.mods-not-found {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 10px;
+
+  justify-content: center;
+
+  flex-grow: 1;
+  text-align:center;
+
+  margin: auto auto;
+  max-width: 400px;
+
+  & .info,
+  & .reload {
+    @include detail-bold;
+
+    border: 2px solid $bg-primary-tint;
+    background-color: $bg-primary-tint;
+    border-radius: 10px;
+  }
+
+  & .info {
+    display: grid;
+    place-items: center;
+
+    inline-size: inherit;
+    height: 150px;
+
+    border: 2px solid $bg-primary-tint;
+    background-color: $bg-primary-tint;
+
+    padding: 30px 10px;
+  }
+
+  & .reload {
+    padding: 15px 20px;
+    display: flex;
+    gap: 5px;
+    flex-flow: column nowrap;
+
+    button {
+      background-color: $interact-green-shade;
+      border: 2px solid $interact-green-shade;
+      border-radius: 6px;
+      padding: 5px 0;
+      margin: 0 25px;
+      color: $text-light-primary;
+      font-weight: 600;
+
+      &:hover {
+        background-color: $interact-green;
+        border-color: $interact-green;
+      }
+
+      &:active {
+        transform: translateY(2px);
+      }
+    }
+  }
+}

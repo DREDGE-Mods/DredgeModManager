@@ -1,0 +1,30 @@
+@use './../_colours' as *;
+@use './sidebar' as *;
+
+.sidebar-option-container {
+  position: relative;
+  & + & {
+    @include sidebar-separator;
+  }
+}
+
+.sidebar-option {
+  @include default;
+
+  position: relative;
+
+  background: none;
+  border: none;
+  border-radius: 0;
+
+  width: 100%;
+  height: $option-height;
+
+  &.selected {
+    @include selected;
+  }
+
+  &:hover {
+    background-color: $bg-primary-tint;
+  }
+}
