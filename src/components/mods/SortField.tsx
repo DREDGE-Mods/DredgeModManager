@@ -22,6 +22,11 @@ export const SortField = (props: ISortFieldProps) => {
     }
 
     useEffect(() => {
+        setSortField(props.sortField);
+        setSortDirection(props.sortDirection);
+    }, [props.sortField, props.sortDirection])
+
+    useEffect(() => {
         props.setSortField(sortField);
     }, [sortField])
 

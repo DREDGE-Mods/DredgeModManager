@@ -28,6 +28,8 @@ export const ModList = (props: {selected: string}) => {
 
     useEffect(() => {
         setSearchQuery("");
+        setSortField(SortType.DEFAULT);
+        setSortDirection(SortDirection.ASCENDING);
     }, [props.selected]);
 
     useEffect(() => {
