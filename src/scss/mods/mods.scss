@@ -78,7 +78,7 @@
 
     border: 2px solid $bg-primary-tint;
     border-top: 0 solid;
-    padding: 10px;
+    padding: 0 10px 10px 10px;
 
     overflow-y: scroll;
 }
@@ -96,16 +96,27 @@
 }
 
 .mods-filter {
-    height: 40px;
+    height: 50px;
+    width: 100%;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+
+    background-color: $bg-primary;
 
     display: flex;
+    gap: 8px;
+    justify-content: space-between;
 
-    & .search {
+    .search {
         outline: none;
         width: 300px;
         height: fit-content;
         padding: 2px 8px;
         cursor: text;
+        flex-grow: 1;
+
+        margin: auto 0;
 
         display: flex;
         justify-content: start;
@@ -149,6 +160,52 @@
                     color: $text-light-primary;
                 }
             }
+        }
+    }
+
+    .sorting {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+
+        margin-right: 8px;
+
+        .cancel {
+            width: 27px;
+            height: 27px;
+            color: $text-light-primary;
+            display: grid;
+            place-items: center;
+            border-radius: 9999px;
+
+            &:hover {
+                background-color: $bg-primary-tint;
+            }
+        }
+        .dropdown {
+            height: 30px;
+            padding: 0 8px 0 4px;
+            outline: 0;
+            border: 0;
+            background: transparent;
+            color: $text-light-primary;
+            cursor: pointer;
+
+            &.active {
+                background-color: $bg-primary-shade;
+            }
+
+            option {
+                cursor: pointer;
+                background-color: $bg-primary-shade;
+            }
+        }
+        .direction {
+            height: 30px;
+            width: 30px;
+
+            color: $text-light-primary;
         }
     }
 }

@@ -6,7 +6,6 @@ interface ISearchProps {
 }
 
 export const Search = (props: ISearchProps) => {
-    console.log("rerender");
     const [text, setText] = useState(props.defaultValue);
     const [selected, setSelected] = useState(false);
 

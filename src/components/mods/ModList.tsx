@@ -6,11 +6,16 @@ import {InstalledMod} from "./InstalledMod";
 import {AvailableMod} from "./AvailableMod";
 import {ModsNotFound} from "./ModsNotFound";
 import {Search} from "./SearchField";
+import {SortDirection, SortField, SortType} from "./SortField";
 
 export const ModList = (props: {selected: string}) => {
     const context = useContext(AppContext)
 
     const [searchQuery, setSearchQuery] = useState("");
+    const [sortField, setSortField] = useState<SortType>(SortType.DEFAULT);
+    const [sortDirection, setSortDirection] = useState<SortDirection>(SortDirection.ASCENDING);
+
+    const defaultSortField = SortType.LATEST_UPDATE;
 
     // https://legacy.reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
     const [_, forceUpdate] = useReducer((x) => x + 1, 0);
@@ -25,6 +30,10 @@ export const ModList = (props: {selected: string}) => {
         setSearchQuery("");
     }, [props.selected]);
 
+    useEffect(() => {
+        console.log(sortField, sortDirection)
+    }, [sortField, sortDirection]);
+
     const uninstallMod = (path: string) => {
         context!.uninstallMod(path)
         debouncedForceUpdate()
@@ -35,7 +44,7 @@ export const ModList = (props: {selected: string}) => {
         debouncedForceUpdate()
     }
 
-    const sortMod = (enabled: {[key: string]: boolean}, mod1: ModInfo, mod2: ModInfo) => {
+    const sortByEnabled = (enabled: {[key: string]: boolean}, mod1: ModInfo, mod2: ModInfo) => {
         if (mod1.ModGUID == "hacktix.winch") return -1;
         if (mod2.ModGUID == "hacktix.winch") return 1;
 
@@ -44,13 +53,8 @@ export const ModList = (props: {selected: string}) => {
 
         // Sort by download count
         // Keep all enabled mods at the top
-        if (mod1Enabled == mod2Enabled) {
-            if ((mod1.Downloads ?? 0) > (mod2.Downloads ?? 0)) {
-                return -1;
-            }
-            else {
-                return 1;
-            }
+        if (mod1Enabled === mod2Enabled) {
+            return 0;
         }
         else {
             return mod1Enabled ? -1 : 1;
@@ -84,6 +88,60 @@ export const ModList = (props: {selected: string}) => {
         return filtered;
     }
 
+    const sortByAttribute = (
+        mod1: ModInfo,
+        mod2: ModInfo,
+        sortField: SortType,
+        sortDirection: SortDirection,
+        flag?: boolean): number => {
+
+        if (mod1.ModGUID == "hacktix.winch") return -1;
+        if (mod2.ModGUID == "hacktix.winch") return 1;
+
+        let parameter1 = mod1[sortField as keyof ModInfo];
+        let parameter2 = mod2[sortField as keyof ModInfo];
+
+        if (parameter1 === undefined
+            || parameter2  === undefined
+            || parameter1 === null
+            || parameter2 === null) {
+            return 1;
+        }
+
+        if (parameter1 > parameter2) {
+            return (sortDirection === SortDirection.ASCENDING ? -1 : 1)
+        } else if (parameter1 < parameter2) {
+            return (sortDirection === SortDirection.ASCENDING ? 1 : -1)
+        } else {
+            if (flag) return 0;
+            // where equal, sort by downloads unless already sorting by downloads
+            let secondarySortField = SortType.DOWNLOADS;
+            if (sortField === SortType.DOWNLOADS) {
+                secondarySortField = SortType.MOD_NAME;
+            }
+            return sortByAttribute(mod1, mod2, secondarySortField, SortDirection.ASCENDING, true);
+        }
+    }
+
+    const sortMods = (mods: ModInfo[], sortField: SortType, sortDirection: SortDirection) => {
+        let sorted: ModInfo[] = mods;
+
+        if (sortField === SortType.DEFAULT) sortField = defaultSortField;
+
+        sorted = sorted.sort((m1, m2) => sortByAttribute(m1, m2, sortField, sortDirection));
+
+        return sorted;
+    }
+
+    const filterSortMods = (mods: ModInfo[], query: string, sortField: SortType, sortDirection: SortDirection) => {
+
+        const filtered = filterMods(mods, query);
+
+        const sorted = sortMods(filtered, sortField, sortDirection);
+
+        return sorted;
+    }
+
     let availableList = new Array<React.ReactNode>()
     let installedList = new Array<React.ReactNode>()
 
@@ -111,8 +169,8 @@ export const ModList = (props: {selected: string}) => {
         if (props.selected === "Installed") {
             // not keen on cyclic dependency of IEnabledStruct, but also want to avoid usage of 'any' in sortMod
             // so casting to exact same definition as IEnabledStruct to use
-            const filteredMods = filterMods(modList, searchQuery);
-            installedList = filteredMods.sort((m1, m2) => sortMod((enabled as {[key: string]: boolean}), m1, m2)).map((mod) => {
+            const filteredMods = filterSortMods(modList, searchQuery, sortField, sortDirection);
+            installedList = filteredMods.sort((m1, m2) => sortByEnabled((enabled as {[key: string]: boolean}), m1, m2)).map((mod) => {
                 return <InstalledMod
                     key={mod.ModGUID}
                     data={mod}
@@ -125,7 +183,7 @@ export const ModList = (props: {selected: string}) => {
         }
 
         if (props.selected === "Available") {
-            const filteredMods = filterMods(database!, searchQuery);
+            const filteredMods = filterSortMods(database!, searchQuery, sortField, sortDirection);
             availableList = filteredMods.map((mod) => {
                 if (!info!.has(mod.ModGUID)) {
                     return <AvailableMod
@@ -153,15 +211,16 @@ export const ModList = (props: {selected: string}) => {
         shownList = [
             <ModsNotFound key={"mods-not-found"}
                           reload={debouncedForceUpdate}
-                          installed={props.selected === "Installed"}/>
+                          installed={props.selected === "Installed"}
+                          query={searchQuery}
+            />
         ]
 
     return <>
         <div className={"mods-filter"}>
             <Search defaultValue={searchQuery} updateValue={setSearchQuery} />
-            <div>
-
-            </div>
+            <SortField sortField={sortField} setSortField={setSortField}
+                       sortDirection={sortDirection} setSortDirection={setSortDirection} />
         </div>
         <div className="mods-list">
             {shownList}
