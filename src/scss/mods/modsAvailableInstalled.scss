@@ -136,6 +136,8 @@
 
       transition: transform 150ms cubic-bezier(0,.5,.5,1.2);
 
+      margin-left: 4px !important;
+
       &:hover {
         border-color: $bg-secondary-tint;
       }

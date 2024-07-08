@@ -59,11 +59,19 @@ export const SecondaryInteract = (props: React.PropsWithChildren) => {
 export const InteractIcons = (props: React.PropsWithChildren<IModDataConsumer>) => {
     let hasGit = props.data.Repo ?? false;
     const gitLink = `https://github.com/${props.data.Repo}`
+    const websiteLink = `https://dredgemods.com/mods/${props.data.Name.trim().toLowerCase().replace(/\s/g, "_")}/`
     return <div className="interact-icons">
         {hasGit === false ? "" :
             <a href={gitLink} title={gitLink} target="_blank">
                 <i className="fa-brands">&#xf09b;</i>
-            </a>}
+            </a>
+        }
+        {hasGit === false ? "" :
+            <a href={websiteLink} title={websiteLink} target="_blank">
+                <i className="fa">📃</i>
+            </a>
+        }
+        
         {props.children}
     </div>
 }
