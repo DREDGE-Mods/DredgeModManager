@@ -193,7 +193,7 @@ export const ModList = (props: {selected: string}) => {
                         data={mod}
                         installMod={installMod}/>
                 } return
-            })
+            }).filter(x => x) // remove null
         }
     }
 
@@ -209,7 +209,7 @@ export const ModList = (props: {selected: string}) => {
         shownList = installedList;
     }
 
-    if (shownList.length === 0)
+    if (shownList.length === 0) {
         shownList = [
             <ModsNotFound key={"mods-not-found"}
                           reload={debouncedForceUpdate}
@@ -217,6 +217,7 @@ export const ModList = (props: {selected: string}) => {
                           query={searchQuery}
             />
         ]
+    }
 
     return <>
         <div className={"mods-filter"}>
