@@ -74,12 +74,19 @@ export const InteractButtons = (props: React.PropsWithChildren) => {
         </div>
 }
 
-export const Downloads = (props: {downloads: number}) => {
-    return props.downloads <= 0 ? null :
-        <div className="downloads">
-            <i className="fa">&#xf019;</i>
-            <span>{props.downloads}</span>
-        </div>
+export const Downloads = (props: IModDataConsumer) => {
+    return <div className="mod-info-column" title={"Released: " + FormatDateString(props.data.ReleaseDate)}>
+        <i className="fa">&#xf019;</i>
+        <span>{props.data.Downloads ?? 0}</span>
+    </div>
+}
+
+export const Version = (props: IModDataConsumer) => {
+    let version = props.data.LatestVersion ?? "???"
+    let date = FormatDateString(props.data.AssetUpdateDate);
+    return <div title={"Last update: " + date} className="mod-info-column">
+        <span>{FormatVersionString(props.data.LatestVersion)}</span>
+    </div>
 }
 
 interface IUpdateProps {
@@ -89,15 +96,28 @@ interface IUpdateProps {
     updated: boolean
 }
 
+export function FormatDateString(dateOrUndefined: string | undefined) {
+    let date = dateOrUndefined == undefined ? "Unknown" : new Date(dateOrUndefined).toLocaleDateString("en-GB", 
+        { year: "numeric", month: "long", day: "numeric" })
+    return date
+}
+
+export function FormatVersionString(version: string | undefined) {
+    return version == undefined ? "Unknown" : version.startsWith("v") ? version : "v" + version
+}
+
 export const Update = (props: IUpdateProps) => {
-    return <div className="primary-update">
-        {(props.data.Repo || false) &&
+    let date = FormatDateString(props.data.AssetUpdateDate);
+    return <div className="mod-info-column primary-update">
+        {(props.data.Repo || false) && !(!props.isModOutdated() || props.updated) ?
             <button
                 className={`update`}
                 onClick={props.installMod}
                 disabled={!props.isModOutdated() || props.updated}
-                title={props.isModOutdated() ? `${props.data.Version} -> ${props.data.LatestVersion}` : ""}
+                title={props.isModOutdated() ? `Latest release: ${date}\n${FormatVersionString(props.data.Version)} -> ${FormatVersionString(props.data.LatestVersion)}` : ""}
             >Update</button>
+            :
+            <Version data={props.data}/>
         }
     </div>
 }

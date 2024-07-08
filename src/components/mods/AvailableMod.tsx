@@ -1,5 +1,6 @@
 import {
     Downloads,
+    Version,
     InteractButtons,
     InteractIcons,
     PrimaryContainer,
@@ -27,11 +28,15 @@ export const AvailableMod = (props: IModProps) => {
     return <div className={"mods-available-box"}>
         <PrimaryContainer>
             <PrimaryDetails data={props.data}/>
+            <Downloads data={props.data}/>
+            <Version data={props.data}/>
             <PrimaryExpand data={props.data} swapExpand={swapExpanded} expanded={expanded}/>
+        </PrimaryContainer>
+        <PrimaryContainer>
+            <SecondaryDetails data={props.data}/>
         </PrimaryContainer>
 
         <SecondaryContainer expanded={expanded}>
-            <SecondaryDetails data={props.data}/>
             <SecondaryInteract>
                 <InteractButtons>
                     <button className="interact-button" onClick={() => {
@@ -40,7 +45,6 @@ export const AvailableMod = (props: IModProps) => {
                     }}>{installText}
                     </button>
                 </InteractButtons>
-                <Downloads downloads={props.data.Downloads!}/>
                 <InteractIcons data={props.data} />
             </SecondaryInteract>
         </SecondaryContainer>

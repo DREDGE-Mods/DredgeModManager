@@ -1,5 +1,6 @@
 import {
     Downloads,
+    Version,
     InteractButtons,
     InteractIcons,
     PrimaryContainer,
@@ -62,20 +63,25 @@ export const InstalledMod = (props: IInstalledModProps) => {
 
         <PrimaryContainer>
             <PrimaryDetails data={props.data}/>
+
+            <Downloads data={props.data}/>
+
             <Update data={props.data} installMod={installMod} isModOutdated={isModOutdated} updated={state.updated}/>
-            <div className="primary-switch">
+            <div className="mod-info-column primary-switch">
                 {props.data.ModGUID != "hacktix.winch" ?
-                    <button className={`switch ${state.enabled ? "switched" : ""}`} onClick={swapEnabled}/>
+                    <button className={`switch ${state.enabled ? "switched" : ""}`} onClick={swapEnabled} disabled={props.data.ModGUID == "hacktix.winch"}/>
                     :
-                    ""
+                    <div></div>
                 }
             </div>
 
             <PrimaryExpand data={props.data} swapExpand={swapExpanded} expanded={expanded}/>
         </PrimaryContainer>
+        <PrimaryContainer>
+            <SecondaryDetails data={props.data}/>
+        </PrimaryContainer>
 
         <SecondaryContainer expanded={expanded}>
-            <SecondaryDetails data={props.data}/>
             <SecondaryInteract>
                 <InteractButtons>
                     <button className="interact-button"
@@ -86,7 +92,6 @@ export const InstalledMod = (props: IInstalledModProps) => {
                                 onClick={swapEnabled}>{state.enabled ? "Disable" : "Enable"}</button>
                     }
                 </InteractButtons>
-                <Downloads downloads={props.data.Downloads!}/>
                 <InteractIcons data={props.data}>
                     <button className="icon-folder"
                             onClick={() => props.openModDir!(props.data.LocalPath!)}>

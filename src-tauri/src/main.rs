@@ -294,7 +294,7 @@ fn main() {
             ])
         .setup(|app| {
                 let main_window: tauri::Window = app.get_window("main").unwrap();
-                main_window.set_min_size(Some(tauri::Size::Physical(PhysicalSize {width: 640, height: 480}))).unwrap();
+                main_window.set_min_size(Some(tauri::Size::Physical(PhysicalSize {width: 872, height: 480}))).unwrap();
                 Ok(())
             })
         .run(tauri::generate_context!())

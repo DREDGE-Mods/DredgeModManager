@@ -26,7 +26,7 @@
       flex: 1 1;
       height: 40px;
 
-      max-width: 52vw;
+      max-width: 72vw;
 
       overflow:hidden;
 
@@ -46,13 +46,14 @@
     }
 
     .primary-update {
-      margin-left: auto;
-      margin-right: 10px;
+      background-color: transparent;
+      width: 72px;
 
       & button {
         border: 2px solid $interact-orange;
         border-radius: 4px;
         background-color: $interact-orange;
+        width: 100%;
 
         color: $text-light-primary;
         font-weight: 500;
@@ -65,7 +66,6 @@
         &:disabled,
         &[disabled] {
           color: transparent;
-          width: 0;
           border-color: transparent;
           background-color: transparent;
         }
@@ -75,15 +75,19 @@
     .primary-switch {
       margin-right: 5px;
       height: 100%;
+      width: 48px;
+      border-radius: 0px !important;
+
+      div {
+        width: 48px;
+      }
 
       .switch {
-        height: 24px;
+        height: 32px;
         width: 48px;
         border-radius: 2px;
         background-color: $interact-dull;
         position: relative;
-
-        margin-bottom: 6px;
 
         cursor: pointer;
 
@@ -140,7 +144,29 @@
         transform: rotate(135deg);
       }
     }
+  }
 
+  .mod-info-column {
+    margin-left: 4px;
+    margin-right: 4px;
+    border-radius: 4px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    
+    background-color: #444;
+    height: 32px;
+    width: 80px;
+
+    & span {
+      margin: 4px;
+      height: 32px;
+    }
+    & i {
+      margin-top: 7px;
+      font-size: 1.3em;
+    }
   }
 
   .box-secondary-container  {
@@ -184,22 +210,6 @@
 
         &:hover {
           background-color: $bg-primary-tint;
-        }
-      }
-
-      .downloads {
-        vertical-align: middle;
-        text-align: center;
-        display: flex;
-        flex-flow: row nowrap;
-        justify-items: center;
-        align-items: center;
-        & span {
-          margin-left: 5px;
-        }
-        & i {
-          margin-top: 5px;
-          font-size: 1.3em;
         }
       }
 
