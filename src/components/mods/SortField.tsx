@@ -35,13 +35,7 @@ export const SortField = (props: ISortFieldProps) => {
     }, [sortDirection])
 
     return <div className={"sorting"}>
-        { sortField === "" ? "" :
-        <button className={"cancel"} onClick={() => {
-            setSortField(SortType.DEFAULT);
-        }}>
-            <i className={"fa-solid fa-x fa-xs"}></i>
-        </button>
-        }
+        <span>Sort by:</span>
         <select name={"sort"} id={"sort"} className={`dropdown ${sortField !== "" ? "active" : ""}`} onChange={(e) => {
             setSortField(e.currentTarget.value as SortType);
         }}
@@ -50,6 +44,15 @@ export const SortField = (props: ISortFieldProps) => {
                 return <option value={key}>{sortFields[key as keyof typeof sortFields]}</option>
             })}
         </select>
+
+        { sortField === "" ? "" :
+        <button className={"cancel"} onClick={() => {
+            setSortField(SortType.DEFAULT);
+        }}>
+            <i className={"fa-solid fa-x fa-xs"}></i>
+        </button>
+        }
+
         <button className={"direction"} onClick={() => {
             setSortDirection(sortDirection === SortDirection.ASCENDING ?
                 SortDirection.DESCENDING

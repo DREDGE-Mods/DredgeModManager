@@ -15,7 +15,7 @@ export const ModList = (props: {selected: string}) => {
     const [sortField, setSortField] = useState<SortType>(SortType.DEFAULT);
     const [sortDirection, setSortDirection] = useState<SortDirection>(SortDirection.ASCENDING);
 
-    const defaultSortField = SortType.LATEST_UPDATE;
+    const defaultSortField = SortType.MOD_NAME;
 
     // https://legacy.reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
     const [_, forceUpdate] = useReducer((x) => x + 1, 0);
@@ -29,7 +29,7 @@ export const ModList = (props: {selected: string}) => {
     useEffect(() => {
         setSearchQuery("");
         setSortField(SortType.DEFAULT);
-        setSortDirection(SortDirection.ASCENDING);
+        setSortDirection(SortDirection.DESCENDING);
     }, [props.selected]);
 
     useEffect(() => {
@@ -97,8 +97,10 @@ export const ModList = (props: {selected: string}) => {
         sortDirection: SortDirection,
         flag?: boolean): number => {
 
-        if (mod1.ModGUID == "hacktix.winch") return -1;
-        if (mod2.ModGUID == "hacktix.winch") return 1;
+        if (sortField == SortType.DEFAULT) {
+            if (mod1.ModGUID == "hacktix.winch") return -1;
+            if (mod2.ModGUID == "hacktix.winch") return 1;
+        }
 
         let parameter1 = mod1[sortField as keyof ModInfo];
         let parameter2 = mod2[sortField as keyof ModInfo];
@@ -128,9 +130,16 @@ export const ModList = (props: {selected: string}) => {
     const sortMods = (mods: ModInfo[], sortField: SortType, sortDirection: SortDirection) => {
         let sorted: ModInfo[] = mods;
 
+        // Only when doing default sort do we push enabled and Winch to the top
+        let flagSortByEnabled = sortField === SortType.DEFAULT;
+
         if (sortField === SortType.DEFAULT) sortField = defaultSortField;
 
         sorted = sorted.sort((m1, m2) => sortByAttribute(m1, m2, sortField, sortDirection));
+
+        if (flagSortByEnabled) {
+            sorted = sorted.sort((m1, m2) => sortByEnabled((enabled as {[key: string]: boolean}), m1, m2));
+        }
 
         return sorted;
     }
@@ -172,7 +181,7 @@ export const ModList = (props: {selected: string}) => {
             // not keen on cyclic dependency of IEnabledStruct, but also want to avoid usage of 'any' in sortMod
             // so casting to exact same definition as IEnabledStruct to use
             const filteredMods = filterSortMods(modList, searchQuery, sortField, sortDirection);
-            installedList = filteredMods.sort((m1, m2) => sortByEnabled((enabled as {[key: string]: boolean}), m1, m2)).map((mod) => {
+            installedList = filteredMods.map((mod) => {
                 return <InstalledMod
                     key={mod.ModGUID}
                     data={mod}
