@@ -53,7 +53,10 @@ export const SortField = (props: ISortFieldProps) => {
         </button>
         }
 
-        <button className={"direction"} onClick={() => {
+        <button title={sortDirection === SortDirection.ASCENDING ? 
+            "Sorting by ascending" :
+            "Sorting by descending"
+        }className={"direction"} onClick={() => {
             setSortDirection(sortDirection === SortDirection.ASCENDING ?
                 SortDirection.DESCENDING
                 : SortDirection.ASCENDING)

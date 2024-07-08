@@ -92,7 +92,7 @@ export const Downloads = (props: IModDataConsumer) => {
 export const Version = (props: IModDataConsumer) => {
     let date = FormatDateString(props.data.AssetUpdateDate);
     return <div title={"Last update: " + date} className="mod-info-column">
-        <span>{FormatVersionString(props.data.LatestVersion)}</span>
+        <span>{FormatVersionString(props.data.Version ?? props.data.LatestVersion)}</span>
     </div>
 }
 
@@ -121,7 +121,7 @@ export const Update = (props: IUpdateProps) => {
                 className={`update`}
                 onClick={props.installMod}
                 disabled={!props.isModOutdated() || props.updated}
-                title={props.isModOutdated() ? `Latest release: ${date}\n${FormatVersionString(props.data.Version)} -> ${FormatVersionString(props.data.LatestVersion)}` : ""}
+                title={props.isModOutdated() ? `Latest release: ${date}\n${FormatVersionString(props.data.Version ?? props.data.LatestVersion)} -> ${FormatVersionString(props.data.LatestVersion)}` : ""}
             >Update</button>
             :
             <Version data={props.data}/>
