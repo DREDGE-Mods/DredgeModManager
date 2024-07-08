@@ -82,7 +82,6 @@ export const Downloads = (props: IModDataConsumer) => {
 }
 
 export const Version = (props: IModDataConsumer) => {
-    let version = props.data.LatestVersion ?? "???"
     let date = FormatDateString(props.data.AssetUpdateDate);
     return <div title={"Last update: " + date} className="mod-info-column">
         <span>{FormatVersionString(props.data.LatestVersion)}</span>
