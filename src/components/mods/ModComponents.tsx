@@ -68,7 +68,7 @@ export const InteractIcons = (props: React.PropsWithChildren<IModDataConsumer>) 
         }
         {hasGit === false ? "" :
             <a href={websiteLink} title={websiteLink} target="_blank">
-                <i className="fa">📃</i>
+                <i className="fa">&#xf016;</i>
             </a>
         }
         

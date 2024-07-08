@@ -93,7 +93,7 @@ export const InstalledMod = (props: IInstalledModProps) => {
                     }
                 </InteractButtons>
                 <InteractIcons data={props.data}>
-                    <button className="icon-folder"
+                    <button title="Open folder" className="icon-folder"
                             onClick={() => props.openModDir!(props.data.LocalPath!)}>
                         <i className="fa fa-sharp">&#xf07b;</i>
                     </button>
