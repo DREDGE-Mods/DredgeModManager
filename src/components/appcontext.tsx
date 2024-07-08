@@ -147,6 +147,7 @@ export const AppProvider = (props: React.PropsWithChildren) => {
     const installMod = (modInfo : ModInfo) => {
         if (modInfo.Repo !== undefined && modInfo.Download !== undefined) {
             invoke('install_mod', {
+                databaseName: modInfo.Name,
                 repo: modInfo.Repo,
                 download: modInfo.Download,
                 assetUpdateDate: modInfo.AssetUpdateDate ?? "",
