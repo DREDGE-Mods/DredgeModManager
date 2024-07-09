@@ -1,4 +1,8 @@
 # Dredge Mod Manager
+
+![GitHub all releases](https://img.shields.io/github/downloads/DREDGE-Mods/DredgeModManager/total?style=for-the-badge)
+![GitHub release (latest by date)](https://img.shields.io/github/downloads/DREDGE-Mods/DredgeModManager/latest/total?style=for-the-badge)
+
 A mod manager for Dredge mods using the Winch mod loader. Can download and install mods from the [DREDGE Mod Database](https://github.com/DREDGE-Mods/DredgeModDatabase) and handles enabling/disabling the mods using [Winch](https://github.com/Hacktix/Winch).
 
 ![Mod manager screenshot](https://github.com/DREDGE-Mods/DredgeModManager/assets/22628069/8bf559b9-d952-4a9b-92c7-ad0d7fd282d8)
@@ -23,7 +27,7 @@ The action will then create a draft release from that dev->main PR. Make sure to
 
 ## Thanks
 
-To [bdlm-dev](https://github.com/bdlm-dev) for redoing the front-end.
+To [bdlm-dev](https://github.com/bdlm-dev) for redoing the front-end (twice). 
 
 To [Bwc9876](https://github.com/Bwc9876) for answering my questions about Tauri/rust/actions/everything.
 
