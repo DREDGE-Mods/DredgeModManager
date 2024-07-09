@@ -79,19 +79,19 @@ export const Settings = (props: {path_correct?: boolean}) => {
         <div className={"w-100 flex-column"}>
             <BooleanConfig id={"EnableDeveloperConsole"}
                         label={"Enable In-Game Developer Console"}
-                        checked={config?.EnableDeveloperConsole}
+                        checked={config?.EnableDeveloperConsole ?? false}
                         onUpdate={onConfigUpdate} />
             <BooleanConfig id={"DetailedLogSources"}
                         label={"Use detailed log sources"}
-                        checked={config?.DetailedLogSources}
+                        checked={config?.DetailedLogSources ?? false}
                         onUpdate={onConfigUpdate} />
             <BooleanConfig id={"WriteLogsToFile"}
                         label={"Write logs to file"}
-                        checked={config?.WriteLogsToFile}
+                        checked={config?.WriteLogsToFile ?? false}
                         onUpdate={onConfigUpdate} />
             <BooleanConfig id={"WriteLogsToConsole"}
                         label={"Write logs to console"}
-                        checked={config?.WriteLogsToConsole}
+                        checked={config?.WriteLogsToConsole ?? false}
                         onUpdate={onConfigUpdate} />
         </div>
     </div>
