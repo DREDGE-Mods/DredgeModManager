@@ -59,12 +59,16 @@ export const InstalledMod = (props: IInstalledModProps) => {
         return !doesVersionMatch && !doesUpdateDateMatch;
     }
 
+    let hasGit = props.data.Repo ?? false;
+
     return <div className="mods-installed-box">
 
         <PrimaryContainer>
             <PrimaryDetails data={props.data}/>
 
-            <Downloads data={props.data}/>
+            {hasGit === false ? "" :
+                <Downloads data={props.data}/>
+            }
 
             <Update data={props.data} installMod={installMod} isModOutdated={isModOutdated} updated={state.updated}/>
             <div className="mod-info-column primary-switch">
