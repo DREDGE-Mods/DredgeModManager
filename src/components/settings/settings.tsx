@@ -73,22 +73,27 @@ export const Settings = (props: {path_correct?: boolean}) => {
     const config = context!.state.winchConfig;
 
     const configOptions = <div className={"w-100 flex-column"}>
-        <BooleanConfig id={"EnableDeveloperConsole"}
-                       label={"Enable In-Game Developer Console"}
-                       checked={config?.EnableDeveloperConsole}
-                       onUpdate={onConfigUpdate} />
-        <BooleanConfig id={"DetailedLogSources"}
-                       label={"Use detailed log sources"}
-                       checked={config?.DetailedLogSources}
-                       onUpdate={onConfigUpdate} />
-        <BooleanConfig id={"WriteLogsToFile"}
-                       label={"Write logs to file"}
-                       checked={config?.WriteLogsToFile}
-                       onUpdate={onConfigUpdate} />
-        <BooleanConfig id={"WriteLogsToConsole"}
-                       label={"Write logs to console"}
-                       checked={config?.WriteLogsToConsole}
-                       onUpdate={onConfigUpdate} />
+        <h5 className="d-flex justify-content-center">
+            Winch Modloader Settings
+        </h5>
+        <div className={"w-100 flex-column"}>
+            <BooleanConfig id={"EnableDeveloperConsole"}
+                        label={"Enable In-Game Developer Console"}
+                        checked={config?.EnableDeveloperConsole}
+                        onUpdate={onConfigUpdate} />
+            <BooleanConfig id={"DetailedLogSources"}
+                        label={"Use detailed log sources"}
+                        checked={config?.DetailedLogSources}
+                        onUpdate={onConfigUpdate} />
+            <BooleanConfig id={"WriteLogsToFile"}
+                        label={"Write logs to file"}
+                        checked={config?.WriteLogsToFile}
+                        onUpdate={onConfigUpdate} />
+            <BooleanConfig id={"WriteLogsToConsole"}
+                        label={"Write logs to console"}
+                        checked={config?.WriteLogsToConsole}
+                        onUpdate={onConfigUpdate} />
+        </div>
     </div>
 
     return <div className="settings-container">
