@@ -1,5 +1,6 @@
 use std::io::Cursor;
 use std::path::PathBuf;
+use std::string;
 use std::{path::Path, fs};
 use serde_json::Result as SerdeResult;
 use crate::files;
@@ -19,11 +20,15 @@ pub struct ModInfo {
     #[serde(default)]
     pub version : String,
 
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "default")]
     pub local_path : String,
 
-    #[serde(default)]
+    #[serde(default, skip_serializing_if = "default")]
     pub local_asset_update_date : String
+}
+
+fn default<T: Default + PartialEq>(t: &T) -> bool {
+    *t == Default::default()
 }
 
 pub fn load_mod_info(file : String) -> Result<ModInfo, String> {
@@ -141,7 +146,7 @@ fn copy_mod(source : String, destination : String) -> Result<(), Box<dyn std::er
     Ok(())
 }
 
-pub fn install_mod(repo : String, download : String, asset_update_date : String, dredge_folder : String) -> Result<String, Box<dyn std::error::Error>> {
+pub fn install_mod(database_name : String, repo : String, download : String, asset_update_date : String, dredge_folder : String) -> Result<String, Box<dyn std::error::Error>> {
     let url = format!("https://github.com/{}/releases/latest/download/{}", repo, download).replace("//", "/");
 
     let temp_dir = download_mod(url)?;
@@ -159,7 +164,23 @@ pub fn install_mod(repo : String, download : String, asset_update_date : String,
 
     copy_mod(temp_dir, destination.to_string())?;
 
+    // Ensure the name always matches what was on the database
+    mod_meta.name = database_name;
+
+    // scuffed: don't want to serialize the local path to file but need to serialize it when sending to front end
+    let path = mod_meta.local_path;
+    mod_meta.local_path = "".to_string();
+
+    let mod_meta_json = serde_json::to_string_pretty(&mod_meta)?;
+    // Serialize the corrected mod_meta file
+    std::fs::write(
+        format!("{}/mod_meta.json", destination),
+        mod_meta_json
+    )?;
+
+    // Set values that shouldn't be written to the file
     mod_meta.local_asset_update_date = asset_update_date.to_string();
+    mod_meta.local_path = path;
 
     // Serialize the latest update date for later
     std::fs::write(

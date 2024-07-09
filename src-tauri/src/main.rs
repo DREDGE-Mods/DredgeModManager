@@ -242,8 +242,8 @@ fn uninstall_mod(mod_meta_path : String) -> () {
 }
 
 #[tauri::command]
-fn install_mod(repo : String, download : String, asset_update_date : String, dredge_folder : String) -> Result<(), String> {
-    let unique_id: String = match mods::install_mod(repo, download, asset_update_date, dredge_folder.to_string()) {
+fn install_mod(database_name : String, repo : String, download : String, asset_update_date : String, dredge_folder : String) -> Result<(), String> {
+    let unique_id: String = match mods::install_mod(database_name, repo, download, asset_update_date, dredge_folder.to_string()) {
         Ok(s) => s,
         Err(error) => return Err(format!("Failed to install mod {}", error.to_string()))
     };
@@ -294,7 +294,7 @@ fn main() {
             ])
         .setup(|app| {
                 let main_window: tauri::Window = app.get_window("main").unwrap();
-                main_window.set_min_size(Some(tauri::Size::Physical(PhysicalSize {width: 640, height: 480}))).unwrap();
+                main_window.set_min_size(Some(tauri::Size::Physical(PhysicalSize {width: 872, height: 480}))).unwrap();
                 Ok(())
             })
         .run(tauri::generate_context!())
