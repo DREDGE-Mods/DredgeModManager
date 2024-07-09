@@ -1,0 +1,283 @@
+@use '../colours' as *;
+@use './mods' as *;
+
+
+.mods-installed-box,
+.mods-available-box {
+  @include mods-box-generic;
+
+  position: relative;
+
+  .box-primary-container {
+    padding: 0 10px;
+    display: flex;
+    flex-direction: row;
+
+
+    align-items: center;
+    min-height: 40px;
+
+    user-select: none;
+
+    .primary-details {
+      display: flex;
+      flex-direction: row;
+      gap: 5px;
+      flex: 1 1;
+      height: 40px;
+
+      max-width: 72vw;
+
+      overflow:hidden;
+
+      font-size: 17px;
+
+      cursor: pointer;
+
+      .details-name,
+      .details-author {
+        @include detail-bold;
+      }
+
+      .details-by {
+        @include detail-dull;
+        margin-right: 1px;
+      }
+    }
+
+    .primary-update {
+      background-color: transparent;
+      width: 72px;
+
+      & button {
+        border: 2px solid $interact-orange;
+        border-radius: 4px;
+        background-color: $interact-orange;
+        width: 100%;
+
+        color: $text-light-primary;
+        font-weight: 500;
+
+        &:hover {
+          background-color: $interact-orange-shade;
+          border-color: $interact-orange-shade;
+        }
+
+        &:disabled,
+        &[disabled] {
+          color: transparent;
+          border-color: transparent;
+          background-color: transparent;
+        }
+      }
+    }
+
+    .primary-switch {
+      margin-right: 5px;
+      height: 100%;
+      width: 48px;
+      border-radius: 0px !important;
+
+      div {
+        width: 48px;
+      }
+
+      .switch {
+        height: 32px;
+        width: 48px;
+        border-radius: 2px;
+        background-color: $interact-dull;
+        position: relative;
+
+        cursor: pointer;
+
+        transition: background-color 150ms ease;
+
+        &::before {
+          content: '';
+          position: absolute;
+          display: block;
+          margin-top: -8px;
+          margin-left: -2px;
+          width: 16px;
+          height: 16px;
+          background-color: $bg-secondary-tint;
+          border-radius: 2px;
+
+          transition: margin 60ms cubic-bezier(.4,0,1,1);
+        }
+
+        &.switched {
+          background-color: $interact-green;
+
+          &::before {
+            margin-left: 22px;
+          }
+        }
+
+        &:hover {
+          background-color: $interact-dull-shade;
+
+          &.switched {
+            background-color: $interact-green-shade;
+          }
+        }
+      }
+    }
+
+    .primary-expand {
+      margin: 0 10px;
+      padding: 1px 1px;
+      width: 12px;
+      height: 12px;
+      border-right: 2px solid $bg-secondary;
+      border-top: 2px solid $bg-secondary;
+      transform: rotate(45deg);
+
+      transition: transform 150ms cubic-bezier(0,.5,.5,1.2);
+
+      margin-left: 4px !important;
+
+      &:hover {
+        border-color: $bg-secondary-tint;
+      }
+
+      &.expanded {
+        transform: rotate(135deg);
+      }
+    }
+  }
+
+  .mod-info-column {
+    margin-left: 4px;
+    margin-right: 4px;
+    border-radius: 4px;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    
+    background-color: #444;
+    height: 32px;
+    width: 80px;
+
+    & span {
+      margin: 4px;
+      height: 32px;
+    }
+    & i {
+      margin-top: 7px;
+      font-size: 1.3em;
+    }
+  }
+
+  .box-secondary-container  {
+    display: block;
+    max-height: 0;
+    overflow: hidden;
+
+    transition: max-height 200ms ease;
+
+    &.expanded {
+      max-height: 200px;
+    }
+
+    .secondary-description {
+      margin: 10px;
+    }
+
+    .secondary-interacts {
+      display: flex;
+      flex-flow: row nowrap;
+      height: 35px;
+      gap: 10px;
+      margin: 0 10px 5px 10px;
+
+      .interact-buttons {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        margin-right: auto;
+      }
+
+      .interact-button {
+        color: $text-light-primary;
+        font-weight: 500;
+        border: 2px solid $bg-primary-tint;
+        border-radius: 5px;
+        width: 90px;
+
+        transition: background-color 100ms ease,
+        border-color 100ms ease;
+
+        &:hover {
+          background-color: $bg-primary-tint;
+        }
+      }
+
+      .interact-icons {
+        display: flex;
+        flex-direction: row-reverse;
+        margin-left: 30px;
+        margin-right: 10px;
+        gap: 10px;
+        font-size: 30px;
+        align-items: center;
+        line-height: 0;
+
+        a {
+          color: $text-light-primary;
+          text-align: center;
+          &:hover {
+            color: $text-light-secondary;
+          }
+        }
+
+        .icon-folder {
+          padding: 0;
+          
+          color: $text-light-primary;
+
+          &:hover {
+            color: $text-light-secondary;
+          }
+        }
+
+      }
+    }
+  }
+}
+
+.mods-available-box {
+  & .box-primary-container {
+    .primary-details {
+      max-width: 90%;
+    }
+    .primary-expand {
+      margin-left: auto;
+    }
+  }
+
+  & .box-secondary-container .secondary-interacts {
+    .downloads {
+      margin-left: auto;
+      vertical-align: middle;
+      text-align: center;
+      display: flex;
+      flex-flow: row nowrap;
+      justify-items: center;
+      align-items: center;
+      & span {
+        margin-left: 5px;
+      }
+      & i {
+        margin-top: 5px;
+        font-size: 1.3em;
+      }
+    }
+
+    .interact-icons {
+      margin-left: 30px;
+    }
+  }
+}

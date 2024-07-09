@@ -8,7 +8,7 @@
   },
   "package": {
     "productName": "Dredge Mod Manager",
-    "version": "0.0.11"
+    "version": "0.1.0"
   },
   "tauri": {
     "allowlist": {
@@ -65,7 +65,7 @@
     "updater": {
       "active": true,
       "endpoints": [
-        "https://github.com/xen-42/DredgeModManager/releases/latest/download/latest.json"
+        "https://github.com/DREDGE-Mods/DredgeModManager/releases/latest/download/latest.json"
       ],
       "dialog": true,
       "windows": {

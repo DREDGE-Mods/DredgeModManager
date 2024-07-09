@@ -1,40 +1,27 @@
-import React, {Component} from 'react'
+import React, {useContext} from 'react'
 
 import '../scss/content.scss'
 
-import {default as Mods} from './mods'
-import {default as Settings} from './settings'
+import { Mods } from './mods/Mods'
+import {default as Settings} from './settings/settings'
+import {AppContext} from "./appcontext";
 
-interface IContentState extends React.PropsWithChildren<any>{
-    choice: string;
-}
+export const Content = () => {
 
-export default class Content extends Component<{choice : string, pathCorrect: boolean | undefined}, IContentState>
-{
-    contentOptions: any;
+    const {state} = useContext(AppContext)
 
-    constructor(props: any) {
-        super(props);
-    }
+    const content_options = new Map(
+        [
+            ["Mods", <Mods selected="Installed"/>],
+            ["Settings", <Settings path_correct ={state.pathCorrect}/>]
+        ]
+    )
 
-    render() {
-        this.contentOptions = new Map(
-            [
-                ["Mods", <Mods selected="Installed"/>],
-                ["Settings", <Settings path_correct ={this.props.pathCorrect}/>]
-            ]
-        )
+    let rendered_content = state.pathCorrect !== true ?
+        content_options.get("Settings") :
+        content_options.get(state.pageChoice)
 
-        var renderedContent = this.contentOptions.get(this.props.choice);
-
-        if (!this.props.pathCorrect) {
-            renderedContent = this.contentOptions.get("Settings")
-        }
-
-        return (
-            <div className="content-container" key="Content">
-                {renderedContent}
-            </div>
-        )
-    }
+    return <div className="content-container" key="Content">
+        {rendered_content}
+    </div>
 }

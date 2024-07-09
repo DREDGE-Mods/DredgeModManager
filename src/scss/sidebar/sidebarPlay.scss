@@ -1,0 +1,78 @@
+@use '../colours' as *;
+@use './sidebar' as *;
+
+.sidebar-play-container {
+  position: relative;
+  min-height: $option-height;
+  width: 100%;
+
+  display: grid;
+  place-items: center;
+
+  margin-top: 20px;
+
+  @include sidebar-separator;
+}
+
+.sidebar-play {
+  width: 70%;
+  height: 70%;
+
+  display: flex;
+  flex-flow: row nowrap;
+  gap: 4px;
+
+  & button {
+    border: none;
+    background-color: $interact-green-shade;
+    border-radius: $play-inner-radius;
+
+    padding-top: 1px;
+
+    &:hover {
+      background-color: $interact-green;
+    }
+
+    &:active {
+      transform: translateY(2px);
+    }
+  }
+}
+
+
+.sidebar-play-main {
+  flex-grow: 1;
+  // TODO: uncomment this when the alt-play button is implemented
+  // border-top-left-radius: $play-outer-radius !important;
+  // border-bottom-left-radius: $play-outer-radius !important;
+  border-radius: $play-outer-radius;
+
+  & label {
+    color: $text-light-primary;
+    font-style: normal;
+    font-weight: 600;
+    font-size: 22px;
+    line-height: 27px;
+    text-transform: uppercase;
+    cursor: pointer;
+  }
+}
+
+.sidebar-play-alt {
+  flex-basis: $play-alt-width;
+  max-width: $play-alt-width;
+  border-top-right-radius: $play-outer-radius !important;
+  border-bottom-right-radius: $play-outer-radius !important;
+
+  &::before {
+    content: '';
+    display: block;
+    border-top: 3px solid white;
+    border-right: 3px solid white;
+    height: 10px;
+    width: 10px;
+    transform: rotate(45deg);
+    margin-top: 23px;
+    margin-left: -3px;
+  }
+}
