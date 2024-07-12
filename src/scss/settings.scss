@@ -24,6 +24,17 @@
         background: $bg-primary;
     }
 
+    .manager-github-link 
+    {
+        font-size: 30px;
+        a {
+            color: $text-light-primary;
+            text-align: center;
+            &:hover {
+              color: $text-light-secondary;
+            }
+          }
+    }
 
     .setting {
         display: flex;

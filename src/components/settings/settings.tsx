@@ -122,6 +122,12 @@ export const Settings = (props: {path_correct?: boolean}) => {
 
             <div className="flex-fill"></div>
 
+            <div className="manager-github-link">
+                <a href="https://github.com/DREDGE-Mods/DredgeModManager" title="https://github.com/DREDGE-Mods/DredgeModManager" target="_blank">
+                    <i className="fa-brands">&#xf09b;</i>
+                </a>
+            </div>
+            
             <div>
                 Dredge Mod Manager version {appVersion}
             </div>
