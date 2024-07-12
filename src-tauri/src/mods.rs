@@ -155,6 +155,18 @@ pub fn install_mod(database_name : String, repo : String, download : String, ass
     let mod_meta_path = format!("{}/mod_meta.json", &temp_dir);
     let mut mod_meta: ModInfo = load_mod_info(mod_meta_path.to_string())?;
 
+    // Ensure the name always matches what was on the database
+    if mod_meta.name != database_name {
+        // Save that name to the local mod_meta file
+        let mod_meta_text = std::fs::read_to_string(&mod_meta_path)?;
+        let current_line = format!("\"Name\": \"{}\"", &mod_meta.name);
+        let updated_line = format!("\"Name\": \"{}\"", &database_name);
+        let modified_mod_meta_text = mod_meta_text.replace(&current_line, &updated_line);
+        std::fs::write(mod_meta_path, modified_mod_meta_text)?;
+
+        mod_meta.name = database_name.clone();
+    }
+
     let destination = if mod_meta.mod_guid == "hacktix.winch" {
         dredge_folder
     } 
@@ -163,24 +175,6 @@ pub fn install_mod(database_name : String, repo : String, download : String, ass
     };
 
     copy_mod(temp_dir, destination.to_string())?;
-
-    // Ensure the name always matches what was on the database
-    mod_meta.name = database_name;
-
-    // scuffed: don't want to serialize the local path to file but need to serialize it when sending to front end
-    let path = mod_meta.local_path;
-    mod_meta.local_path = "".to_string();
-
-    let mod_meta_json = serde_json::to_string_pretty(&mod_meta)?;
-    // Serialize the corrected mod_meta file
-    std::fs::write(
-        format!("{}/mod_meta.json", destination),
-        mod_meta_json
-    )?;
-
-    // Set values that shouldn't be written to the file
-    mod_meta.local_asset_update_date = asset_update_date.to_string();
-    mod_meta.local_path = path;
 
     // Serialize the latest update date for later
     std::fs::write(
