@@ -118,7 +118,10 @@ export const Settings = (props: {path_correct?: boolean}) => {
             {pathWarning}
             {dredgeFolderButton}
             <br/>
-            {config ? configOptions : <span><i className="fa-solid fa-triangle-exclamation warning"></i> <i>Run DREDGE with the Winch modloader at least once to enable settings.</i></span>}
+            {config ? configOptions : <span>
+                <i className="fa-solid fa-triangle-exclamation warning"></i>
+                <i> Run DREDGE with the Winch modloader at least once to enable settings.</i>
+                </span>}
 
             <div className="flex-fill"></div>
 
