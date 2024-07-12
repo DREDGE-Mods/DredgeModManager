@@ -60,7 +60,7 @@ export const Settings = (props: {path_correct?: boolean}) => {
         context?.updateWinchConfig()
     }
 
-    const pathWarning = props.path_correct ? "" : <div className="warning">Invalid DREDGE path</div>
+    const pathWarning = props.path_correct ? "" : <div className="error">Invalid DREDGE path</div>
 
     const dredgeFolderButton = !props.path_correct ? "" : <>
         <div className="d-flex w-100 justify-content-end">
@@ -118,7 +118,7 @@ export const Settings = (props: {path_correct?: boolean}) => {
             {pathWarning}
             {dredgeFolderButton}
             <br/>
-            {config ? configOptions : ""}
+            {config ? configOptions : <span><i className="fa-solid fa-triangle-exclamation warning"></i> <i>Run DREDGE with the Winch modloader at least once to enable settings.</i></span>}
 
             <div className="flex-fill"></div>
 

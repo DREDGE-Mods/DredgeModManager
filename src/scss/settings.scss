@@ -33,7 +33,7 @@
             &:hover {
               color: $text-light-secondary;
             }
-          }
+        }
     }
 
     .setting {
@@ -82,7 +82,13 @@
         .warning {
             font-weight: 600;
             font-size: 1.2em;
-            color: $interact-red;
+            color: yellow;
+        }
+
+        .error {
+            font-weight: 600;
+            font-size: 1.2em;
+            color: red;
         }
     }
 }
