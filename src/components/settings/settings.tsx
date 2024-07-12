@@ -14,7 +14,16 @@ export const Settings = (props: {path_correct?: boolean}) => {
 
     const context = useContext(AppContext);
 
+    const [shouldCheckWinchConfig, setshouldCheckWinchConfig] = useState(true);
     const [path, setPath] = useState("");
+
+    // Opening the settings tab will try reloading everything: Checks if winch config has been setup by the modloader yet
+    useEffect(() => {
+        if (context.state.winchConfig == null && shouldCheckWinchConfig) {
+            context?.reloadMods()
+        }
+        setshouldCheckWinchConfig(false);
+    });
 
     // Fetch DREDGE path from context; only called once on load
     useEffect(() => {
@@ -109,7 +118,6 @@ export const Settings = (props: {path_correct?: boolean}) => {
                     onChange={(e) => {
                         const value = e.target.value;
                         setPath(value);
-
                     }}
                     value={path}
                 />
