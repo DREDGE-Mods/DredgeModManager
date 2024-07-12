@@ -24,10 +24,15 @@
         background: $bg-primary;
     }
 
-    .manager-github-link 
+    .settings-links
     {
         font-size: 30px;
+        i {
+            width: 32px;
+        }
         a {
+            margin-left: 4px;
+            margin-right: 4px;
             color: $text-light-primary;
             text-align: center;
             &:hover {

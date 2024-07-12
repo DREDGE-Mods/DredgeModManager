@@ -125,9 +125,15 @@ export const Settings = (props: {path_correct?: boolean}) => {
 
             <div className="flex-fill"></div>
 
-            <div className="manager-github-link">
+            <div className="settings-links">
+                <a href="https://dredgemods.com/" title="https://dredgemods.com/" target="_blank">
+                    <i className="fa-solid fa-globe"></i>
+                </a>
                 <a href="https://github.com/DREDGE-Mods/DredgeModManager" title="https://github.com/DREDGE-Mods/DredgeModManager" target="_blank">
                     <i className="fa-brands">&#xf09b;</i>
+                </a>
+                <a href="https://discord.gg/qFqPuTUAmD" title="DREDGE Modding Discord" target="_blank">
+                    <i className="fa-brands fa-discord"></i>
                 </a>
             </div>
             
