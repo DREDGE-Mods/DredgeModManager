@@ -8,13 +8,11 @@ import {ModsNotFound} from "./ModsNotFound";
 import {Search} from "./SearchField";
 import {SortDirection, SortField, SortType} from "./SortField";
 
-export const ModList = (props: {selected: string}) => {
+export const ModList = (props: {selected: string, searchQuery: string, setSearchQuery: (selected: string) => void,
+    sortField : SortType, setSortField: (selected : SortType) => void, 
+    sortDirection : SortDirection, setSortDirection: (selected : SortDirection) => void
+}) => {
     const context = useContext(AppContext)
-
-    const [searchQuery, setSearchQuery] = useState("");
-    const [sortField, setSortField] = useState<SortType>(SortType.DEFAULT);
-    const [sortDirection, setSortDirection] = useState<SortDirection>(SortDirection.ASCENDING);
-
     const defaultSortField = SortType.MOD_NAME;
 
     // https://legacy.reactjs.org/docs/hooks-faq.html#is-there-something-like-forceupdate
@@ -25,16 +23,6 @@ export const ModList = (props: {selected: string}) => {
     useEffect(() => {
         debouncedForceUpdate()
     }, [])
-
-    useEffect(() => {
-        setSearchQuery("");
-        setSortField(SortType.DEFAULT);
-        setSortDirection(SortDirection.DESCENDING);
-    }, [props.selected]);
-
-    useEffect(() => {
-        console.log(sortField, sortDirection)
-    }, [sortField, sortDirection]);
 
     const uninstallMod = (path: string) => {
         context!.uninstallMod(path)
@@ -68,7 +56,7 @@ export const ModList = (props: {selected: string}) => {
 
         query = query.toLowerCase();
 
-        if (searchQuery === "" || searchQuery === undefined) {
+        if (props.searchQuery === "" || props.searchQuery === undefined) {
             return mods;
         }
 
@@ -180,7 +168,7 @@ export const ModList = (props: {selected: string}) => {
         if (props.selected === "Installed") {
             // not keen on cyclic dependency of IEnabledStruct, but also want to avoid usage of 'any' in sortMod
             // so casting to exact same definition as IEnabledStruct to use
-            const filteredMods = filterSortMods(modList, searchQuery, sortField, sortDirection);
+            const filteredMods = filterSortMods(modList, props.searchQuery, props.sortField, props.sortDirection);
             installedList = filteredMods.map((mod) => {
                 return <InstalledMod
                     key={mod.ModGUID}
@@ -194,7 +182,7 @@ export const ModList = (props: {selected: string}) => {
         }
 
         if (props.selected === "Available") {
-            const filteredMods = filterSortMods(database!, searchQuery, sortField, sortDirection);
+            const filteredMods = filterSortMods(database!, props.searchQuery, props.sortField, props.sortDirection);
             availableList = filteredMods.map((mod) => {
                 if (!info!.has(mod.ModGUID)) {
                     return <AvailableMod
@@ -223,16 +211,16 @@ export const ModList = (props: {selected: string}) => {
             <ModsNotFound key={"mods-not-found"}
                           reload={debouncedForceUpdate}
                           installed={props.selected === "Installed"}
-                          query={searchQuery}
+                          query={props.searchQuery}
             />
         ]
     }
 
     return <>
         <div className={"mods-filter"}>
-            <Search defaultValue={searchQuery} updateValue={setSearchQuery} />
-            <SortField sortField={sortField} setSortField={setSortField}
-                       sortDirection={sortDirection} setSortDirection={setSortDirection} />
+            <Search defaultValue={props.searchQuery} updateValue={props.setSearchQuery} />
+            <SortField sortField={props.sortField} setSortField={props.setSortField}
+                       sortDirection={props.sortDirection} setSortDirection={props.setSortDirection} />
         </div>
         <div className="mods-list">
             {shownList}
