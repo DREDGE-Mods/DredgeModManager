@@ -176,11 +176,13 @@ export const AppProvider = (props: React.PropsWithChildren) => {
     }
 
     const updateWinchConfig = () => {
-        invoke("update_winch_config", {
-            "json": JSON.stringify(state.winchConfig, null, 2),
-            dredgePath: state.dredgePath})
-            .then(reloadMods)
-            .catch(genericHandleError);
+        if (state.winchConfig != null) {
+            invoke("update_winch_config", {
+                "json": JSON.stringify(state.winchConfig, null, 2),
+                dredgePath: state.dredgePath})
+                .then(reloadMods)
+                .catch(genericHandleError);
+        }
     }
 
     // fetch dredge path on mount

@@ -26,5 +26,12 @@ export const Search = (props: ISearchProps) => {
                onChange={(e) => {
             setText(e.currentTarget.value);
         }}/>
+        { text === "" ? "" :
+        <button className={"cancel"} onClick={() => {
+            setText("");
+        }}>
+            <i className={"fa-solid fa-x fa-xs"}></i>
+        </button>
+        }
     </label>
 }

@@ -14,7 +14,16 @@ export const Settings = (props: {path_correct?: boolean}) => {
 
     const context = useContext(AppContext);
 
+    const [shouldCheckWinchConfig, setshouldCheckWinchConfig] = useState(true);
     const [path, setPath] = useState("");
+
+    // Opening the settings tab will try reloading everything: Checks if winch config has been setup by the modloader yet
+    useEffect(() => {
+        if (context.state.winchConfig == null && shouldCheckWinchConfig) {
+            context?.reloadMods()
+        }
+        setshouldCheckWinchConfig(false);
+    });
 
     // Fetch DREDGE path from context; only called once on load
     useEffect(() => {
@@ -60,7 +69,7 @@ export const Settings = (props: {path_correct?: boolean}) => {
         context?.updateWinchConfig()
     }
 
-    const pathWarning = props.path_correct ? "" : <div className="warning">Invalid DREDGE path</div>
+    const pathWarning = props.path_correct ? "" : <div className="error">Invalid DREDGE path</div>
 
     const dredgeFolderButton = !props.path_correct ? "" : <>
         <div className="d-flex w-100 justify-content-end">
@@ -109,7 +118,6 @@ export const Settings = (props: {path_correct?: boolean}) => {
                     onChange={(e) => {
                         const value = e.target.value;
                         setPath(value);
-
                     }}
                     value={path}
                 />
@@ -118,10 +126,25 @@ export const Settings = (props: {path_correct?: boolean}) => {
             {pathWarning}
             {dredgeFolderButton}
             <br/>
-            {config ? configOptions : ""}
+            {config ? configOptions : <span>
+                <i className="fa-solid fa-triangle-exclamation warning"></i>
+                <i> Run DREDGE with the Winch modloader at least once to enable settings.</i>
+                </span>}
 
             <div className="flex-fill"></div>
 
+            <div className="settings-links">
+                <a href="https://dredgemods.com/" title="https://dredgemods.com/" target="_blank">
+                    <i className="fa-solid fa-globe"></i>
+                </a>
+                <a href="https://github.com/DREDGE-Mods/DredgeModManager" title="https://github.com/DREDGE-Mods/DredgeModManager" target="_blank">
+                    <i className="fa-brands">&#xf09b;</i>
+                </a>
+                <a href="https://discord.gg/qFqPuTUAmD" title="DREDGE Modding Discord" target="_blank">
+                    <i className="fa-brands fa-discord"></i>
+                </a>
+            </div>
+            
             <div>
                 Dredge Mod Manager version {appVersion}
             </div>

@@ -21,8 +21,9 @@ export const AvailableMod = (props: IModProps) => {
     const [ installed, setInstalled] = useState(false);
 
     let installText = "Install"
+    // It'll only show on the Available page as "installed" as its actively installing
     if (installed) {
-        installText = "Installed"
+        installText = "Installing..."
     }
 
     return <div className={"mods-available-box"}>
@@ -30,6 +31,13 @@ export const AvailableMod = (props: IModProps) => {
             <PrimaryDetails data={props.data}/>
             <Downloads data={props.data}/>
             <Version data={props.data}/>
+            <InteractButtons>
+                <button className="interact-button" onClick={() => {
+                    props.installMod!(props.data)
+                    setInstalled(true)
+                }}>{installText}
+                </button>
+            </InteractButtons>
             <PrimaryExpand data={props.data} swapExpand={swapExpanded} expanded={expanded}/>
         </PrimaryContainer>
         <PrimaryContainer>
@@ -38,13 +46,7 @@ export const AvailableMod = (props: IModProps) => {
 
         <SecondaryContainer expanded={expanded}>
             <SecondaryInteract>
-                <InteractButtons>
-                    <button className="interact-button" onClick={() => {
-                        props.installMod!(props.data)
-                        setInstalled(true)
-                    }}>{installText}
-                    </button>
-                </InteractButtons>
+                <div className="w-100"></div>
                 <InteractIcons data={props.data} />
             </SecondaryInteract>
         </SecondaryContainer>
