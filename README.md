@@ -11,6 +11,8 @@ A mod manager for Dredge mods using the Winch mod loader. Can download and insta
 
 To run you go `npm install` -> `npm run tauri dev`
 
+Be sure to install [prerequisites](https://tauri.app/v1/guides/getting-started/prerequisites/)
+
 Recommended IDE Setup:
 
 - [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
