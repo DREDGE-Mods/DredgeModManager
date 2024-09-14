@@ -8,6 +8,7 @@ on:
     - "LICENSE"
     - ".gitignore"
     - "*.yml"
+  workflow_dispatch:
 
 env:
   TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
