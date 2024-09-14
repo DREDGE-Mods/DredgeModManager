@@ -67,7 +67,7 @@ jobs:
         if: matrix.platform == 'ubuntu-20.04'
         run: |
           sudo apt-get update
-          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf
+          sudo apt-get install -y libgtk-3-dev libwebkit2gtk-4.0-dev libappindicator3-dev librsvg2-dev patchelf libjavascriptcoregtk-4.0-18=2.36.0-2ubuntu1
       - name: install frontend dependencies
         run: npm install 
       - uses: tauri-apps/tauri-action@v0
