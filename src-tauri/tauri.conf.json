@@ -41,7 +41,7 @@
         "icons/icon.ico"
       ],
       "identifier": "com.xen-42.dredge-mod-manager",
-      "targets": ["appimage", "msi", "nsis"],
+      "targets": ["appimage", "msi", "nsis", "deb"],
       "windows": {
         "certificateThumbprint": null,
         "digestAlgorithm": "sha256",
