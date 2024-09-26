@@ -141,6 +141,7 @@ fn copy_mod(source : String, destination : String) -> Result<(), Box<dyn std::er
     let dst = std::path::Path::new(&destination);
 
     println!("Copied from {} to {}", &source, &destination);
+    let _ = files::remove_dir(dst.join("Assets"));
     files::copy_dir_all(src, dst)?;
 
     Ok(())
