@@ -4,10 +4,10 @@ on:
   push:
     branches: [main]
     paths-ignore:
-    - "*.md"
-    - "LICENSE"
-    - ".gitignore"
-    - "*.yml"
+      - "*.md"
+      - "LICENSE"
+      - ".gitignore"
+      - "*.yml"
 
 env:
   TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
