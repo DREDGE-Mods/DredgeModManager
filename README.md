@@ -7,7 +7,13 @@ A mod manager for Dredge mods using the Winch mod loader. Can download and insta
 
 ![Mod manager screenshot](https://github.com/DREDGE-Mods/DredgeModManager/assets/22628069/8bf559b9-d952-4a9b-92c7-ad0d7fd282d8)
 
-## Development
+## Troubleshooting (for users)
+
+_**The manager prompted me to install a new update, but nothing changed!**_
+
+We're not sure why that happens some times, just uninstall the manager and reinstall it from here.
+
+## Development (for devs)
 
 To run you go `npm install` -> `npm run tauri dev`
 
@@ -32,5 +38,11 @@ The action will then create a draft release from that dev->main PR. Make sure to
 To [bdlm-dev](https://github.com/bdlm-dev) for redoing the front-end (twice). 
 
 To [Bwc9876](https://github.com/Bwc9876) for answering my questions about Tauri/rust/actions/everything.
+
+To [dasea/SeaKestrel](https://github.com/SeaKestrel) for Linux support.
+
+To [MegaPiggy](https://github.com/MegaPiggy) for maintenance.
+
+Originally made and maintained by [xen-42](https://github.com/xen-42).
 
 
