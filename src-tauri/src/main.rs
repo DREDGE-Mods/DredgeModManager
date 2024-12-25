@@ -229,20 +229,21 @@ fn write_enabled_mods(json : HashMap<String, bool>, enabled_mods_path : String) 
 
 #[tauri::command]
 fn start_game(dredge_path : String) -> Result<(), String> {
-    let isEpic = true;
-    let isWindows = cfg!(windows);
-    
-    if isEpic {
-        let arg = "com.epicgames.launcher://apps/8b454b47f5544fc6829cf0fed42ebae0%3Aeac6533129434f98a6b04a81cbcaf357%3A65c25644a2e0444d8766967a008b1d69?action=launch&silent=true";
-        match opener::open(arg) {
+    let is_windows = cfg!(windows);
+
+    if is_windows {
+        match Command::new(format!("{}/WinchLauncher.exe", dredge_path)).spawn() {
             Ok(_) => return Ok(()),
-            Err(_) => return Err("Failed to start DREDGE via the Epic Games Store".to_string())
-        }
+            // Fallback to just using the exe if it fails spectacularly 
+            Err(_) => match Command::new(format!("{}/DREDGE.exe", dredge_path)).spawn() {
+                Ok(_) => return Ok(()),
+                Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
+            }   
+        }   
     }
     else {
-        let path = format!("{}/DREDGE.exe", dredge_path);
-        let mut cmd = if isWindows { Command::new(path) } else { let mut cmd = Command::new("wine"); cmd.arg(path); cmd };
-        match cmd.spawn() {
+        // TODO: Make linux work with WinchLauncher
+        match Command::new("wine").args([format!("{}/DREDGE.exe", dredge_path)]).spawn() {
             Ok(_) => return Ok(()),
             Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
         }   
