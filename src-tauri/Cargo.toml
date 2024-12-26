@@ -1,6 +1,6 @@
 [package]
 name = "dredge_mod_manager"
-version = "0.1.3"
+version = "0.1.4"
 description = "Mod manager application for DREDGE"
 authors = ["xen-42"]
 license = "MIT"
@@ -22,6 +22,7 @@ reqwest = "0.11.18"
 tokio = "1.28.1"
 zip-extract = "0.1.2"
 open = "4.1.0"
+opener = "0.7.2"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

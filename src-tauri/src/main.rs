@@ -229,19 +229,24 @@ fn write_enabled_mods(json : HashMap<String, bool>, enabled_mods_path : String) 
 
 #[tauri::command]
 fn start_game(dredge_path : String) -> Result<(), String> {
-    if cfg!(windows) {
-        let exe = format!("{}/DREDGE.exe", dredge_path);
-        match Command::new(exe).spawn() {
+    let is_windows = cfg!(windows);
+
+    if is_windows {
+        match Command::new(format!("{}/WinchLauncher.exe", dredge_path)).spawn() {
             Ok(_) => return Ok(()),
-            Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
-        }
+            // Fallback to just using the exe if it fails spectacularly 
+            Err(_) => match Command::new(format!("{}/DREDGE.exe", dredge_path)).spawn() {
+                Ok(_) => return Ok(()),
+                Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
+            }   
+        }   
     }
     else {
-        //let exe = format!("wine {}/DREDGE.exe", dredge_path);
+        // TODO: Make linux work with WinchLauncher
         match Command::new("wine").args([format!("{}/DREDGE.exe", dredge_path)]).spawn() {
             Ok(_) => return Ok(()),
             Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
-        }
+        }   
     }
 }
 
