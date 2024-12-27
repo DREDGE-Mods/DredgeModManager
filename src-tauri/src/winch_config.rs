@@ -38,7 +38,10 @@ pub struct WinchConfig {
     pub max_log_files : i32,
 
     #[serde(default)]
-    pub log_port : String
+    pub log_port : String,
+
+    #[serde(default)]
+    pub run_exe : bool
 }
 
 pub fn load_winch_config(dredge_folder : String) -> Result<WinchConfig, String> {

@@ -1,7 +1,7 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
-use std::{collections::HashMap, path::PathBuf};
+use std::{collections::HashMap, path::PathBuf, path::Path};
 use std::fs;
 use std::process::Command;
 use serde::Serializer;
@@ -231,15 +231,29 @@ fn write_enabled_mods(json : HashMap<String, bool>, enabled_mods_path : String) 
 fn start_game(dredge_path : String) -> Result<(), String> {
     let is_windows = cfg!(windows);
 
+    let mut run_exe = false;
+    match winch_config::load_winch_config(dredge_path.to_string()) {
+        Ok(config) => run_exe = config.run_exe,
+        Err(_) => ()
+    };
+
     if is_windows {
-        match Command::new(format!("{}/WinchLauncher.exe", dredge_path)).spawn() {
-            Ok(_) => return Ok(()),
-            // Fallback to just using the exe if it fails spectacularly 
-            Err(_) => match Command::new(format!("{}/DREDGE.exe", dredge_path)).spawn() {
+        if Path::new(&format!("{}/WinchLauncher.exe", dredge_path)).exists() && !run_exe {
+            match Command::new(format!("{}/WinchLauncher.exe", dredge_path)).spawn() {
+                Ok(_) => return Ok(()),
+                // Fallback to just using the exe if it fails spectacularly 
+                Err(_) => match Command::new(format!("{}/DREDGE.exe", dredge_path)).spawn() {
+                    Ok(_) => return Ok(()),
+                    Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
+                }   
+            }   
+        }
+        else {
+            match Command::new(format!("{}/DREDGE.exe", dredge_path)).spawn() {
                 Ok(_) => return Ok(()),
                 Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
             }   
-        }   
+        }
     }
     else {
         // TODO: Make linux work with WinchLauncher

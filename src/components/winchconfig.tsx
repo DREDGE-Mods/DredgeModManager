@@ -14,5 +14,6 @@ export interface WinchConfig {
     DetailedLogSources : boolean,
     EnableDeveloperConsole : boolean,
     MaxLogFiles : number,
-    LogPort: string
+    LogPort: string,
+    RunExe : boolean
 }
