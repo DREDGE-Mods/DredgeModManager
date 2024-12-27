@@ -13,6 +13,10 @@ _**The manager prompted me to install a new update, but nothing changed!**_
 
 We're not sure why that happens some times, just uninstall the manager and reinstall it from here.
 
+_**The manager instantly closes when I try to launch it**_
+
+Did you at some point uninstall Microsft Edge from Windows? As a Tauri app, the Dredge Mod Manager uses Microsoft Edge Runtime2.
+
 ## Development (for devs)
 
 To run you go `npm install` -> `npm run tauri dev`
