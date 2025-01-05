@@ -81,7 +81,7 @@ export const Settings = (props: {path_correct?: boolean}) => {
 
     const config = context!.state.winchConfig;
 
-    const configOptions = <div className={"w-100 flex-column"}>
+    const configOptions = !props.path_correct ? "" : <div className={"w-100 flex-column"}>
         <h5 className="d-flex justify-content-center">
             Winch Modloader Settings
         </h5>
@@ -101,6 +101,10 @@ export const Settings = (props: {path_correct?: boolean}) => {
             <BooleanConfig id={"WriteLogsToConsole"}
                         label={"Write logs to console"}
                         checked={config?.WriteLogsToConsole ?? false}
+                        onUpdate={onConfigUpdate} />
+            <BooleanConfig id={"RunExe"}
+                        label={"Run the exe directly instead of via Steam/Epic (might be required for GOG)"}
+                        checked={config?.RunExe ?? false}
                         onUpdate={onConfigUpdate} />
         </div>
     </div>
@@ -126,10 +130,7 @@ export const Settings = (props: {path_correct?: boolean}) => {
             {pathWarning}
             {dredgeFolderButton}
             <br/>
-            {config ? configOptions : <span>
-                <i className="fa-solid fa-triangle-exclamation warning"></i>
-                <i> Run DREDGE with the Winch modloader at least once to enable settings.</i>
-                </span>}
+            {configOptions}
 
             <div className="flex-fill"></div>
 
