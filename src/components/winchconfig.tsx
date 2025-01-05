@@ -17,15 +17,3 @@ export interface WinchConfig {
     LogPort: string,
     RunExe : boolean
 }
-
-export class DefaultWinchConfig implements WinchConfig {
-    WriteLogsToFile: boolean = true;
-    WriteLogsToConsole: boolean = false;
-    LogLevel: LogLevel = LogLevel.DEBUG;
-    LogsFolder: string = "Logs";
-    DetailedLogSources: boolean = false;
-    EnableDeveloperConsole: boolean = true;
-    MaxLogFiles: number = 10;
-    LogPort: string = "";
-    RunExe: boolean = false;
-}

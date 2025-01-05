@@ -7,6 +7,7 @@ use std::process::Command;
 use serde::Serializer;
 use serde_json::Result as SerdeResult;
 use tauri::{Manager, PhysicalSize};
+use winch_config::{write_winch_config, WinchConfig};
 mod database;
 mod mods;
 mod files;
@@ -64,6 +65,33 @@ fn load_dredge_path() -> Result<String, String> {
         }
     };
     Ok(dredge_path)
+}
+
+#[tauri::command]
+fn make_default_winch_config(dredge_path : String) -> WinchConfig {
+    match winch_config::load_winch_config(dredge_path.to_string()) {
+        Ok(config) => return config,
+        Err(_) => {
+            let new_winch_config: WinchConfig = WinchConfig {
+                write_logs_to_file: true,
+                write_logs_to_console: false,
+                log_level: winch_config::LogLevel::DEBUG,
+                logs_folder: "Logs".to_string(),
+                detailed_log_sources: false,
+                enable_developer_console: true,
+                max_log_files: 10,
+                log_port: "".to_string(),
+                run_exe: false
+             };
+            match serde_json::to_string_pretty(&new_winch_config) {
+                Ok(json) => {
+                    let _ = winch_config::write_winch_config(json, dredge_path);
+                },
+                Err(_) => {}
+            };
+            return new_winch_config;
+        }
+    };
 }
 
 #[tauri::command]
@@ -178,6 +206,7 @@ fn dredge_path_changed(path: String) -> Result<(), String> {
 
     let folder: String = files::get_local_dir()?;
     let file: String = format!("{}/data.txt", folder);
+
     if !fs::metadata(&folder).is_ok() {
         match fs::create_dir_all(&folder) {
             Ok(_) => (),
@@ -192,7 +221,7 @@ fn dredge_path_changed(path: String) -> Result<(), String> {
 
     println!("DREDGE folder path saved to: {}", file);
 
-    Ok(())
+    return Ok(())
 }
 
 #[tauri::command]
@@ -318,7 +347,8 @@ fn main() {
             uninstall_mod,
             install_mod,
             open_dir,
-            update_winch_config
+            update_winch_config,
+            make_default_winch_config
             ])
         .setup(|app| {
                 let main_window: tauri::Window = app.get_window("main").unwrap();

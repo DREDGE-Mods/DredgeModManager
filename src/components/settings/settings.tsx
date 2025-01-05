@@ -81,7 +81,7 @@ export const Settings = (props: {path_correct?: boolean}) => {
 
     const config = context!.state.winchConfig;
 
-    const configOptions = <div className={"w-100 flex-column"}>
+    const configOptions = !props.path_correct ? "" : <div className={"w-100 flex-column"}>
         <h5 className="d-flex justify-content-center">
             Winch Modloader Settings
         </h5>
@@ -130,10 +130,7 @@ export const Settings = (props: {path_correct?: boolean}) => {
             {pathWarning}
             {dredgeFolderButton}
             <br/>
-            {config ? configOptions : <span>
-                <i className="fa-solid fa-triangle-exclamation warning"></i>
-                <i> Run DREDGE with the Winch modloader at least once to enable settings.</i>
-                </span>}
+            {configOptions}
 
             <div className="flex-fill"></div>
 

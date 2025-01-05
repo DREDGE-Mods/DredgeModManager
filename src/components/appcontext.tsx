@@ -5,6 +5,7 @@ import {genericHandleError} from "../util/genericHandleError";
 import {ModInfo} from "./modinfo";
 import {open} from "@tauri-apps/api/dialog";
 import {debounce} from "lodash";
+import { WinchConfig } from './winchconfig';
 
 interface IAppContextType { // see AppProvider for implementations, defaultContext for initialized defaults
     state: IAppState;
@@ -117,6 +118,22 @@ export const AppProvider = (props: React.PropsWithChildren) => {
                     }) :
                     alert(error.message);
             });
+
+            try{
+                if (state.winchConfig == undefined) {
+                    invoke("make_default_winch_config", { dredgePath : state.dredgePath }).then((winch_config) => {
+                        try{
+                            setState({...state, winchConfig: winch_config as WinchConfig})
+                        }
+                        catch (error) {
+                            console.error(error);
+                        }
+                    }).catch();
+                }
+            }
+            catch {
+                
+            }
         }
     }
 
