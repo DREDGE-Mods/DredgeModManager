@@ -221,7 +221,7 @@ fn dredge_path_changed(path: String) -> Result<(), String> {
 
     println!("DREDGE folder path saved to: {}", file);
 
-    return Ok(())
+    Ok(())
 }
 
 #[tauri::command]

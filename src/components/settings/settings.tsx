@@ -103,7 +103,7 @@ export const Settings = (props: {path_correct?: boolean}) => {
                         checked={config?.WriteLogsToConsole ?? false}
                         onUpdate={onConfigUpdate} />
             <BooleanConfig id={"RunExe"}
-                        label={"Run the exe directly (instead of launching through Steam/Epic)"}
+                        label={"Run the exe directly instead of via Steam/Epic (might be required for GOG)"}
                         checked={config?.RunExe ?? false}
                         onUpdate={onConfigUpdate} />
         </div>

@@ -100,13 +100,20 @@ export const AppProvider = (props: React.PropsWithChildren) => {
                     }
                 })
 
+                let winchConfig = fetch.winch_config;
+                if (winchConfig == undefined) {
+                    invoke("make_default_winch_config", { dredgePath : state.dredgePath }).then((winch_config) => {
+                        winchConfig = winch_config
+                    }).catch();
+                }
+
                 setState({...state,
                     enabledMods: fetch.enabled_mods,
                     database: fetch.database,
                     modInfos: new Map(Object.entries(fetch.mods)),
                     availableMods: fetch.database.map((mod : ModInfo) => mod.ModGUID).filter((modGUID: string) => !fetch.mods.hasOwnProperty(modGUID)),
                     winchInfo: fetch.winch_mod_info,
-                    winchConfig: fetch.winch_config,
+                    winchConfig: winchConfig,
                     pathCorrect: true
                 });
             }).catch((error: { error_code : string, message : string }) => {
@@ -118,22 +125,6 @@ export const AppProvider = (props: React.PropsWithChildren) => {
                     }) :
                     alert(error.message);
             });
-
-            try{
-                if (state.winchConfig == undefined) {
-                    invoke("make_default_winch_config", { dredgePath : state.dredgePath }).then((winch_config) => {
-                        try{
-                            setState({...state, winchConfig: winch_config as WinchConfig})
-                        }
-                        catch (error) {
-                            console.error(error);
-                        }
-                    }).catch();
-                }
-            }
-            catch {
-                
-            }
         }
     }
 
