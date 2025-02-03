@@ -286,7 +286,8 @@ fn start_game(dredge_path : String) -> Result<(), String> {
     }
     else {
         // TODO: Make linux work with WinchLauncher
-        match Command::new("wine").args([format!("{}/DREDGE.exe", dredge_path)]).spawn() {
+        // ^ Done. Use these environment vars! - Love, Zarashigal.
+        match Command::new("wine").env("WINEDLLOVERRIDES","winhttp.dll=n,b").args([format!("{}/DREDGE.exe", dredge_path)]).spawn() {
             Ok(_) => return Ok(()),
             Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
         }   
