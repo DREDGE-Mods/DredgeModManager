@@ -259,6 +259,7 @@ fn write_enabled_mods(json : HashMap<String, bool>, enabled_mods_path : String) 
 #[tauri::command]
 fn start_game(dredge_path : String) -> Result<(), String> {
     let is_windows = cfg!(windows);
+    let is_steam: bool = Path::new(&format!("{}/DREDGE_Data/Plugins/x86/steam_api.dll", dredge_path)).exists();
 
     let mut run_exe = false;
     match winch_config::load_winch_config(dredge_path.to_string()) {
@@ -284,13 +285,45 @@ fn start_game(dredge_path : String) -> Result<(), String> {
             }   
         }
     }
+
+    // Linux support by SeaKestrel and Zarashigal.
     else {
-        // TODO: Make linux work with WinchLauncher
-        // ^ Done. Use these environment vars! - Love, Zarashigal.
+
+        // If we're on linux and run steam... run it via proton!
+        
+        /* 
+            
+            TODO: There have been requests to add this feature for years now...
+            We should find a way to run the environment variables via this command.
+            Any ideas? Checks are already implemented, we just need a way to run the game now. - Zarashigal
+
+         */ 
+        
+        /*
+
+            if is_steam {
+                println!("DEBUG: Running on LINUX/STEAM.");
+                match Command::new("steam").env("WINEDLLOVERRIDES","winhttp.dll=n,b").args(["-applaunch", "1562430"]).spawn() {
+                    Ok(_) => return Ok(()),
+                    Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
+                } 
+            }
+
+            else {
+                println!("DEBUG: Running on LINUX/GOG.");
+                match Command::new("wine").env("WINEDLLOVERRIDES","winhttp.dll=n,b").args([format!("{}/DREDGE.exe", dredge_path)]).spawn() {
+                    Ok(_) => return Ok(()),
+                    Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
+                }
+            }
+        
+        */
+
         match Command::new("wine").env("WINEDLLOVERRIDES","winhttp.dll=n,b").args([format!("{}/DREDGE.exe", dredge_path)]).spawn() {
             Ok(_) => return Ok(()),
             Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
-        }   
+        }
+
     }
 }
 
