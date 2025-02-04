@@ -29,6 +29,8 @@ export const AvailableMod = (props: IModProps) => {
     return <div className={"mods-available-box"}>
         <PrimaryContainer>
             <PrimaryDetails data={props.data}/>
+            <Downloads data={props.data}/>
+            <Version data={props.data}/>
             <InteractButtons>
                 <button className="interact-button" onClick={() => {
                     props.installMod!(props.data)
@@ -36,8 +38,6 @@ export const AvailableMod = (props: IModProps) => {
                 }}>{installText}
                 </button>
             </InteractButtons>
-            <Downloads data={props.data}/>
-            <Version data={props.data}/>
             <PrimaryExpand data={props.data} swapExpand={swapExpanded} expanded={expanded}/>
         </PrimaryContainer>
         <PrimaryContainer>
