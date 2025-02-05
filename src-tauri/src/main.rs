@@ -261,7 +261,7 @@ fn write_enabled_mods(json : HashMap<String, bool>, enabled_mods_path : String) 
 }
 
 // Patch for steamdeck and steam-based dredge to load winhttp instead of builtin.
-fn patch_protonPFX(prefix: String) {
+fn patch_proton_pfx(prefix: String) {
 
     // Put prefix path here in case we ever need to change this!!
     let file_path = format!("{prefix}/user.reg");
@@ -291,7 +291,12 @@ fn patch_protonPFX(prefix: String) {
 #[tauri::command]
 fn start_game(dredge_path : String) -> Result<(), String> {
     let is_windows = cfg!(windows);
-    let is_steam: bool = Path::new(&format!("{}/DREDGE_Data/Plugins/x86/steam_api.dll", dredge_path)).exists();
+
+    let is_steamapi_present: bool = Path::new(&format!("{}/DREDGE_Data/Plugins/x86/steam_api.dll", dredge_path)).exists();
+    let is_eos_present: bool = Path::new(&format!("{}/DREDGE_Data/Plugins/x86/EOSSDK-Win32-Shipping.dll", dredge_path)).exists();
+    let is_gog: bool = Path::new(&format!("{}/goggame-1744110647.ico", dredge_path)).exists();
+
+    let is_steam = is_steamapi_present && !is_gog && !is_eos_present;
 
     let mut run_exe = false;
     match winch_config::load_winch_config(dredge_path.to_string()) {
@@ -331,7 +336,7 @@ fn start_game(dredge_path : String) -> Result<(), String> {
             let home_dir = env_home.to_str().unwrap();
 
             // Aaaand PATCHING TIME! Checks if patched, if not, put reg entry in! Yay!
-            patch_protonPFX(format!("{home_dir}/.local/share/Steam/steamapps/compatdata/1562430/pfx"));
+            patch_proton_pfx(format!("{home_dir}/.local/share/Steam/steamapps/compatdata/1562430/pfx"));
 
             // Afterwards, the user can cozily run dredge via steam!!
             match Command::new("steam").args(["-applaunch", "1562430"]).spawn() {
