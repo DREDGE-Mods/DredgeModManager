@@ -291,11 +291,9 @@ fn patch_proton_pfx(prefix: String) {
 #[tauri::command]
 fn start_game(dredge_path : String) -> Result<(), String> {
     let is_windows = cfg!(windows);
-
-    let is_steamapi_present: bool = Path::new(&format!("{}/DREDGE_Data/Plugins/x86/steam_api.dll", dredge_path)).exists();
-    let is_eos_present: bool = Path::new(&format!("{}/DREDGE_Data/Plugins/x86/EOSSDK-Win32-Shipping.dll", dredge_path)).exists();
-    let is_gog: bool = Path::new(&format!("{}/goggame-1744110647.ico", dredge_path)).exists();
-
+    let is_steamapi_present = Path::new(&format!("{}/DREDGE_Data/Plugins/x86/steam_api.dll", dredge_path)).exists();
+    let is_eos_present = Path::new(&format!("{}/DREDGE_Data/Plugins/x86/EOSSDK-Win32-Shipping.dll", dredge_path)).exists();
+    let is_gog = Path::new(&format!("{}/goggame-1744110647.ico", dredge_path)).exists();
     let is_steam = is_steamapi_present && !is_gog && !is_eos_present;
 
     let mut run_exe = false;
