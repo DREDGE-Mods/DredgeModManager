@@ -8,6 +8,10 @@ use serde::Serializer;
 use serde_json::Result as SerdeResult;
 use tauri::{Manager, PhysicalSize};
 use winch_config::{write_winch_config, WinchConfig};
+use std::fs::OpenOptions;
+use std::io::Write;
+use std::env;
+
 mod database;
 mod mods;
 mod files;
@@ -256,9 +260,41 @@ fn write_enabled_mods(json : HashMap<String, bool>, enabled_mods_path : String) 
     Ok(())
 }
 
+// Patch for steamdeck and steam-based dredge to load winhttp instead of builtin.
+fn patch_proton_pfx(prefix: String) {
+
+    // Put prefix path here in case we ever need to change this!!
+    let file_path = format!("{prefix}/user.reg");
+
+    // Try to read file.
+    let reg_content = fs::read_to_string(&file_path)
+        .expect("ERR_READFILE < ");
+
+    // Check if patch is already available inside the file.
+    let patch = "\n[Software\\\\Wine\\\\AppDefaults\\\\Dredge.exe\\\\DllOverrides] 1737608679\n#time=1db6d544e48baba\n\"winhttp\"=\"native,builtin\"";
+
+    // If it is not already patched, we do that!
+    if !reg_content.contains(patch) {
+
+        // Open file...
+        let mut reg_file = OpenOptions::new()
+        .append(true)
+        .open(file_path)
+        .expect("ERR_OPENFILE < ");
+        
+        // Write patch into reg file!!
+        reg_file.write(patch.as_bytes()).expect("ERR_APPENDFILE < ");
+    }
+
+}
+
 #[tauri::command]
 fn start_game(dredge_path : String) -> Result<(), String> {
     let is_windows = cfg!(windows);
+    let is_steamapi_present = Path::new(&format!("{}/DREDGE_Data/Plugins/x86/steam_api.dll", dredge_path)).exists();
+    let is_eos_present = Path::new(&format!("{}/DREDGE_Data/Plugins/x86/EOSSDK-Win32-Shipping.dll", dredge_path)).exists();
+    let is_gog = Path::new(&format!("{}/goggame-1744110647.ico", dredge_path)).exists();
+    let is_steam = is_steamapi_present && !is_gog && !is_eos_present;
 
     let mut run_exe = false;
     match winch_config::load_winch_config(dredge_path.to_string()) {
@@ -267,7 +303,7 @@ fn start_game(dredge_path : String) -> Result<(), String> {
     };
 
     if is_windows {
-        if Path::new(&format!("{}/WinchLauncher.exe", dredge_path)).exists() && !run_exe {
+        if Path::new(&format!("{}/WinchLauncher.exe", dredge_path)).exists() && !is_gog && !run_exe {
             match Command::new(format!("{}/WinchLauncher.exe", dredge_path)).spawn() {
                 Ok(_) => return Ok(()),
                 // Fallback to just using the exe if it fails spectacularly 
@@ -284,12 +320,36 @@ fn start_game(dredge_path : String) -> Result<(), String> {
             }   
         }
     }
+
+    // Linux support by SeaKestrel and Zarashigal.
     else {
-        // TODO: Make linux work with WinchLauncher
-        match Command::new("wine").args([format!("{}/DREDGE.exe", dredge_path)]).spawn() {
-            Ok(_) => return Ok(()),
-            Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
-        }   
+
+        // If we're on linux and run steam... run it via proton!
+
+        if is_steam {
+            println!("DEBUG: Running on LINUX/STEAM.");
+
+            // Get user's steam prefix...
+            let env_home = env::var_os("HOME").unwrap();
+            let home_dir = env_home.to_str().unwrap();
+
+            // Aaaand PATCHING TIME! Checks if patched, if not, put reg entry in! Yay!
+            patch_proton_pfx(format!("{home_dir}/.local/share/Steam/steamapps/compatdata/1562430/pfx"));
+
+            // Afterwards, the user can cozily run dredge via steam!!
+            match Command::new("steam").args(["-applaunch", "1562430"]).spawn() {
+                Ok(_) => return Ok(()),
+                Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
+            } 
+        }
+
+        else {
+            println!("DEBUG: Running on LINUX/GOG.");
+            match Command::new("wine").env("WINEDLLOVERRIDES","winhttp.dll=n,b").args([format!("{}/DREDGE.exe", dredge_path)]).spawn() {
+                Ok(_) => return Ok(()),
+                Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
+            }
+        }
     }
 }
 
