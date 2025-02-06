@@ -303,7 +303,7 @@ fn start_game(dredge_path : String) -> Result<(), String> {
     };
 
     if is_windows {
-        if Path::new(&format!("{}/WinchLauncher.exe", dredge_path)).exists() && !run_exe {
+        if Path::new(&format!("{}/WinchLauncher.exe", dredge_path)).exists() && !is_gog && !run_exe {
             match Command::new(format!("{}/WinchLauncher.exe", dredge_path)).spawn() {
                 Ok(_) => return Ok(()),
                 // Fallback to just using the exe if it fails spectacularly 
