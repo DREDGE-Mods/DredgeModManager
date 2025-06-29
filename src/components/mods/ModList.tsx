@@ -143,6 +143,7 @@ export const ModList = (props: {selected: string, searchQuery: string, setSearch
 
     let availableList = new Array<React.ReactNode>()
     let installedList = new Array<React.ReactNode>()
+    let modLoaderList = new Array<React.ReactNode>()
 
     const app = context!.state
 
@@ -192,17 +193,34 @@ export const ModList = (props: {selected: string, searchQuery: string, setSearch
                 } return
             }).filter(x => x) // remove null
         }
+
+        if (modList.findIndex(mod => mod.ModGUID == "hacktix.winch") == -1) {
+            const filteredMods = filterSortMods(database!, props.searchQuery, props.sortField, props.sortDirection);
+            modLoaderList = filteredMods.map((mod) => {
+                if (!info!.has(mod.ModGUID) && mod.ModGUID == "hacktix.winch") {
+                    return <AvailableMod
+                        key={mod.ModGUID}
+                        data={mod}
+                        installMod={installMod}/>
+                } return
+            }).filter(x => x) // remove null
+        }
     }
 
     let shownList = availableList
 
-    if (props.selected === "Installed") {
-        // #6 Prompt user to install Winch if it is not installed
-        if (modList.findIndex(mod => mod.ModGUID == "hacktix.winch") == -1) {
-            return <div className="mods-not-found">
-                    All mods require the Winch modloader to be installed. Download it in the "Available" tab.
+    // #6 Prompt user to install Winch if it is not installed
+    if (modList.findIndex(mod => mod.ModGUID == "hacktix.winch") == -1) {
+        return <div className="center">
+                <div className="mods-not-found">
+                    <h3 className="warning">All mods require the Winch modloader to be installed!</h3>
+                    <h2 className="warning">Install it now!</h2>
+                    {modLoaderList}
                 </div>
-        }
+            </div>
+    }
+
+    if (props.selected === "Installed") {
         shownList = installedList;
     }
 
