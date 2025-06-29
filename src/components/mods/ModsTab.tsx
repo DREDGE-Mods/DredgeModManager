@@ -5,11 +5,12 @@ import React from "react";
 interface IModsTabProps {
     selected: string,
     children: string,
+    hide?: boolean,
     setSelected: (selected: string) => void
 }
 
 export const ModsTab = (props: IModsTabProps) => {
-    return <button id={`mods${props.children}`}
+    return props.hide ? <div></div> : <button id={`mods${props.children}`}
                    className={props.selected === props.children ? "selected" : ""}
                    onClick={() => {props.setSelected(props.children)}}>
         <label>{props.children}</label>

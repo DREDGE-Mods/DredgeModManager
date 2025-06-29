@@ -86,14 +86,31 @@
 
         .warning {
             font-weight: 600;
-            font-size: 1.2em;
             color: yellow;
         }
 
         .error {
             font-weight: 600;
-            font-size: 1.2em;
             color: red;
         }
     }
+}
+
+.warning {
+    font-weight: 600;
+    color: yellow;
+}
+
+.error {
+    font-weight: 600;
+    color: red;
+}
+
+.center {
+    margin: auto;
+    text-align: center;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+    height: 100%;
 }
