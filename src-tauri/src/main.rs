@@ -329,18 +329,14 @@ fn start_game(dredge_path : String) -> Result<(), String> {
         if is_steam {
             println!("DEBUG: Running on LINUX/STEAM.");
 
-            // Get user's steam prefix...
-            let env_home = env::var_os("HOME").unwrap();
-            let home_dir = env_home.to_str().unwrap();
-
             // Aaaand PATCHING TIME! Checks if patched, if not, put reg entry in! Yay!
-            patch_proton_pfx(format!("{home_dir}/.local/share/Steam/steamapps/compatdata/1562430/pfx"));
+            patch_proton_pfx(format!("{dredge_path}/../../compatdata/1562430/pfx"));
 
             // Afterwards, the user can cozily run dredge via steam!!
             match Command::new("steam").args(["-applaunch", "1562430"]).spawn() {
                 Ok(_) => return Ok(()),
                 Err(_) => return Err("Failed to start DREDGE.exe. Is the game directory correct?".to_string())
-            } 
+            }
         }
 
         else {
