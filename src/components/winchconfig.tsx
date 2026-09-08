@@ -2,6 +2,7 @@ export enum LogLevel {
     UNITY,
     DEBUG,
     INFO,
+    SUCCESS,
     WARN,
     ERROR
 }
