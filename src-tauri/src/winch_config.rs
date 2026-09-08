@@ -9,6 +9,7 @@ pub enum LogLevel {
     DEBUG,
     #[default]
     INFO,
+    SUCCESS,
     WARN,
     ERROR
 }
